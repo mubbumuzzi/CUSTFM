@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MapPin, Phone, Package, Search, Mic, ChevronDown, Navigation, RefreshCw } from "lucide-react";
 import LocationModal from "./LocationModal";
-import { detectGpsLocation, getStoredLocation, GpsLocationData } from "@/lib/gps";
+import { detectGpsLocation, getStoredLocation, getEtaForDistance, GpsLocationData } from "@/lib/gps";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -152,7 +152,7 @@ export default function Header({ onSearch }: HeaderProps) {
                     {isDetecting ? (
                       "Acquiring position..."
                     ) : distance !== null ? (
-                      `${distance} km • ${distance <= 5.0 ? "45 min doorstep" : "Shop Visit"}`
+                      `${distance} km • ${distance > 5.0 ? "Shop Visit Only" : `${getEtaForDistance(distance)} doorstep`}`
                     ) : (
                       "Click to set location"
                     )}
@@ -254,7 +254,7 @@ export default function Header({ onSearch }: HeaderProps) {
                   {isDetecting ? (
                     "Acquiring position..."
                   ) : distance !== null ? (
-                    `${distance} km • ${distance <= 5.0 ? "45 min doorstep" : "Shop Visit"}`
+                    `${distance} km • ${distance > 5.0 ? "Shop Visit Only" : `${getEtaForDistance(distance)} doorstep`}`
                   ) : (
                     "Tap to set location"
                   )}

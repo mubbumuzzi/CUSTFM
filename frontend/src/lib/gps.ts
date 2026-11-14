@@ -40,11 +40,11 @@ export function getEtaForDistance(distanceKm: number): string {
   if (distanceKm > MAX_RADIUS_KM) {
     return "Shop Visit Only";
   }
-  if (distanceKm <= 1.5) {
-    return "30 mins";
+  if (distanceKm <= 1.0) {
+    return "25-30 mins";
   }
-  if (distanceKm <= 3.5) {
-    return "45 mins";
+  if (distanceKm <= 2.5) {
+    return "30-45 mins";
   }
   return "45-60 mins";
 }
