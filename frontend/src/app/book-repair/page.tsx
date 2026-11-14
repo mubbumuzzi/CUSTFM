@@ -14,7 +14,7 @@ function BookRepairForm() {
   const [brandModel, setBrandModel] = useState("");
   const [repairCategory, setRepairCategory] = useState("Display Replacement");
   const [issueDescription, setIssueDescription] = useState("");
-  const [address, setAddress] = useState("Lanco Hills, Manikonda, Hyderabad");
+  const [address, setAddress] = useState("");
   const [preferredTime, setPreferredTime] = useState("Earliest Available (~45 mins)");
   const [errorMsg, setErrorMsg] = useState("");
   const [submitting, setSubmitting] = useState(false);

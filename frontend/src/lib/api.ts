@@ -1,4 +1,10 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+const getBaseUrl = (): string => {
+  if (typeof window !== "undefined") {
+    // In browser, relative URL /api routes directly through Nginx on current host & port
+    return "/api";
+  }
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+};
 
 export interface BookingPayload {
   mobileNumber: string;
@@ -39,10 +45,10 @@ export interface BookingStatusData {
   address: string;
   visitCharge: number;
   firstVisitFree: boolean;
-  technicianName: string;
-  technicianPhone: string;
-  etaMinutes: string;
-  quoteAmount: number;
+  technicianName?: string | null;
+  technicianPhone?: string | null;
+  etaMinutes?: string | null;
+  quoteAmount?: number | null;
   quoteApproved: boolean;
   stages: {
     index: number;
@@ -56,13 +62,19 @@ export interface BookingStatusData {
 
 export async function submitBookingEnquiry(payload: BookingPayload): Promise<BookingResponseData> {
   try {
-    const res = await fetch(`${API_BASE_URL}/public/bookings`, {
+    const res = await fetch(`${getBaseUrl()}/public/bookings`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
     if (res.ok) {
-      return await res.json();
+      const data: BookingResponseData = await res.json();
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`fm_booking_${data.bookingId}`, JSON.stringify(data));
+        localStorage.setItem("fm_latest_booking_id", data.bookingId);
+        localStorage.setItem("fm_latest_mobile", payload.mobileNumber);
+      }
+      return data;
     }
   } catch (err) {
     console.warn("Backend unavailable, using local client fallback:", err);
@@ -76,29 +88,53 @@ export async function submitBookingEnquiry(payload: BookingPayload): Promise<Boo
     status: "NEW_ENQUIRY",
     displayStatus: "New Enquiry Logged",
     mobileNumber: payload.mobileNumber,
-    customerName: payload.customerName || "Valued Customer",
+    customerName: payload.customerName || "Customer",
     brandModel: payload.brandModel || "Smartphone",
     repairCategory: payload.repairCategory || "Display Replacement",
     address: payload.address || "Manikonda, Hyderabad",
     visitCharge: 0,
     firstVisitFree: true,
-    confirmationMessage: "Enquiry logged successfully. Famous Mobiles Manikonda support team will contact you in ~10 mins.",
+    confirmationMessage: "Enquiry logged successfully. Famous Mobiles Manikonda support team will contact you shortly.",
     timestamp: new Date().toISOString(),
   };
 
   if (typeof window !== "undefined") {
     localStorage.setItem(`fm_booking_${bookingId}`, JSON.stringify(responseData));
     localStorage.setItem("fm_latest_booking_id", bookingId);
+    localStorage.setItem("fm_latest_mobile", payload.mobileNumber);
   }
 
   return responseData;
 }
 
-export async function fetchBookingStatus(bookingId: string, mobile?: string): Promise<BookingStatusData | null> {
+export async function sendOtpApi(mobileNumber: string): Promise<{ success: boolean; message: string; demoOtp?: string }> {
   try {
-    const url = new URL(`${API_BASE_URL}/public/bookings/${bookingId}/status`);
-    if (mobile) url.searchParams.append("mobile", mobile);
-    const res = await fetch(url.toString());
+    const res = await fetch(`${getBaseUrl()}/auth/send-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mobileNumber }),
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn("Auth service offline, using mock OTP response:", err);
+  }
+  return {
+    success: true,
+    message: `OTP sent successfully to +91 ${mobileNumber}`,
+    demoOtp: "1234",
+  };
+}
+
+export async function fetchBookingStatus(bookingId: string, mobile?: string): Promise<BookingStatusData | null> {
+  const cleanId = bookingId.trim().toUpperCase();
+  try {
+    let url = `${getBaseUrl()}/public/bookings/${cleanId}/status`;
+    if (mobile) {
+      url += `?mobile=${encodeURIComponent(mobile)}`;
+    }
+    const res = await fetch(url);
     if (res.ok) {
       return await res.json();
     }
@@ -106,7 +142,19 @@ export async function fetchBookingStatus(bookingId: string, mobile?: string): Pr
     console.warn("Backend unavailable, checking local storage for status:", err);
   }
 
-  // PRD 11 Stages Fallback
+  // Local storage check or default fallback
+  let localData: Partial<BookingResponseData> = {};
+  if (typeof window !== "undefined") {
+    const stored = localStorage.getItem(`fm_booking_${cleanId}`);
+    if (stored) {
+      try {
+        localData = JSON.parse(stored);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }
+
   const PRD_STAGES = [
     "New Enquiry Logged",
     "Customer Contacted",
@@ -121,25 +169,25 @@ export async function fetchBookingStatus(bookingId: string, mobile?: string): Pr
     "Completed & Closed",
   ];
 
-  const activeIndex = 5; // "Technician On The Way" for rich demo preview
+  const activeIndex = 0; // Starts at Stage 0: "New Enquiry Logged" for real customers
 
   return {
-    bookingId,
-    statusCode: "TECHNICIAN_ON_THE_WAY",
-    statusLabel: "Technician On The Way",
+    bookingId: cleanId,
+    statusCode: "NEW_ENQUIRY",
+    statusLabel: "New Enquiry Logged",
     currentStageIndex: activeIndex,
     totalStages: 11,
-    customerName: "Mohammed",
-    mobileNumber: mobile || "9876543210",
-    brandModel: "iPhone 14",
-    repairCategory: "Display Replacement",
-    address: "Lanco Hills, Manikonda, Hyderabad",
-    visitCharge: 0,
-    firstVisitFree: true,
-    technicianName: "Ramesh K. (4.9 ★)",
-    technicianPhone: "+91 90637 86751",
-    etaMinutes: "18 mins",
-    quoteAmount: 3499,
+    customerName: localData.customerName || "Customer",
+    mobileNumber: mobile || localData.mobileNumber || "",
+    brandModel: localData.brandModel || "Smartphone",
+    repairCategory: localData.repairCategory || "General Diagnosis",
+    address: localData.address || "Manikonda, Hyderabad",
+    visitCharge: localData.visitCharge ?? 0,
+    firstVisitFree: localData.firstVisitFree ?? true,
+    technicianName: null,
+    technicianPhone: null,
+    etaMinutes: "Dispatching (~45 mins)",
+    quoteAmount: null,
     quoteApproved: false,
     stages: PRD_STAGES.map((name, i) => ({
       index: i,
@@ -147,14 +195,15 @@ export async function fetchBookingStatus(bookingId: string, mobile?: string): Pr
       completed: i < activeIndex,
       active: i === activeIndex,
     })),
-    createdAt: new Date().toISOString(),
+    createdAt: localData.timestamp || new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
 }
 
 export async function approveBookingQuote(bookingId: string): Promise<boolean> {
+  const cleanId = bookingId.trim().toUpperCase();
   try {
-    const res = await fetch(`${API_BASE_URL}/public/bookings/${bookingId}/approve-quote`, {
+    const res = await fetch(`${getBaseUrl()}/public/bookings/${cleanId}/approve-quote`, {
       method: "POST",
     });
     return res.ok;

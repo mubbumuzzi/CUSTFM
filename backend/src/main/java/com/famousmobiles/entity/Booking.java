@@ -59,13 +59,13 @@ public class Booking {
     private boolean quoteApproved = false;
 
     @Column(length = 100)
-    private String technicianName = "Ramesh K.";
+    private String technicianName;
 
     @Column(length = 20)
-    private String technicianPhone = "+91 90637 86751";
+    private String technicianPhone;
 
     @Column(length = 50)
-    private String etaMinutes = "18 mins";
+    private String etaMinutes;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

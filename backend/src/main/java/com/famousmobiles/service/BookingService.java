@@ -71,10 +71,10 @@ public class BookingService {
         booking.setStatus(BookingStatus.NEW_ENQUIRY);
         booking.setFirstVisitFree(isEligibleForFreeVisit);
         booking.setVisitCharge(visitCharge);
-        booking.setQuoteAmount(new BigDecimal("3499.00")); // Sample default OLED / service quote
-        booking.setTechnicianName("Ramesh K. (4.9 ★)");
-        booking.setTechnicianPhone("+91 90637 86751");
-        booking.setEtaMinutes("18 mins");
+        booking.setQuoteAmount(null);
+        booking.setTechnicianName(null);
+        booking.setTechnicianPhone(null);
+        booking.setEtaMinutes("Dispatching (~45 mins)");
 
         bookingRepository.save(booking);
 

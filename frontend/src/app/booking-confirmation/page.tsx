@@ -7,7 +7,7 @@ import { CheckCircle2, Copy, Check, Package, MessageSquare, ArrowLeft, Clock, Sh
 
 function BookingConfirmationContent() {
   const searchParams = useSearchParams();
-  const bookingId = searchParams.get("id") || "FM-2026-9812";
+  const [bookingId, setBookingId] = useState(searchParams.get("id") || "");
 
   const [copied, setCopied] = useState(false);
   const [bookingData, setBookingData] = useState<{
@@ -20,17 +20,24 @@ function BookingConfirmationContent() {
   } | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem(`fm_booking_${bookingId}`);
-      if (stored) {
-        try {
-          setBookingData(JSON.parse(stored));
-        } catch (e) {
-          console.error(e);
+    let id = searchParams.get("id");
+    if (!id && typeof window !== "undefined") {
+      id = localStorage.getItem("fm_latest_booking_id");
+    }
+    if (id) {
+      setBookingId(id);
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem(`fm_booking_${id}`);
+        if (stored) {
+          try {
+            setBookingData(JSON.parse(stored));
+          } catch (e) {
+            console.error(e);
+          }
         }
       }
     }
-  }, [bookingId]);
+  }, [searchParams]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(bookingId);

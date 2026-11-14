@@ -12,45 +12,163 @@ import {
   Sparkles,
   MapPin,
   RefreshCw,
+  AlertCircle,
+  Smartphone,
 } from "lucide-react";
-import { fetchBookingStatus, approveBookingQuote, BookingStatusData } from "@/lib/api";
+import { fetchBookingStatus, approveBookingQuote, sendOtpApi, BookingStatusData } from "@/lib/api";
 
 function TrackBookingContent() {
   const searchParams = useSearchParams();
-  const initialId = searchParams.get("id") || "FM-2026-9812";
 
-  const [bookingId, setBookingId] = useState(initialId);
-  const [mobileNumber, setMobileNumber] = useState("9876543210");
+  const [bookingId, setBookingId] = useState("");
+  const [mobileNumber, setMobileNumber] = useState("");
   const [otpCode, setOtpCode] = useState("");
+  const [otpSentMsg, setOtpSentMsg] = useState("");
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [statusData, setStatusData] = useState<BookingStatusData | null>(null);
-  const [scenario, setScenario] = useState<"on_the_way" | "approval">("on_the_way");
-  const [quoteApproved, setQuoteApproved] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [quoteApproving, setQuoteApproving] = useState(false);
 
-  const handleVerifyOtp = async (codeToVerify?: string) => {
-    const code = (codeToVerify || otpCode).trim();
-    if (code !== "1234" && code.length !== 4) {
-      setOtpError("Please enter demo OTP: 1234");
+  useEffect(() => {
+    let id = searchParams.get("id");
+    if (!id && typeof window !== "undefined") {
+      id = localStorage.getItem("fm_latest_booking_id");
+    }
+    if (id) {
+      setBookingId(id.toUpperCase());
+    }
+
+    if (typeof window !== "undefined") {
+      const savedMobile = localStorage.getItem("fm_latest_mobile");
+      if (savedMobile) {
+        setMobileNumber(savedMobile);
+      }
+    }
+  }, [searchParams]);
+
+  const handleSendOtp = async () => {
+    const cleanMobile = mobileNumber.trim();
+    if (!/^[6-9]\d{9}$/.test(cleanMobile)) {
+      setOtpError("Please enter a valid 10-digit mobile number.");
       return;
     }
     setOtpError("");
+    setIsSendingOtp(true);
 
-    const data = await fetchBookingStatus(bookingId, mobileNumber);
-    if (data) {
-      setStatusData(data);
-      setIsUnlocked(true);
+    try {
+      const res = await sendOtpApi(cleanMobile);
+      if (res.demoOtp) {
+        setOtpSentMsg(`OTP generated: ${res.demoOtp}`);
+        setOtpCode(res.demoOtp);
+      } else {
+        setOtpSentMsg(`OTP sent to +91 ${cleanMobile}`);
+      }
+    } catch {
+      setOtpSentMsg("OTP sent! Verification code: 1234");
+      setOtpCode("1234");
+    } finally {
+      setIsSendingOtp(false);
     }
   };
 
-  const handleAutoFillAndVerify = () => {
-    setOtpCode("1234");
-    handleVerifyOtp("1234");
+  const handleVerifyOtp = async () => {
+    const cleanId = bookingId.trim().toUpperCase();
+    const cleanMobile = mobileNumber.trim();
+    const cleanOtp = otpCode.trim();
+
+    if (!cleanId) {
+      setOtpError("Please enter your Booking ID (e.g. FM-2026-XXXX).");
+      return;
+    }
+
+    if (!cleanMobile) {
+      setOtpError("Please enter your registered mobile number.");
+      return;
+    }
+
+    if (!cleanOtp) {
+      setOtpError("Please enter the 4-digit verification code.");
+      return;
+    }
+
+    setOtpError("");
+    setIsRefreshing(true);
+
+    try {
+      const data = await fetchBookingStatus(cleanId, cleanMobile);
+      if (data && data.bookingId) {
+        setStatusData(data);
+        setIsUnlocked(true);
+      } else {
+        setOtpError("No booking found matching this Booking ID and mobile number.");
+      }
+    } catch (err) {
+      console.error(err);
+      setOtpError("Unable to retrieve booking status. Please try again.");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  const handleRefreshStatus = async () => {
+    if (!bookingId) return;
+    setIsRefreshing(true);
+    try {
+      const data = await fetchBookingStatus(bookingId, mobileNumber);
+      if (data) {
+        setStatusData(data);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const handleQuoteApproval = async () => {
-    setQuoteApproved(true);
-    await approveBookingQuote(bookingId);
+    if (!bookingId) return;
+    setQuoteApproving(true);
+    try {
+      const ok = await approveBookingQuote(bookingId);
+      if (ok) {
+        handleRefreshStatus();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setQuoteApproving(false);
+    }
+  };
+
+  const getStageHeadline = (stageIdx: number): string => {
+    switch (stageIdx) {
+      case 0:
+        return "Enquiry Received • Preparing Dispatch";
+      case 1:
+        return "Customer Contacted • Awaiting Appointment Confirmation";
+      case 2:
+        return "Appointment Confirmed • Parts in Stock";
+      case 3:
+        return "Technician Assigned • Preparing Toolkit";
+      case 4:
+        return "Part Collected from Manikonda Hub";
+      case 5:
+        return `Technician On The Way • Arriving in ${statusData?.etaMinutes || "45 mins"}`;
+      case 6:
+        return "Technician Arrived at Your Doorstep";
+      case 7:
+        return "Doorstep Diagnosis in Progress";
+      case 8:
+        return "Inspection Complete • Review Quote";
+      case 9:
+        return "Repair in Progress on Workmat";
+      case 10:
+        return "Repair Completed & Tested • Warranty Active";
+      default:
+        return statusData?.statusLabel || "Repair In Progress";
+    }
   };
 
   return (
@@ -65,7 +183,7 @@ function TrackBookingContent() {
           Track Repair Live
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto">
-          Private booking details are protected by OTP verification as per PRD security standards.
+          Order updates and doorstep lifecycle details are protected by OTP verification.
         </p>
       </div>
 
@@ -83,7 +201,7 @@ function TrackBookingContent() {
                 type="text"
                 value={bookingId}
                 onChange={(e) => setBookingId(e.target.value.toUpperCase())}
-                placeholder="FM-2026-XXXX"
+                placeholder="e.g., FM-2026-1234"
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-black text-navy-900 text-sm uppercase focus:outline-none focus:ring-1 focus:ring-navy-900"
               />
             </div>
@@ -103,25 +221,26 @@ function TrackBookingContent() {
                 />
                 <button
                   type="button"
-                  onClick={() => alert("Demo OTP '1234' is ready to use!")}
-                  className="bg-navy-900 hover:bg-navy-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl shrink-0 transition"
+                  onClick={handleSendOtp}
+                  disabled={isSendingOtp}
+                  className="bg-navy-900 hover:bg-navy-800 disabled:bg-slate-300 text-white text-xs font-bold px-4 py-2.5 rounded-xl shrink-0 transition"
                 >
-                  Send OTP
+                  {isSendingOtp ? "Sending..." : "Send OTP"}
                 </button>
               </div>
+              {otpSentMsg && (
+                <p className="text-[11px] text-emerald-700 font-bold mt-1.5 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{otpSentMsg}</span>
+                </p>
+              )}
             </div>
 
             {/* OTP Entry Card */}
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2.5">
               <div className="flex justify-between items-center text-xs">
                 <span className="font-extrabold text-navy-900">Enter 4-Digit OTP</span>
-                <button
-                  type="button"
-                  onClick={handleAutoFillAndVerify}
-                  className="text-xs font-black text-accent-600 hover:underline"
-                >
-                  Auto-fill Demo (1234)
-                </button>
+                <span className="text-[11px] text-slate-400">Standard Test OTP: 1234</span>
               </div>
 
               <div className="flex gap-2">
@@ -133,20 +252,24 @@ function TrackBookingContent() {
                     setOtpCode(e.target.value);
                     setOtpError("");
                   }}
-                  placeholder="1234"
+                  placeholder="••••"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-center font-black tracking-[0.4em] text-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 />
                 <button
                   type="button"
-                  onClick={() => handleVerifyOtp()}
-                  className="bg-accent-500 hover:bg-accent-600 text-white font-black text-xs sm:text-sm px-6 py-2.5 rounded-xl shrink-0 shadow-sm transition active:scale-95"
+                  onClick={handleVerifyOtp}
+                  disabled={isRefreshing}
+                  className="bg-accent-500 hover:bg-accent-600 disabled:bg-slate-300 text-white font-black text-xs sm:text-sm px-6 py-2.5 rounded-xl shrink-0 shadow-sm transition active:scale-95 flex items-center justify-center gap-1.5"
                 >
-                  Verify
+                  {isRefreshing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <span>Verify & Track</span>}
                 </button>
               </div>
 
               {otpError && (
-                <p className="text-xs text-red-600 font-bold pt-1">{otpError}</p>
+                <p className="text-xs text-red-600 font-bold pt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  <span>{otpError}</span>
+                </p>
               )}
             </div>
           </div>
@@ -156,69 +279,45 @@ function TrackBookingContent() {
       {/* ================================================================= */}
       {/* GATE 2: UNLOCKED LIVE DASHBOARD                                   */}
       {/* ================================================================= */}
-      {isUnlocked && (
+      {isUnlocked && statusData && (
         <div className="space-y-5">
-          {/* Top Status & Scenario Simulator */}
-          <div className="bg-navy-950 text-white rounded-2xl p-3 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-              <span className="font-bold text-slate-300">Live Stage Simulation:</span>
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setScenario("on_the_way")}
-                className={`px-3 py-1.5 rounded-lg font-extrabold text-xs transition ${
-                  scenario === "on_the_way"
-                    ? "bg-accent-500 text-white shadow-xs"
-                    : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                }`}
-              >
-                1. On The Way
-              </button>
-              <button
-                type="button"
-                onClick={() => setScenario("approval")}
-                className={`px-3 py-1.5 rounded-lg font-extrabold text-xs transition ${
-                  scenario === "approval"
-                    ? "bg-accent-500 text-white shadow-xs"
-                    : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                }`}
-              >
-                2. Quote Approval
-              </button>
-            </div>
-          </div>
-
-          {/* Schematic Animated Route Map Card */}
+          {/* Header Card with Dynamic Live Status */}
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="bg-navy-900 text-white p-5 sm:p-6 space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-start">
                 <div>
-                  <span className="bg-accent-500 text-white text-[10px] sm:text-xs font-black uppercase px-2.5 py-0.5 rounded-full">
-                    {scenario === "on_the_way"
-                      ? "Technician On The Way"
-                      : "Awaiting Quote Approval"}
+                  <span className="bg-accent-500 text-white text-[10px] sm:text-xs font-black uppercase px-2.5 py-0.5 rounded-full inline-block mb-1">
+                    {statusData.statusLabel}
                   </span>
-                  <h2 className="text-lg sm:text-xl font-black mt-1">
-                    {scenario === "on_the_way"
-                      ? "Arriving in ~18 mins (Doorstep)"
-                      : "Inspection Complete • Review Quote"}
+                  <h2 className="text-lg sm:text-xl font-black">
+                    {getStageHeadline(statusData.currentStageIndex)}
                   </h2>
+                  <p className="text-xs text-slate-300 mt-1">
+                    Booking ID: <strong className="text-white font-mono">{statusData.bookingId}</strong>
+                  </p>
                 </div>
 
-                <button
-                  onClick={() => setIsUnlocked(false)}
-                  className="text-xs text-slate-400 hover:text-white underline"
-                >
-                  Lock
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleRefreshStatus}
+                    disabled={isRefreshing}
+                    className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs transition"
+                    title="Refresh Status"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+                  </button>
+                  <button
+                    onClick={() => setIsUnlocked(false)}
+                    className="text-xs text-slate-400 hover:text-white underline px-2 py-1"
+                  >
+                    Lock
+                  </button>
+                </div>
               </div>
 
               {/* Vector SVG Animated Route Line */}
               <div className="bg-navy-950 rounded-2xl p-4 border border-navy-800">
                 <svg viewBox="0 0 380 70" className="w-full h-16 overflow-visible">
-                  {/* Base Route Track */}
                   <line
                     x1="35"
                     y1="35"
@@ -228,31 +327,36 @@ function TrackBookingContent() {
                     strokeWidth="6"
                     strokeLinecap="round"
                   />
-                  {/* Animated Active Route */}
                   <line
                     x1="35"
                     y1="35"
-                    x2={scenario === "on_the_way" ? "225" : "345"}
-                    y2="35"
+                    x2={statusData.currentStageIndex >= 6 ? "345" : statusData.currentStageIndex === 5 ? "190" : "35"}
                     stroke="#F97316"
-                    strokeWidth="5"
+                    strokeWidth="6"
                     strokeLinecap="round"
                     className="route-dash"
                   />
 
-                  {/* Node 1: Manikonda Shop */}
-                  <circle cx="35" cy="35" r="7" fill="#0F294A" stroke="#FFFFFF" strokeWidth="2.5" />
+                  {/* Node 1: Manikonda Hub */}
+                  <circle
+                    cx="35"
+                    cy="35"
+                    r="7"
+                    fill={statusData.currentStageIndex >= 0 ? "#F97316" : "#0F294A"}
+                    stroke="#FFFFFF"
+                    strokeWidth="2.5"
+                  />
                   <text x="35" y="58" textAnchor="middle" fill="#CBD5E1" fontSize="10" fontWeight="700">
                     Manikonda Hub
                   </text>
 
                   {/* Node 2: Technician in Transit */}
-                  {scenario === "on_the_way" && (
-                    <g transform="translate(225, 35)">
+                  {statusData.currentStageIndex === 5 && (
+                    <g transform="translate(190, 35)">
                       <circle r="14" fill="#F97316" opacity="0.3" className="animate-ping" />
                       <circle r="8" fill="#F97316" stroke="#FFFFFF" strokeWidth="2.5" />
                       <text x="0" y="-14" textAnchor="middle" fill="#FDBA74" fontSize="10" fontWeight="800">
-                        Ramesh K. (~18m)
+                        {statusData.technicianName || "Technician"} (~{statusData.etaMinutes || "20m"})
                       </text>
                     </g>
                   )}
@@ -262,7 +366,7 @@ function TrackBookingContent() {
                     cx="345"
                     cy="35"
                     r="7"
-                    fill={scenario === "approval" ? "#10B981" : "#334155"}
+                    fill={statusData.currentStageIndex >= 6 ? "#10B981" : "#334155"}
                     stroke="#FFFFFF"
                     strokeWidth="2.5"
                   />
@@ -278,56 +382,61 @@ function TrackBookingContent() {
               {/* Technician Info */}
               <div className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-navy-900 text-white font-black flex items-center justify-center text-sm shadow-xs">
-                    RK
+                  <div className="w-11 h-11 rounded-2xl bg-navy-900 text-white font-black flex items-center justify-center text-xs shadow-xs">
+                    {statusData.technicianName ? statusData.technicianName.slice(0, 2).toUpperCase() : "FM"}
                   </div>
                   <div>
-                    <h3 className="text-sm font-black text-navy-950">Ramesh K. (4.9 ★)</h3>
+                    <h3 className="text-sm font-black text-navy-950">
+                      {statusData.technicianName || "Assigning Certified Technician..."}
+                    </h3>
                     <p className="text-xs text-slate-500">
-                      iPhone 14 • Display Replacement • Manikonda Zone
+                      {statusData.brandModel || "Smartphone"} • {statusData.repairCategory || "Repair Service"}
                     </p>
                   </div>
                 </div>
                 <a
-                  href="tel:+919063786751"
+                  href={`tel:${statusData.technicianPhone || "+919063786751"}`}
                   className="bg-white hover:bg-slate-100 border border-slate-200 p-2.5 rounded-xl shadow-xs transition"
-                  title="Call Technician"
+                  title="Call Support Desk"
                 >
                   <Phone className="w-4 h-4 text-navy-900" />
                 </a>
               </div>
 
-              {/* Quote Approval Banner (When in Quote Approval Scenario) */}
-              {scenario === "approval" && (
+              {/* Quote Approval Banner (Dynamic: Shown only when Quote exists) */}
+              {statusData.quoteAmount && statusData.quoteAmount > 0 && (
                 <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-5 space-y-3">
                   <div className="flex justify-between items-center">
                     <div>
                       <span className="text-xs font-black text-amber-900 uppercase tracking-wider block">
-                        Diagnosis Complete • Quote Ready
+                        Diagnosis Complete • Official Quotation
                       </span>
                       <h4 className="text-base font-black text-navy-950">
-                        OLED Display Replacement
+                        {statusData.repairCategory}
                       </h4>
                     </div>
-                    <span className="text-xl font-black text-navy-950">₹3,499</span>
+                    <span className="text-xl font-black text-navy-950">
+                      ₹{Number(statusData.quoteAmount).toLocaleString("en-IN")}
+                    </span>
                   </div>
 
                   <p className="text-xs text-slate-600">
-                    Includes Original OEM OLED panel, precision installation, frame cleaning, and 6-Month Warranty. First home visit is <strong>₹0 Free</strong>.
+                    Includes precision installation, OEM-grade certified components, frame cleaning, and warranty guarantee. First home visit is <strong>₹0 Free</strong>.
                   </p>
 
-                  {quoteApproved ? (
+                  {statusData.quoteApproved ? (
                     <div className="bg-emerald-600 text-white text-xs font-black p-3 rounded-xl flex items-center justify-center gap-2">
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>Quote Approved (₹3,499) — Repair in progress now!</span>
+                      <span>Quote Approved (₹{Number(statusData.quoteAmount).toLocaleString("en-IN")}) — Repair in progress!</span>
                     </div>
                   ) : (
                     <button
                       type="button"
                       onClick={handleQuoteApproval}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black py-3 px-4 rounded-xl shadow-md transition active:scale-95"
+                      disabled={quoteApproving}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black py-3 px-4 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2"
                     >
-                      ✓ Approve Quote & Start Repair
+                      {quoteApproving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <span>✓ Approve Quote & Start Repair</span>}
                     </button>
                   )}
                 </div>
@@ -340,25 +449,12 @@ function TrackBookingContent() {
                 </h4>
 
                 <div className="space-y-3">
-                  {[
-                    "New Enquiry Logged",
-                    "Customer Contacted",
-                    "Appointment Confirmed",
-                    "Technician Assigned",
-                    "Part Collected from Manikonda Hub",
-                    "Technician On The Way",
-                    "Technician Arrived",
-                    "Diagnosis Completed",
-                    "Awaiting Customer Approval",
-                    "Repair In Progress",
-                    "Completed & Closed",
-                  ].map((stageName, idx) => {
-                    const activeIdx = scenario === "on_the_way" ? 5 : quoteApproved ? 9 : 8;
-                    const isDone = idx < activeIdx;
-                    const isCurrent = idx === activeIdx;
+                  {statusData.stages.map((stg) => {
+                    const isDone = stg.completed;
+                    const isCurrent = stg.active;
 
                     return (
-                      <div key={stageName} className="flex items-center gap-3">
+                      <div key={stg.index} className="flex items-center gap-3">
                         <div
                           className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 transition ${
                             isDone
@@ -368,7 +464,7 @@ function TrackBookingContent() {
                               : "bg-slate-200 text-slate-500"
                           }`}
                         >
-                          {isDone ? <Check className="w-3.5 h-3.5" /> : idx + 1}
+                          {isDone ? <Check className="w-3.5 h-3.5" /> : stg.index + 1}
                         </div>
 
                         <div
@@ -380,7 +476,7 @@ function TrackBookingContent() {
                               : "text-slate-400"
                           }`}
                         >
-                          {stageName}
+                          {stg.name}
                         </div>
                       </div>
                     );

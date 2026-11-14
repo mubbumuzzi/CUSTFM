@@ -20,15 +20,13 @@ test("submitBookingEnquiry fallback returns valid FM-2026-XXXX booking structure
   assert.ok(result.confirmationMessage.length > 10);
 });
 
-test("fetchBookingStatus fallback returns all 11 stages with Ramesh K technician card", async () => {
+test("fetchBookingStatus fallback returns all 11 stages", async () => {
   const status = await fetchBookingStatus("FM-2026-9812", "9876543210");
 
   assert.ok(status, "Status data should be returned");
   assert.equal(status.bookingId, "FM-2026-9812");
   assert.equal(status.totalStages, 11);
   assert.equal(status.stages.length, 11);
-  assert.equal(status.statusCode, "TECHNICIAN_ON_THE_WAY");
-  assert.match(status.technicianName, /Ramesh K/);
-  assert.match(status.technicianPhone, /\+91/);
-  assert.equal(status.quoteAmount, 3499);
+  assert.equal(status.statusCode, "NEW_ENQUIRY");
+  assert.equal(status.currentStageIndex, 0);
 });
