@@ -132,19 +132,35 @@ public class BookingService {
         res.setAddress(booking.getAddress());
         res.setVisitCharge(booking.getVisitCharge());
         res.setFirstVisitFree(booking.isFirstVisitFree());
-        res.setTechnicianName(booking.getTechnicianName());
-        res.setTechnicianPhone(booking.getTechnicianPhone());
-        res.setEtaMinutes(booking.getEtaMinutes());
-        res.setQuoteAmount(booking.getQuoteAmount());
-        res.setQuoteApproved(booking.isQuoteApproved());
-        res.setCreatedAt(booking.getCreatedAt());
-        res.setUpdatedAt(booking.getUpdatedAt());
-
         int currentStageIdx = booking.getStatus().getStageIndex();
         if (currentStageIdx < 0) {
             currentStageIdx = 0; // Negative for alternative outcomes
         }
         res.setCurrentStageIndex(currentStageIdx);
+
+        // Stage-aware visibility: only expose technician and quote at relevant lifecycle stages
+        if (currentStageIdx < 3) {
+            // Before technician is assigned (Stages 0-2):
+            res.setTechnicianName(null);
+            res.setTechnicianPhone(null);
+            res.setEtaMinutes("Dispatching (~45 mins)");
+        } else {
+            res.setTechnicianName(booking.getTechnicianName());
+            res.setTechnicianPhone(booking.getTechnicianPhone());
+            res.setEtaMinutes(booking.getEtaMinutes());
+        }
+
+        if (currentStageIdx < 8) {
+            // Quote only visible once diagnosis is completed (Stage 8+: AWAITING_CUSTOMER_APPROVAL)
+            res.setQuoteAmount(null);
+            res.setQuoteApproved(false);
+        } else {
+            res.setQuoteAmount(booking.getQuoteAmount());
+            res.setQuoteApproved(booking.isQuoteApproved());
+        }
+
+        res.setCreatedAt(booking.getCreatedAt());
+        res.setUpdatedAt(booking.getUpdatedAt());
 
         List<BookingStatusResponse.StageInfo> stages = new ArrayList<>();
         for (int i = 0; i < PRD_STAGE_NAMES.length; i++) {
