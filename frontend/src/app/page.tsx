@@ -15,6 +15,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { SERVICES_DATA, ServiceItem } from "@/data/servicesData";
+import GpsPromptBanner from "@/components/GpsPromptBanner";
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -35,7 +36,11 @@ export default function HomePage() {
   });
 
   return (
-    <div className="space-y-10 md:space-y-16 pb-12">
+    <>
+      {/* 1st Page GPS Permission Notification */}
+      <GpsPromptBanner />
+
+      <div className="space-y-10 md:space-y-16 pb-12">
       {/* ================================================================= */}
       {/* 1. HERO SECTION                                                  */}
       {/* ================================================================= */}
@@ -442,5 +447,6 @@ export default function HomePage() {
         </div>
       </section>
     </div>
+    </>
   );
 }

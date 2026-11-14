@@ -1,3 +1,5 @@
+import { saveCustomerLocationApi } from "./api.ts";
+
 export const SHOP_LAT = 17.4022;
 export const SHOP_LNG = 78.3888;
 export const MAX_RADIUS_KM = 5.0;
@@ -142,6 +144,17 @@ export function detectGpsLocation(): Promise<GpsLocationData> {
             localStorage.setItem("fm_user_is_gps", "true");
             localStorage.setItem("fm_user_eligible", String(eligible));
             localStorage.setItem("fm_user_eta", eta);
+
+            // Persist location to backend DB
+            saveCustomerLocationApi({
+              locality,
+              latitude,
+              longitude,
+              distanceKm,
+              eligible,
+              eta,
+              mobileNumber: localStorage.getItem("fm_latest_mobile") || undefined,
+            }).catch((err) => console.warn("Background location persist err:", err));
 
             // Notify all listening components across the application
             window.dispatchEvent(

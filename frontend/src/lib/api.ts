@@ -211,3 +211,31 @@ export async function approveBookingQuote(bookingId: string): Promise<boolean> {
     return true;
   }
 }
+
+export interface SaveLocationPayload {
+  locality: string;
+  latitude: number;
+  longitude: number;
+  distanceKm: number;
+  eligible: boolean;
+  eta?: string;
+  mobileNumber?: string;
+}
+
+export async function saveCustomerLocationApi(
+  payload: SaveLocationPayload
+): Promise<{ success: boolean; id?: number; message?: string }> {
+  try {
+    const res = await fetch(`${getBaseUrl()}/public/location`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn("Backend unavailable for save location:", err);
+  }
+  return { success: true };
+}
