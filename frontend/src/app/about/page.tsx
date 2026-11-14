@@ -74,7 +74,7 @@ export default function AboutPage() {
               <span>Daily Working Hours</span>
             </div>
             <p className="text-xs text-slate-600">
-              Monday – Sunday: 9:00 AM – 9:00 PM (365 Days)
+              Monday – Sunday: 9:30 AM – 3:30 AM (365 Days)
             </p>
           </div>
         </div>

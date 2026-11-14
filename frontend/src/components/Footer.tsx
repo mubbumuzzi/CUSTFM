@@ -85,7 +85,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-accent-500 shrink-0" />
-                <span>Operating Hours: 9:00 AM – 9:00 PM (Everyday)</span>
+                <span>Operating Hours: 9:30 AM – 3:30 AM (Everyday)</span>
               </div>
               <div className="text-[11px] text-emerald-400 font-bold bg-emerald-950/60 p-2 rounded-lg border border-emerald-800/40">
                 🚲 Service Area: 5 km radius (Lanco Hills, Puppalaguda, Alkapoor Township, OU Colony, Shaikpet)

@@ -355,7 +355,7 @@ export default function HomePage() {
             </div>
             <h3 className="text-base font-extrabold text-navy-950">Physical Manikonda Hub</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Located on Main Road near Marrichettu Junction. Open daily from 9:00 AM to 9:00 PM for walk-ins, phone consultations, and warranty claims.
+              Located on Main Road near Marrichettu Junction. Open daily from 9:30 AM to 3:30 AM for walk-ins, phone consultations, and warranty claims.
             </p>
             <a
               href="https://share.google/U0L5BeQxKW1dBHUbJ"

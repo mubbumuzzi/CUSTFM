@@ -40,7 +40,7 @@ export default function Header({ onSearch }: HeaderProps) {
         <div className="bg-gradient-to-r from-purple-950 via-navy-900 to-indigo-950 text-white text-[11px] font-bold py-1 px-4 flex items-center justify-between">
           <div className="flex items-center gap-2 mx-auto sm:mx-0">
             <span className="w-2 h-2 rounded-full bg-accent-500 animate-ping"></span>
-            <span>⚡ Express Doorstep Mode • Manikonda Shop Active (9 AM – 9 PM)</span>
+            <span>⚡ Express Doorstep Mode • Manikonda Shop Active (9:30 AM – 3:30 AM)</span>
           </div>
           <div className="hidden sm:flex items-center gap-4 text-[11px] text-slate-300">
             <span>📞 Call Desk: +91 90637 86751</span>
