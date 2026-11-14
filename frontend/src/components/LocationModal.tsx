@@ -167,6 +167,30 @@ export default function LocationModal({
           <p className="font-bold text-navy-900">📍 Manikonda Shop Hub</p>
           <p>D.No 2-48/3, Beside SBI Bank, Main Road, Manikonda, Hyderabad 500089.</p>
         </div>
+
+        {/* Reset / Re-test Action */}
+        <div className="pt-1 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-100">
+          <span>Testing 1st page GPS banner?</span>
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("fm_user_locality");
+                localStorage.removeItem("fm_user_distance");
+                localStorage.removeItem("fm_user_lat");
+                localStorage.removeItem("fm_user_lng");
+                localStorage.removeItem("fm_user_is_gps");
+                localStorage.removeItem("fm_user_eligible");
+                localStorage.removeItem("fm_user_eta");
+                sessionStorage.removeItem("fm_gps_prompt_dismissed");
+                window.location.href = "/";
+              }
+            }}
+            className="text-accent-600 hover:text-accent-700 font-bold underline cursor-pointer"
+          >
+            Reset & Show Prompt Banner
+          </button>
+        </div>
       </div>
     </div>
   );
