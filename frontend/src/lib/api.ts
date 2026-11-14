@@ -1,9 +1,5 @@
 const getBaseUrl = (): string => {
-  if (typeof window !== "undefined") {
-    // In browser, relative URL /api routes directly through Nginx on current host & port
-    return "/api";
-  }
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+  return process.env.NEXT_PUBLIC_API_URL || "/api";
 };
 
 export interface BookingPayload {
