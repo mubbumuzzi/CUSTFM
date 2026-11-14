@@ -357,6 +357,14 @@ export default function HomePage() {
             <p className="text-xs text-slate-600 leading-relaxed">
               Located on Main Road near Marrichettu Junction. Open daily from 9:00 AM to 9:00 PM for walk-ins, phone consultations, and warranty claims.
             </p>
+            <a
+              href="https://share.google/U0L5BeQxKW1dBHUbJ"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[11px] font-bold text-accent-600 hover:underline inline-flex items-center gap-1 pt-1"
+            >
+              <span>Get Directions on Google Maps →</span>
+            </a>
           </div>
         </div>
       </section>
@@ -379,13 +387,21 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="flex gap-3 shrink-0">
+          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
             <Link
               href="/book-repair"
-              className="bg-accent-500 hover:bg-accent-600 text-white font-extrabold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-md transition active:scale-95"
+              className="bg-accent-500 hover:bg-accent-600 text-white font-extrabold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-md transition active:scale-95 text-center"
             >
               Book Doorstep Repair →
             </Link>
+            <a
+              href="https://share.google/U0L5BeQxKW1dBHUbJ"
+              target="_blank"
+              rel="noreferrer"
+              className="bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm px-4 py-3 rounded-xl border border-white/20 transition flex items-center justify-center gap-1.5 text-center"
+            >
+              <span>View Store on Google Maps ↗</span>
+            </a>
           </div>
         </div>
       </section>

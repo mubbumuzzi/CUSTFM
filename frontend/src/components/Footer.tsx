@@ -71,7 +71,17 @@ export default function Footer() {
             <div className="space-y-2 text-xs text-slate-300">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-accent-500 shrink-0 mt-0.5" />
-                <span>Main Road, Near Marrichettu Junction, Manikonda, Hyderabad, Telangana 500089</span>
+                <div>
+                  <span>Main Road, Near Marrichettu Junction, Manikonda, Hyderabad, Telangana 500089</span>
+                  <a
+                    href="https://share.google/U0L5BeQxKW1dBHUbJ"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[11px] font-bold text-accent-400 hover:underline block mt-0.5"
+                  >
+                    View Store on Google Maps →
+                  </a>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-accent-500 shrink-0" />

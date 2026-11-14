@@ -80,7 +80,7 @@ export default function ReviewsPage() {
         </div>
 
         <a
-          href="https://maps.google.com/?q=Famous+Mobiles+Manikonda+Hyderabad"
+          href="https://share.google/U0L5BeQxKW1dBHUbJ"
           target="_blank"
           rel="noreferrer"
           className="bg-white hover:bg-slate-100 text-navy-950 text-xs font-black px-4 py-3 rounded-xl shadow-md transition flex items-center gap-1.5 shrink-0"

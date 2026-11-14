@@ -35,9 +35,18 @@ export default function ContactPage() {
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
             Main Road, Near Marrichettu Junction, Manikonda, Hyderabad, Telangana 500089
           </p>
-          <div className="text-[11px] font-bold text-accent-600 pt-1">
-            📍 Landmark: Near Marrichettu Junction (Opposite Friends Colony)
+          <div className="text-[11px] font-bold text-accent-600 pt-1 flex items-center justify-between">
+            <span>📍 Landmark: Near Marrichettu Junction (Opposite Friends Colony)</span>
           </div>
+          <a
+            href="https://share.google/U0L5BeQxKW1dBHUbJ"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 text-xs font-black text-navy-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition mt-1"
+          >
+            <MapPin className="w-3.5 h-3.5 text-accent-500" />
+            <span>Open in Google Maps →</span>
+          </a>
         </div>
 
         {/* Operating Hours */}
@@ -105,7 +114,7 @@ export default function ContactPage() {
             Opposite Friends Colony Bus Stop, Main Road, Manikonda
           </span>
           <a
-            href="https://maps.google.com/?q=Famous+Mobiles+Manikonda+Hyderabad"
+            href="https://share.google/U0L5BeQxKW1dBHUbJ"
             target="_blank"
             rel="noreferrer"
             className="mt-3 bg-navy-950 hover:bg-navy-900 text-white text-xs font-black px-4 py-2 rounded-xl transition"

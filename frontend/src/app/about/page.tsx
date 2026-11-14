@@ -58,6 +58,14 @@ export default function AboutPage() {
             <p className="text-xs text-slate-600">
               Main Road, Near Marrichettu Junction, Manikonda, Hyderabad, Telangana 500089
             </p>
+            <a
+              href="https://share.google/U0L5BeQxKW1dBHUbJ"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[11px] font-bold text-accent-600 hover:underline inline-flex items-center gap-1 pt-1"
+            >
+              <span>Get Directions on Google Maps →</span>
+            </a>
           </div>
 
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1">

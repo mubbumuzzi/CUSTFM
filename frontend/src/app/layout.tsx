@@ -88,6 +88,7 @@ export default function RootLayout({
       "ratingValue": "4.9",
       "reviewCount": "657"
     },
+    "hasMap": "https://share.google/U0L5BeQxKW1dBHUbJ",
     "priceRange": "₹₹"
   };
 
