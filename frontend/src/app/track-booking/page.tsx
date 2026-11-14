@@ -60,14 +60,12 @@ function TrackBookingContent() {
     try {
       const res = await sendOtpApi(cleanMobile);
       if (res.demoOtp) {
-        setOtpSentMsg(`OTP generated: ${res.demoOtp}`);
-        setOtpCode(res.demoOtp);
+        setOtpSentMsg(`OTP sent to +91 ${cleanMobile} (Code: ${res.demoOtp})`);
       } else {
         setOtpSentMsg(`OTP sent to +91 ${cleanMobile}`);
       }
     } catch {
-      setOtpSentMsg("OTP sent! Verification code: 1234");
-      setOtpCode("1234");
+      setOtpSentMsg(`OTP sent to +91 ${cleanMobile} (Verification Code: 1234)`);
     } finally {
       setIsSendingOtp(false);
     }
@@ -240,7 +238,7 @@ function TrackBookingContent() {
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2.5">
               <div className="flex justify-between items-center text-xs">
                 <span className="font-extrabold text-navy-900">Enter 4-Digit OTP</span>
-                <span className="text-[11px] text-slate-400">Standard Test OTP: 1234</span>
+                <span className="text-[11px] text-slate-400">Sent via SMS</span>
               </div>
 
               <div className="flex gap-2">

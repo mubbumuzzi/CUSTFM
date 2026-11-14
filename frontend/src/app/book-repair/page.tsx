@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, ShieldCheck, MapPin, Sparkles, AlertCircle, Navigation, RefreshCw } from "lucide-react";
 import { submitBookingEnquiry } from "@/lib/api";
-import { reverseGeocode } from "@/lib/gps";
+import { detectGpsLocation } from "@/lib/gps";
 
 function BookRepairForm() {
   const router = useRouter();
@@ -28,28 +28,20 @@ function BookRepairForm() {
     }
   }, [searchParams]);
 
-  const handleUseGpsAddress = () => {
-    if (typeof window !== "undefined") {
-      const savedLoc = localStorage.getItem("fm_user_locality");
-      if (savedLoc) {
-        setAddress(savedLoc);
-        return;
+  const handleUseGpsAddress = async () => {
+    setDetectingGps(true);
+    try {
+      const data = await detectGpsLocation();
+      setAddress(data.locality);
+    } catch {
+      if (typeof window !== "undefined") {
+        const savedLoc = localStorage.getItem("fm_user_locality");
+        if (savedLoc) {
+          setAddress(savedLoc);
+        }
       }
-    }
-    if (typeof window !== "undefined" && navigator.geolocation) {
-      setDetectingGps(true);
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          try {
-            const name = await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
-            setAddress(name);
-          } finally {
-            setDetectingGps(false);
-          }
-        },
-        () => setDetectingGps(false),
-        { enableHighAccuracy: true, timeout: 8000 }
-      );
+    } finally {
+      setDetectingGps(false);
     }
   };
 

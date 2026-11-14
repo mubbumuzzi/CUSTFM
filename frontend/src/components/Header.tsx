@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MapPin, Phone, Package, Search, Mic, ChevronDown, Navigation } from "lucide-react";
+import { MapPin, Phone, Package, Search, Mic, ChevronDown, Navigation, RefreshCw } from "lucide-react";
 import LocationModal from "./LocationModal";
+import { detectGpsLocation, getStoredLocation, GpsLocationData } from "@/lib/gps";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -13,22 +14,64 @@ interface HeaderProps {
 export default function Header({ onSearch }: HeaderProps) {
   const pathname = usePathname();
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-  const [locality, setLocality] = useState("Lanco Hills, Manikonda");
-  const [distance, setDistance] = useState(1.4);
+  const [locality, setLocality] = useState<string>("Locating via GPS...");
+  const [distance, setDistance] = useState<number | null>(null);
   const [isGps, setIsGps] = useState(false);
+  const [isDetecting, setIsDetecting] = useState(false);
   const [searchVal, setSearchVal] = useState("");
   const [oemOnly, setOemOnly] = useState(true);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedLoc = localStorage.getItem("fm_user_locality");
-      const savedDist = localStorage.getItem("fm_user_distance");
-      const savedGps = localStorage.getItem("fm_user_is_gps");
-      if (savedLoc) setLocality(savedLoc);
-      if (savedDist) setDistance(parseFloat(savedDist) || 1.4);
-      if (savedGps === "true") setIsGps(true);
-    }
+  const applyGpsData = useCallback((data: GpsLocationData) => {
+    setLocality(data.locality);
+    setDistance(data.distanceKm);
+    setIsGps(true);
+    setIsDetecting(false);
   }, []);
+
+  const triggerGpsDetection = useCallback(async () => {
+    setIsDetecting(true);
+    try {
+      const data = await detectGpsLocation();
+      applyGpsData(data);
+    } catch {
+      setIsDetecting(false);
+      // Fallback if permission was denied or device has no GPS
+      const stored = getStoredLocation();
+      if (stored && stored.locality) {
+        setLocality(stored.locality);
+        setDistance(stored.distanceKm ?? 0);
+      } else {
+        setLocality("Manikonda Hub");
+        setDistance(0.0);
+      }
+    }
+  }, [applyGpsData]);
+
+  useEffect(() => {
+    // 1. Check if user already had a saved GPS location
+    const stored = getStoredLocation();
+    const isSavedGps = typeof window !== "undefined" && localStorage.getItem("fm_user_is_gps") === "true";
+
+    if (stored && stored.locality && isSavedGps) {
+      setLocality(stored.locality);
+      setDistance(stored.distanceKm ?? 0);
+      setIsGps(true);
+    } else {
+      // 2. Automatically prompt & detect device GPS on load
+      triggerGpsDetection();
+    }
+
+    // 3. Listen for location updates dispatched by modal or booking forms
+    const handleLocationChange = (e: Event) => {
+      const detail = (e as CustomEvent<GpsLocationData>).detail;
+      if (detail) {
+        applyGpsData(detail);
+      }
+    };
+
+    window.addEventListener("fm_location_updated", handleLocationChange);
+    return () => window.removeEventListener("fm_location_updated", handleLocationChange);
+  }, [triggerGpsDetection, applyGpsData]);
 
   const handleLocSelect = (name: string, km: number) => {
     setLocality(name);
@@ -81,31 +124,57 @@ export default function Header({ onSearch }: HeaderProps) {
               </div>
             </Link>
 
-            {/* Location selector dropdown */}
-            <button
-              onClick={() => setIsLocationModalOpen(true)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-left transition"
-            >
-              {isGps ? (
-                <Navigation className="w-4 h-4 text-emerald-600 fill-emerald-600" />
-              ) : (
-                <MapPin className="w-4 h-4 text-accent-500" />
-              )}
-              <div className="text-xs">
-                <span className="font-extrabold text-navy-900 block leading-tight flex items-center gap-1">
-                  <span>{locality.split(",")[0]}</span>
-                  {isGps && (
-                    <span className="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-1 rounded">
-                      GPS
-                    </span>
-                  )}
-                </span>
-                <span className="text-[10px] text-slate-500 block leading-none">
-                  {distance} km • 45 min
-                </span>
-              </div>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />
-            </button>
+            {/* Location selector pill & GPS Trigger */}
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setIsLocationModalOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-left transition group"
+                title="Doorstep service area (5 km radius from Manikonda shop)"
+              >
+                {isDetecting ? (
+                  <RefreshCw className="w-4 h-4 text-accent-500 animate-spin" />
+                ) : isGps ? (
+                  <Navigation className="w-4 h-4 text-emerald-600 fill-emerald-600" />
+                ) : (
+                  <MapPin className="w-4 h-4 text-accent-500" />
+                )}
+                <div className="text-xs">
+                  <span className="font-extrabold text-navy-900 block leading-tight flex items-center gap-1">
+                    <span>{isDetecting ? "Detecting GPS..." : locality.split(",")[0]}</span>
+                    {isGps && (
+                      <span className="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-1 rounded flex items-center gap-0.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        GPS
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-[10px] text-slate-500 block leading-none">
+                    {isDetecting ? (
+                      "Acquiring position..."
+                    ) : distance !== null ? (
+                      `${distance} km • ${distance <= 5.0 ? "45 min doorstep" : "Shop Visit"}`
+                    ) : (
+                      "Click to set location"
+                    )}
+                  </span>
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1 group-hover:text-navy-900 transition" />
+              </button>
+
+              <button
+                type="button"
+                onClick={triggerGpsDetection}
+                disabled={isDetecting}
+                title="Detect Current Location via GPS"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-600 hover:text-emerald-700 transition"
+              >
+                <Navigation
+                  className={`w-3.5 h-3.5 ${
+                    isDetecting ? "animate-spin text-accent-500" : isGps ? "text-emerald-600 fill-emerald-600" : ""
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           {/* Navigation links */}
@@ -145,7 +214,7 @@ export default function Header({ onSearch }: HeaderProps) {
           </div>
         </div>
 
-        {/* Mobile Quick-Commerce Header (Blinkit / Zomato style) */}
+        {/* Mobile Quick-Commerce Header */}
         <div className="md:hidden px-4 py-2.5 space-y-2 bg-gradient-to-r from-amber-50/60 via-white to-orange-50/60">
           <div className="flex items-center justify-between gap-2">
             {/* Location Selector */}
@@ -155,29 +224,59 @@ export default function Header({ onSearch }: HeaderProps) {
             >
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm ${
-                  isGps ? "bg-emerald-600 text-white" : "bg-accent-500 text-white"
+                  isDetecting
+                    ? "bg-slate-200 text-accent-600"
+                    : isGps
+                    ? "bg-emerald-600 text-white"
+                    : "bg-accent-500 text-white"
                 }`}
               >
-                {isGps ? <Navigation className="w-4 h-4 fill-white" /> : <MapPin className="w-4 h-4" />}
+                {isDetecting ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : isGps ? (
+                  <Navigation className="w-4 h-4 fill-white" />
+                ) : (
+                  <MapPin className="w-4 h-4" />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 text-xs font-extrabold text-navy-900">
-                  <span className="truncate">{locality.split(",")[0]}</span>
+                  <span className="truncate">{isDetecting ? "Detecting GPS..." : locality.split(",")[0]}</span>
                   {isGps && (
-                    <span className="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-1 rounded">
+                    <span className="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-1 rounded flex items-center gap-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       GPS
                     </span>
                   )}
                   <ChevronDown className="w-3 h-3 text-slate-500" />
                 </div>
                 <div className="text-[10px] font-medium text-slate-500 truncate">
-                  {distance} km • 45 min doorstep
+                  {isDetecting ? (
+                    "Acquiring position..."
+                  ) : distance !== null ? (
+                    `${distance} km • ${distance <= 5.0 ? "45 min doorstep" : "Shop Visit"}`
+                  ) : (
+                    "Tap to set location"
+                  )}
                 </div>
               </div>
             </button>
 
             {/* Quick Actions */}
             <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={triggerGpsDetection}
+                disabled={isDetecting}
+                className="w-8 h-8 rounded-full bg-white border border-amber-300 shadow-xs flex items-center justify-center text-navy-900 text-xs font-bold"
+                title="Detect GPS"
+              >
+                <Navigation
+                  className={`w-4 h-4 ${
+                    isDetecting ? "animate-spin text-accent-500" : isGps ? "text-emerald-600 fill-emerald-600" : "text-navy-900"
+                  }`}
+                />
+              </button>
               <Link
                 href="/track-booking"
                 className="w-8 h-8 rounded-full bg-white border border-amber-300 shadow-xs flex items-center justify-center text-navy-900 text-xs font-bold"

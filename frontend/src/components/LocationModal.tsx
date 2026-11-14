@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { MapPin, X, CheckCircle2, AlertTriangle, Navigation, RefreshCw } from "lucide-react";
-import { calculateDistanceKm, reverseGeocode, MAX_RADIUS_KM } from "@/lib/gps";
+import { detectGpsLocation } from "@/lib/gps";
 
 interface LocationModalProps {
   isOpen: boolean;
@@ -30,47 +30,20 @@ export default function LocationModal({
 
   if (!isOpen) return null;
 
-  const handleDetectGps = () => {
-    if (typeof window === "undefined" || !navigator.geolocation) {
-      setGpsError("Geolocation is not supported by your browser.");
-      return;
-    }
-
+  const handleDetectGps = async () => {
     setGpsError("");
     setIsDetectingGps(true);
 
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const { latitude, longitude } = pos.coords;
-          const km = calculateDistanceKm(latitude, longitude);
-          const name = await reverseGeocode(latitude, longitude);
-          const eligible = km <= MAX_RADIUS_KM;
-
-          localStorage.setItem("fm_user_locality", name);
-          localStorage.setItem("fm_user_distance", String(km));
-          localStorage.setItem("fm_user_lat", String(latitude));
-          localStorage.setItem("fm_user_lng", String(longitude));
-          localStorage.setItem("fm_user_is_gps", "true");
-
-          onSelectLocality(name, km, eligible);
-          setIsDetectingGps(false);
-          onClose();
-        } catch {
-          setIsDetectingGps(false);
-          setGpsError("Could not calculate distance. Please pick a locality below.");
-        }
-      },
-      (err) => {
-        setIsDetectingGps(false);
-        if (err.code === 1) {
-          setGpsError("Location permission denied. Please allow location in your browser or select below.");
-        } else {
-          setGpsError("Could not determine GPS position. Please select a locality below.");
-        }
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-    );
+    try {
+      const result = await detectGpsLocation();
+      onSelectLocality(result.locality, result.distanceKm, result.eligible);
+      setIsDetectingGps(false);
+      onClose();
+    } catch (err: unknown) {
+      setIsDetectingGps(false);
+      const msg = err instanceof Error ? err.message : "Could not determine GPS position.";
+      setGpsError(msg);
+    }
   };
 
   return (
@@ -151,6 +124,7 @@ export default function LocationModal({
                     localStorage.setItem("fm_user_locality", loc.name);
                     localStorage.setItem("fm_user_distance", String(loc.km));
                     localStorage.setItem("fm_user_is_gps", "false");
+                    localStorage.setItem("fm_user_eligible", String(loc.eligible));
                   }
                   onSelectLocality(loc.name, loc.km, loc.eligible);
                   onClose();
@@ -182,27 +156,16 @@ export default function LocationModal({
                     {loc.note}
                   </div>
                 </div>
-
-                <div>
-                  {loc.eligible ? (
-                    <CheckCircle2
-                      className={`w-4 h-4 ${
-                        isSelected ? "text-accent-500" : "text-slate-300"
-                      }`}
-                    />
-                  ) : (
-                    <AlertTriangle className="w-4 h-4 text-amber-600" />
-                  )}
-                </div>
+                {isSelected && <CheckCircle2 className="w-4 h-4 text-accent-500 shrink-0 ml-2" />}
               </button>
             );
           })}
         </div>
 
-        <div className="pt-2 border-t border-slate-100 text-center">
-          <p className="text-[11px] text-slate-500">
-            Main Hub: <span className="font-bold text-navy-900">Main Road, Near Marrichettu Junction, Manikonda</span>
-          </p>
+        {/* Info Footer */}
+        <div className="p-3 bg-slate-50 rounded-xl text-[11px] text-slate-500 space-y-1">
+          <p className="font-bold text-navy-900">📍 Manikonda Shop Hub</p>
+          <p>D.No 2-48/3, Beside SBI Bank, Main Road, Manikonda, Hyderabad 500089.</p>
         </div>
       </div>
     </div>

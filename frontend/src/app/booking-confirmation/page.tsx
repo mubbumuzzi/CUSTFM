@@ -115,7 +115,7 @@ function BookingConfirmationContent() {
         <div className="flex justify-between items-center text-slate-600">
           <span>Doorstep Location</span>
           <span className="font-extrabold text-navy-900 text-right truncate max-w-[200px]">
-            {bookingData?.address || "Lanco Hills, Manikonda"}
+            {bookingData?.address || "Manikonda Doorstep Hub"}
           </span>
         </div>
 
