@@ -20,7 +20,8 @@ target/
 *.rar
 
 # H2 Database
-data/
+/data/
+backend/data/
 *.db
 *.mv.db
 *.trace.db
