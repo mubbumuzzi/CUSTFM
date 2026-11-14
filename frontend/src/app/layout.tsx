@@ -93,14 +93,17 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className={plusJakartaSans.variable}>
+    <html lang="en" className={plusJakartaSans.variable} suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="font-sans bg-slate-50 text-navy-950 antialiased min-h-screen flex flex-col selection:bg-accent-500 selection:text-white">
+      <body
+        suppressHydrationWarning
+        className="font-sans bg-slate-50 text-navy-950 antialiased min-h-screen flex flex-col selection:bg-accent-500 selection:text-white"
+      >
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

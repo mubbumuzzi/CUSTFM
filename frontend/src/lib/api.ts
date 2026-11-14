@@ -1,5 +1,8 @@
 const getBaseUrl = (): string => {
-  return process.env.NEXT_PUBLIC_API_URL || "/api";
+  if (typeof window !== "undefined") {
+    return process.env.NEXT_PUBLIC_API_URL || "/api";
+  }
+  return process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081/api";
 };
 
 export interface BookingPayload {
