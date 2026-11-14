@@ -1,0 +1,170 @@
+package com.famousmobiles.service;
+
+import com.famousmobiles.dto.BookingEnquiryRequest;
+import com.famousmobiles.dto.BookingResponse;
+import com.famousmobiles.dto.BookingStatusResponse;
+import com.famousmobiles.entity.Booking;
+import com.famousmobiles.entity.BookingStatus;
+import com.famousmobiles.entity.Customer;
+import com.famousmobiles.repository.BookingRepository;
+import com.famousmobiles.repository.CustomerRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class BookingServiceTest {
+
+    @Mock
+    private BookingRepository bookingRepository;
+
+    @Mock
+    private CustomerRepository customerRepository;
+
+    @InjectMocks
+    private BookingService bookingService;
+
+    private BookingEnquiryRequest standardRequest;
+
+    @BeforeEach
+    void setUp() {
+        standardRequest = new BookingEnquiryRequest();
+        standardRequest.setMobileNumber("9876543210");
+        standardRequest.setCustomerName("Mohammed");
+        standardRequest.setBrandModel("iPhone 14");
+        standardRequest.setRepairCategory("Display Replacement");
+        standardRequest.setAddress("Lanco Hills, Manikonda");
+    }
+
+    @Test
+    @DisplayName("PRD Business Rule: New customer receives First Home Visit FREE (₹0)")
+    void testNewCustomerGetsFirstVisitFree() {
+        when(customerRepository.findByMobileNumber("9876543210")).thenReturn(Optional.empty());
+        when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        BookingResponse response = bookingService.createEnquiry(standardRequest);
+
+        assertThat(response).isNotNull();
+        assertThat(response.isFirstVisitFree()).isTrue();
+        assertThat(response.getVisitCharge()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(response.getBookingId()).startsWith("FM-2026-");
+        assertThat(response.getStatus()).isEqualTo("NEW_ENQUIRY");
+
+        ArgumentCaptor<Customer> customerCaptor = ArgumentCaptor.forClass(Customer.class);
+        verify(customerRepository).save(customerCaptor.capture());
+        Customer savedCustomer = customerCaptor.getValue();
+        assertThat(savedCustomer.isFirstVisitFreeClaimed()).isTrue();
+        assertThat(savedCustomer.getTotalBookings()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("PRD Business Rule: Returning customer who already claimed free visit is charged subsequent ₹49 fee")
+    void testReturningCustomerChargedSubsequentVisitFee() {
+        Customer existingCustomer = new Customer("9876543210");
+        existingCustomer.setTotalBookings(1);
+        existingCustomer.setFirstVisitFreeClaimed(true);
+
+        when(customerRepository.findByMobileNumber("9876543210")).thenReturn(Optional.of(existingCustomer));
+        when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        BookingResponse response = bookingService.createEnquiry(standardRequest);
+
+        assertThat(response.isFirstVisitFree()).isFalse();
+        assertThat(response.getVisitCharge()).isEqualByComparingTo(new BigDecimal("49.00"));
+    }
+
+    @Test
+    @DisplayName("PRD 6.3 Rule: Incomplete enquiries with ONLY mobile number are permitted and saved")
+    void testIncompleteEnquiryAllowedWithOnlyMobile() {
+        BookingEnquiryRequest minimalRequest = new BookingEnquiryRequest();
+        minimalRequest.setMobileNumber("9988776655");
+
+        when(customerRepository.findByMobileNumber("9988776655")).thenReturn(Optional.empty());
+        when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        BookingResponse response = bookingService.createEnquiry(minimalRequest);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getMobileNumber()).isEqualTo("9988776655");
+        assertThat(response.getCustomerName()).isEqualTo("Valued Customer");
+        assertThat(response.getRepairCategory()).isEqualTo("General Diagnosis");
+        assertThat(response.getAddress()).isEqualTo("Manikonda, Hyderabad");
+    }
+
+    @Test
+    @DisplayName("PRD 6.5 Rule: Booking status lookup returns exactly 11 lifecycle stages with correct active stage")
+    void testGetBookingStatusReturnsAll11PrdStages() {
+        Booking booking = new Booking();
+        booking.setBookingId("FM-2026-1234");
+        booking.setMobileNumber("9876543210");
+        booking.setCustomerName("Mohammed");
+        booking.setStatus(BookingStatus.TECHNICIAN_ON_THE_WAY);
+
+        when(bookingRepository.findByBookingId("FM-2026-1234")).thenReturn(Optional.of(booking));
+
+        Optional<BookingStatusResponse> resultOpt = bookingService.getBookingStatus("FM-2026-1234", "9876543210");
+
+        assertThat(resultOpt).isPresent();
+        BookingStatusResponse status = resultOpt.get();
+        assertThat(status.getTotalStages()).isEqualTo(11);
+        assertThat(status.getStages()).hasSize(11);
+        assertThat(status.getCurrentStageIndex()).isEqualTo(5); // TECHNICIAN_ON_THE_WAY is stage index 5
+
+        // Check stage 5 is active
+        assertThat(status.getStages().get(5).isActive()).isTrue();
+        assertThat(status.getStages().get(5).getName()).isEqualTo("Technician On The Way");
+
+        // Prior stages should be marked completed
+        assertThat(status.getStages().get(0).isCompleted()).isTrue();
+        assertThat(status.getStages().get(4).isCompleted()).isTrue();
+
+        // Future stages should not be completed
+        assertThat(status.getStages().get(6).isCompleted()).isFalse();
+    }
+
+    @Test
+    @DisplayName("Security / IDOR Rule: Mismatched mobile number prevents exposure of private booking details")
+    void testIdorProtectionMobileMismatchReturnsEmpty() {
+        Booking booking = new Booking();
+        booking.setBookingId("FM-2026-1234");
+        booking.setMobileNumber("9876543210");
+
+        when(bookingRepository.findByBookingId("FM-2026-1234")).thenReturn(Optional.of(booking));
+
+        // Attacker attempts lookup with a different mobile number
+        Optional<BookingStatusResponse> resultOpt = bookingService.getBookingStatus("FM-2026-1234", "9111111111");
+
+        assertThat(resultOpt).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Customer Quote Approval transitions status to REPAIR_IN_PROGRESS")
+    void testApproveQuoteUpdatesStatusToRepairInProgress() {
+        Booking booking = new Booking();
+        booking.setBookingId("FM-2026-5555");
+        booking.setMobileNumber("9876543210");
+        booking.setStatus(BookingStatus.AWAITING_CUSTOMER_APPROVAL);
+        booking.setQuoteApproved(false);
+
+        when(bookingRepository.findByBookingId("FM-2026-5555")).thenReturn(Optional.of(booking));
+        when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Optional<BookingStatusResponse> resultOpt = bookingService.approveQuote("FM-2026-5555");
+
+        assertThat(resultOpt).isPresent();
+        assertThat(booking.isQuoteApproved()).isTrue();
+        assertThat(booking.getStatus()).isEqualTo(BookingStatus.REPAIR_IN_PROGRESS);
+    }
+}
