@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MapPin, Phone, Package, Search, Mic, ChevronDown } from "lucide-react";
+import { MapPin, Phone, Package, Search, Mic, ChevronDown, Navigation } from "lucide-react";
 import LocationModal from "./LocationModal";
 
 interface HeaderProps {
@@ -15,12 +15,27 @@ export default function Header({ onSearch }: HeaderProps) {
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [locality, setLocality] = useState("Lanco Hills, Manikonda");
   const [distance, setDistance] = useState(1.4);
+  const [isGps, setIsGps] = useState(false);
   const [searchVal, setSearchVal] = useState("");
   const [oemOnly, setOemOnly] = useState(true);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedLoc = localStorage.getItem("fm_user_locality");
+      const savedDist = localStorage.getItem("fm_user_distance");
+      const savedGps = localStorage.getItem("fm_user_is_gps");
+      if (savedLoc) setLocality(savedLoc);
+      if (savedDist) setDistance(parseFloat(savedDist) || 1.4);
+      if (savedGps === "true") setIsGps(true);
+    }
+  }, []);
 
   const handleLocSelect = (name: string, km: number) => {
     setLocality(name);
     setDistance(km);
+    if (typeof window !== "undefined") {
+      setIsGps(localStorage.getItem("fm_user_is_gps") === "true");
+    }
   };
 
   const navLinks = [
@@ -71,10 +86,19 @@ export default function Header({ onSearch }: HeaderProps) {
               onClick={() => setIsLocationModalOpen(true)}
               className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-left transition"
             >
-              <MapPin className="w-4 h-4 text-accent-500" />
+              {isGps ? (
+                <Navigation className="w-4 h-4 text-emerald-600 fill-emerald-600" />
+              ) : (
+                <MapPin className="w-4 h-4 text-accent-500" />
+              )}
               <div className="text-xs">
-                <span className="font-extrabold text-navy-900 block leading-tight">
-                  {locality.split(",")[0]}
+                <span className="font-extrabold text-navy-900 block leading-tight flex items-center gap-1">
+                  <span>{locality.split(",")[0]}</span>
+                  {isGps && (
+                    <span className="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-1 rounded">
+                      GPS
+                    </span>
+                  )}
                 </span>
                 <span className="text-[10px] text-slate-500 block leading-none">
                   {distance} km • 45 min
@@ -129,12 +153,21 @@ export default function Header({ onSearch }: HeaderProps) {
               onClick={() => setIsLocationModalOpen(true)}
               className="flex items-center gap-2 text-left min-w-0 flex-1"
             >
-              <div className="w-8 h-8 rounded-full bg-accent-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <MapPin className="w-4 h-4" />
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm ${
+                  isGps ? "bg-emerald-600 text-white" : "bg-accent-500 text-white"
+                }`}
+              >
+                {isGps ? <Navigation className="w-4 h-4 fill-white" /> : <MapPin className="w-4 h-4" />}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 text-xs font-extrabold text-navy-900">
                   <span className="truncate">{locality.split(",")[0]}</span>
+                  {isGps && (
+                    <span className="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-1 rounded">
+                      GPS
+                    </span>
+                  )}
                   <ChevronDown className="w-3 h-3 text-slate-500" />
                 </div>
                 <div className="text-[10px] font-medium text-slate-500 truncate">

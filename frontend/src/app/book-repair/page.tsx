@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowRight, ShieldCheck, MapPin, Sparkles, AlertCircle } from "lucide-react";
+import { ArrowRight, ShieldCheck, MapPin, Sparkles, AlertCircle, Navigation, RefreshCw } from "lucide-react";
 import { submitBookingEnquiry } from "@/lib/api";
+import { reverseGeocode } from "@/lib/gps";
 
 function BookRepairForm() {
   const router = useRouter();
@@ -18,6 +19,7 @@ function BookRepairForm() {
   const [preferredTime, setPreferredTime] = useState("Earliest Available (~45 mins)");
   const [errorMsg, setErrorMsg] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [detectingGps, setDetectingGps] = useState(false);
 
   useEffect(() => {
     const cat = searchParams.get("category");
@@ -25,6 +27,31 @@ function BookRepairForm() {
       setRepairCategory(cat);
     }
   }, [searchParams]);
+
+  const handleUseGpsAddress = () => {
+    if (typeof window !== "undefined") {
+      const savedLoc = localStorage.getItem("fm_user_locality");
+      if (savedLoc) {
+        setAddress(savedLoc);
+        return;
+      }
+    }
+    if (typeof window !== "undefined" && navigator.geolocation) {
+      setDetectingGps(true);
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          try {
+            const name = await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+            setAddress(name);
+          } finally {
+            setDetectingGps(false);
+          }
+        },
+        () => setDetectingGps(false),
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    }
+  };
 
   const quickBrands = ["iPhone ", "Samsung ", "OnePlus ", "Vivo ", "Xiaomi ", "Pixel "];
 
@@ -188,9 +215,24 @@ function BookRepairForm() {
 
           {/* Doorstep Address */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Doorstep Address in Manikonda (within 5 km)
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-bold text-slate-700">
+                Doorstep Address in Manikonda (within 5 km)
+              </label>
+              <button
+                type="button"
+                onClick={handleUseGpsAddress}
+                disabled={detectingGps}
+                className="text-[11px] font-extrabold text-accent-600 hover:text-accent-700 flex items-center gap-1 transition"
+              >
+                {detectingGps ? (
+                  <RefreshCw className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Navigation className="w-3 h-3" />
+                )}
+                <span>{detectingGps ? "Locating..." : "Use GPS"}</span>
+              </button>
+            </div>
             <div className="relative">
               <input
                 type="text"
