@@ -77,7 +77,7 @@ function TrackBookingContent() {
     const cleanOtp = otpCode.trim();
 
     if (!cleanId) {
-      setOtpError("Please enter your Booking ID (e.g. FM-2026-XXXX).");
+      setOtpError("Please enter your Booking ID (e.g. FMO-2026-XXXX).");
       return;
     }
 
@@ -199,7 +199,7 @@ function TrackBookingContent() {
                 type="text"
                 value={bookingId}
                 onChange={(e) => setBookingId(e.target.value.toUpperCase())}
-                placeholder="e.g., FM-2026-1234"
+                placeholder="e.g., FMO-2026-1234"
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-black text-navy-900 text-sm uppercase focus:outline-none focus:ring-1 focus:ring-navy-900"
               />
             </div>

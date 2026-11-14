@@ -59,7 +59,7 @@ class BookingServiceTest {
         assertThat(response).isNotNull();
         assertThat(response.isFirstVisitFree()).isTrue();
         assertThat(response.getVisitCharge()).isEqualByComparingTo(BigDecimal.ZERO);
-        assertThat(response.getBookingId()).startsWith("FM-2026-");
+        assertThat(response.getBookingId()).startsWith("FMO-2026-");
         assertThat(response.getStatus()).isEqualTo("NEW_ENQUIRY");
 
         ArgumentCaptor<Customer> customerCaptor = ArgumentCaptor.forClass(Customer.class);

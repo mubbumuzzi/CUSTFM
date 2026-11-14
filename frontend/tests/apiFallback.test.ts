@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { submitBookingEnquiry, fetchBookingStatus } from "../src/lib/api.ts";
 
-test("submitBookingEnquiry fallback returns valid FM-2026-XXXX booking structure", async () => {
+test("submitBookingEnquiry fallback returns valid FMO-2026-XXXX booking structure", async () => {
   const result = await submitBookingEnquiry({
     mobileNumber: "9876543210",
     customerName: "Mohammed",
@@ -12,7 +12,7 @@ test("submitBookingEnquiry fallback returns valid FM-2026-XXXX booking structure
   });
 
   assert.ok(result, "Result should be returned");
-  assert.match(result.bookingId, /^FM-2026-\d{4}$/, "Booking ID must follow FM-2026-XXXX format");
+  assert.match(result.bookingId, /^FMO-2026-\d{4}$/, "Booking ID must follow FMO-2026-XXXX format");
   assert.equal(result.mobileNumber, "9876543210");
   assert.equal(result.customerName, "Mohammed");
   assert.equal(result.firstVisitFree, true, "New booking defaults to first visit free");

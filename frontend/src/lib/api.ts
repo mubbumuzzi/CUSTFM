@@ -81,7 +81,7 @@ export async function submitBookingEnquiry(payload: BookingPayload): Promise<Boo
 
   // Client-side fallback for static preview / demo resilience
   const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-  const bookingId = `FM-2026-${randomSuffix}`;
+  const bookingId = `FMO-2026-${randomSuffix}`;
   const responseData: BookingResponseData = {
     bookingId,
     status: "NEW_ENQUIRY",

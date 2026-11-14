@@ -54,9 +54,9 @@ public class BookingService {
 
         BigDecimal visitCharge = isEligibleForFreeVisit ? BigDecimal.ZERO : new BigDecimal("49.00");
 
-        // Unique Booking ID: FM-2026-XXXX
+        // Unique Online Booking ID: FMO-2026-XXXX (FMO designates Online Doorstep customer)
         int randomSuffix = 1000 + new Random().nextInt(9000);
-        String bookingId = "FM-2026-" + randomSuffix;
+        String bookingId = "FMO-2026-" + randomSuffix;
 
         Booking booking = new Booking();
         booking.setBookingId(bookingId);
