@@ -14,6 +14,8 @@ export interface BookingPayload {
   address?: string;
   landmark?: string;
   preferredTime?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface BookingResponseData {
@@ -25,6 +27,9 @@ export interface BookingResponseData {
   brandModel: string;
   repairCategory: string;
   address: string;
+  latitude?: number;
+  longitude?: number;
+  googleMapsUrl?: string;
   visitCharge: number;
   firstVisitFree: boolean;
   confirmationMessage: string;
@@ -42,6 +47,9 @@ export interface BookingStatusData {
   brandModel: string;
   repairCategory: string;
   address: string;
+  latitude?: number;
+  longitude?: number;
+  googleMapsUrl?: string;
   visitCharge: number;
   firstVisitFree: boolean;
   technicianName?: string | null;

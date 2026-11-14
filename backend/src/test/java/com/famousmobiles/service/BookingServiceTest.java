@@ -167,4 +167,33 @@ class BookingServiceTest {
         assertThat(booking.isQuoteApproved()).isTrue();
         assertThat(booking.getStatus()).isEqualTo(BookingStatus.REPAIR_IN_PROGRESS);
     }
+
+    @Test
+    @DisplayName("Get Directions Google Maps URL is generated correctly with GPS coordinates and address fallback")
+    void testGoogleMapsUrlGeneration() {
+        // 1. With GPS coordinates
+        Booking gpsBooking = new Booking();
+        gpsBooking.setBookingId("FMO-2026-9999");
+        gpsBooking.setMobileNumber("9876543210");
+        gpsBooking.setLatitude(17.4045);
+        gpsBooking.setLongitude(78.3752);
+        gpsBooking.setAddress("Lanco Hills, Manikonda");
+
+        BookingStatusResponse gpsResponse = bookingService.mapBookingToResponse(gpsBooking, true);
+        assertThat(gpsResponse.getGoogleMapsUrl())
+                .isEqualTo("https://www.google.com/maps/dir/?api=1&destination=17.4045,78.3752");
+        assertThat(gpsResponse.getLatitude()).isEqualTo(17.4045);
+        assertThat(gpsResponse.getLongitude()).isEqualTo(78.3752);
+
+        // 2. Without GPS coordinates, fallback to address
+        Booking addrBooking = new Booking();
+        addrBooking.setBookingId("FMO-2026-8888");
+        addrBooking.setMobileNumber("9876543210");
+        addrBooking.setAddress("Puppalguda Main Road");
+
+        BookingStatusResponse addrResponse = bookingService.mapBookingToResponse(addrBooking, true);
+        assertThat(addrResponse.getGoogleMapsUrl())
+                .contains("https://www.google.com/maps/dir/?api=1&destination=")
+                .contains("Puppalguda");
+    }
 }

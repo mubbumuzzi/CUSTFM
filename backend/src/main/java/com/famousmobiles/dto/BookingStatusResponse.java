@@ -15,6 +15,9 @@ public class BookingStatusResponse {
     private String brandModel;
     private String repairCategory;
     private String address;
+    private Double latitude;
+    private Double longitude;
+    private String googleMapsUrl;
     private BigDecimal visitCharge;
     private boolean firstVisitFree;
     private String technicianName;
@@ -77,6 +80,15 @@ public class BookingStatusResponse {
 
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
+
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
+
+    public String getGoogleMapsUrl() { return googleMapsUrl; }
+    public void setGoogleMapsUrl(String googleMapsUrl) { this.googleMapsUrl = googleMapsUrl; }
 
     public BigDecimal getVisitCharge() { return visitCharge; }
     public void setVisitCharge(BigDecimal visitCharge) { this.visitCharge = visitCharge; }

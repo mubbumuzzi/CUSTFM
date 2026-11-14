@@ -15,6 +15,8 @@ public class BookingEnquiryRequest {
     private String issueDescription;
     private String address;
     private String landmark;
+    private Double latitude;
+    private Double longitude;
     private String preferredTime;
 
     public BookingEnquiryRequest() {
@@ -40,6 +42,12 @@ public class BookingEnquiryRequest {
 
     public String getLandmark() { return landmark; }
     public void setLandmark(String landmark) { this.landmark = landmark; }
+
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
 
     public String getPreferredTime() { return preferredTime; }
     public void setPreferredTime(String preferredTime) { this.preferredTime = preferredTime; }

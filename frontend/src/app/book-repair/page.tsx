@@ -20,11 +20,24 @@ function BookRepairForm() {
   const [errorMsg, setErrorMsg] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [detectingGps, setDetectingGps] = useState(false);
+  const [gpsCoords, setGpsCoords] = useState<{ latitude?: number; longitude?: number }>({});
 
   useEffect(() => {
     const cat = searchParams.get("category");
     if (cat) {
       setRepairCategory(cat);
+    }
+
+    if (typeof window !== "undefined") {
+      const savedLat = localStorage.getItem("fm_user_lat");
+      const savedLng = localStorage.getItem("fm_user_lng");
+      if (savedLat && savedLng) {
+        const lat = parseFloat(savedLat);
+        const lng = parseFloat(savedLng);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          setGpsCoords({ latitude: lat, longitude: lng });
+        }
+      }
     }
   }, [searchParams]);
 
@@ -33,6 +46,9 @@ function BookRepairForm() {
     try {
       const data = await detectGpsLocation();
       setAddress(data.locality);
+      if (data.latitude && data.longitude) {
+        setGpsCoords({ latitude: data.latitude, longitude: data.longitude });
+      }
     } catch {
       if (typeof window !== "undefined") {
         const savedLoc = localStorage.getItem("fm_user_locality");
@@ -67,6 +83,8 @@ function BookRepairForm() {
         repairCategory,
         issueDescription: issueDescription.trim() || undefined,
         address: address.trim() || undefined,
+        latitude: gpsCoords.latitude,
+        longitude: gpsCoords.longitude,
         preferredTime,
       });
 

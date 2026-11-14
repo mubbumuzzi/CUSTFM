@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -67,6 +69,8 @@ public class BookingService {
         booking.setIssueDescription(request.getIssueDescription());
         booking.setAddress(request.getAddress() != null ? request.getAddress().trim() : "Manikonda, Hyderabad");
         booking.setLandmark(request.getLandmark());
+        booking.setLatitude(request.getLatitude());
+        booking.setLongitude(request.getLongitude());
         booking.setPreferredTime(request.getPreferredTime() != null ? request.getPreferredTime() : "Earliest Available (45 Mins)");
         booking.setStatus(BookingStatus.NEW_ENQUIRY);
         booking.setFirstVisitFree(isEligibleForFreeVisit);
@@ -190,6 +194,21 @@ public class BookingService {
         res.setBrandModel(booking.getBrandModel());
         res.setRepairCategory(booking.getRepairCategory());
         res.setAddress(booking.getAddress());
+        res.setLatitude(booking.getLatitude());
+        res.setLongitude(booking.getLongitude());
+
+        if (booking.getLatitude() != null && booking.getLongitude() != null) {
+            res.setGoogleMapsUrl("https://www.google.com/maps/dir/?api=1&destination=" + booking.getLatitude() + "," + booking.getLongitude());
+        } else if (booking.getAddress() != null && !booking.getAddress().isBlank()) {
+            String addr = booking.getAddress().trim();
+            if (!addr.toLowerCase().contains("hyderabad")) {
+                addr += ", Manikonda, Hyderabad";
+            }
+            res.setGoogleMapsUrl("https://www.google.com/maps/dir/?api=1&destination=" + URLEncoder.encode(addr, StandardCharsets.UTF_8));
+        } else {
+            res.setGoogleMapsUrl("https://www.google.com/maps/dir/?api=1&destination=Manikonda,+Hyderabad");
+        }
+
         res.setVisitCharge(booking.getVisitCharge());
         res.setFirstVisitFree(booking.isFirstVisitFree());
         int currentStageIdx = booking.getStatus().getStageIndex();
