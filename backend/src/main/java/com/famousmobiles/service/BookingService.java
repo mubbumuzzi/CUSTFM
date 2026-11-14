@@ -121,6 +121,66 @@ public class BookingService {
             }
         }
 
+        return Optional.of(mapBookingToResponse(booking, false));
+    }
+
+    public List<BookingStatusResponse> getAllBookingsForPos() {
+        return bookingRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(b -> mapBookingToResponse(b, true))
+                .toList();
+    }
+
+    @Transactional
+    public Optional<BookingStatusResponse> updateBookingFromPos(String bookingId, Map<String, Object> updates) {
+        Optional<Booking> bookingOpt = bookingRepository.findByBookingId(bookingId.trim().toUpperCase());
+        if (bookingOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Booking booking = bookingOpt.get();
+        if (updates.containsKey("stageIndex")) {
+            int stageIdx = ((Number) updates.get("stageIndex")).intValue();
+            BookingStatus[] statuses = BookingStatus.values();
+            for (BookingStatus s : statuses) {
+                if (s.getStageIndex() == stageIdx) {
+                    booking.setStatus(s);
+                    break;
+                }
+            }
+        } else if (updates.containsKey("statusCode")) {
+            try {
+                booking.setStatus(BookingStatus.valueOf((String) updates.get("statusCode")));
+            } catch (Exception ignored) {}
+        }
+
+        if (updates.containsKey("technicianName")) {
+            booking.setTechnicianName((String) updates.get("technicianName"));
+        }
+        if (updates.containsKey("technicianPhone")) {
+            booking.setTechnicianPhone((String) updates.get("technicianPhone"));
+        }
+        if (updates.containsKey("quoteAmount")) {
+            Object quote = updates.get("quoteAmount");
+            if (quote instanceof Number num) {
+                booking.setQuoteAmount(BigDecimal.valueOf(num.doubleValue()));
+            } else if (quote instanceof String str && !str.isBlank()) {
+                booking.setQuoteAmount(new BigDecimal(str.replace("₹", "").replace(",", "").trim()));
+            }
+        }
+        if (updates.containsKey("quoteApproved")) {
+            booking.setQuoteApproved(Boolean.TRUE.equals(updates.get("quoteApproved")));
+        }
+        if (updates.containsKey("etaMinutes")) {
+            booking.setEtaMinutes((String) updates.get("etaMinutes"));
+        }
+
+        booking.setUpdatedAt(LocalDateTime.now());
+        bookingRepository.save(booking);
+
+        return Optional.of(mapBookingToResponse(booking, true));
+    }
+
+    public BookingStatusResponse mapBookingToResponse(Booking booking, boolean isPosView) {
         BookingStatusResponse res = new BookingStatusResponse();
         res.setBookingId(booking.getBookingId());
         res.setStatusCode(booking.getStatus().name());
@@ -138,25 +198,23 @@ public class BookingService {
         }
         res.setCurrentStageIndex(currentStageIdx);
 
-        // Stage-aware visibility: only expose technician and quote at relevant lifecycle stages
-        if (currentStageIdx < 3) {
-            // Before technician is assigned (Stages 0-2):
-            res.setTechnicianName(null);
-            res.setTechnicianPhone(null);
-            res.setEtaMinutes("Dispatching (~45 mins)");
-        } else {
+        // Visibility: POS can always see all fields; Customer sees fields as lifecycle progresses
+        if (isPosView || currentStageIdx >= 3) {
             res.setTechnicianName(booking.getTechnicianName());
             res.setTechnicianPhone(booking.getTechnicianPhone());
             res.setEtaMinutes(booking.getEtaMinutes());
+        } else {
+            res.setTechnicianName(null);
+            res.setTechnicianPhone(null);
+            res.setEtaMinutes("Dispatching (~45 mins)");
         }
 
-        if (currentStageIdx < 8) {
-            // Quote only visible once diagnosis is completed (Stage 8+: AWAITING_CUSTOMER_APPROVAL)
-            res.setQuoteAmount(null);
-            res.setQuoteApproved(false);
-        } else {
+        if (isPosView || currentStageIdx >= 8) {
             res.setQuoteAmount(booking.getQuoteAmount());
             res.setQuoteApproved(booking.isQuoteApproved());
+        } else {
+            res.setQuoteAmount(null);
+            res.setQuoteApproved(false);
         }
 
         res.setCreatedAt(booking.getCreatedAt());
@@ -170,7 +228,7 @@ public class BookingService {
         }
         res.setStages(stages);
 
-        return Optional.of(res);
+        return res;
     }
 
     @Transactional

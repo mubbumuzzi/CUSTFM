@@ -22,12 +22,32 @@ public class PublicBookingController {
     }
 
     /**
+     * List all customer bookings for the shop-side POS dashboard
+     */
+    @GetMapping
+    public ResponseEntity<?> getAllBookings() {
+        return ResponseEntity.ok(bookingService.getAllBookingsForPos());
+    }
+
+    /**
      * Submit an enquiry. Only 10-digit mobile number is mandatory.
      */
     @PostMapping
     public ResponseEntity<BookingResponse> submitEnquiry(@Valid @RequestBody BookingEnquiryRequest request) {
         BookingResponse response = bookingService.createEnquiry(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * POS staff stage advancement, technician assignment, and quote updates
+     */
+    @PostMapping("/{bookingId}/pos-update")
+    public ResponseEntity<?> updateBookingFromPos(
+            @PathVariable String bookingId,
+            @RequestBody Map<String, Object> updates) {
+        return bookingService.updateBookingFromPos(bookingId, updates)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
     /**
