@@ -32,6 +32,7 @@ export interface BookingResponseData {
   googleMapsUrl?: string;
   visitCharge: number;
   firstVisitFree: boolean;
+  handshakeOtp?: string;
   confirmationMessage: string;
   timestamp: string;
 }
@@ -57,6 +58,7 @@ export interface BookingStatusData {
   etaMinutes?: string | null;
   quoteAmount?: number | null;
   quoteApproved: boolean;
+  handshakeOtp?: string;
   stages: {
     index: number;
     name: string;
@@ -101,6 +103,7 @@ export async function submitBookingEnquiry(payload: BookingPayload): Promise<Boo
     address: payload.address || "Manikonda, Hyderabad",
     visitCharge: 0,
     firstVisitFree: true,
+    handshakeOtp: String(1000 + Math.floor(Math.random() * 9000)),
     confirmationMessage: "Enquiry logged successfully. Famous Mobiles Manikonda support team will contact you shortly.",
     timestamp: new Date().toISOString(),
   };
@@ -132,6 +135,49 @@ export async function sendOtpApi(mobileNumber: string): Promise<{ success: boole
     message: `OTP sent successfully to +91 ${mobileNumber}`,
     demoOtp: "1234",
   };
+}
+
+export async function verifyOtpApi(mobileNumber: string, otpCode: string): Promise<{ success: boolean; message: string }> {
+  try {
+    const res = await fetch(`${getBaseUrl()}/auth/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mobileNumber, otpCode }),
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+    const errData = await res.json().catch(() => null);
+    return { success: false, message: errData?.message || "Invalid OTP code." };
+  } catch {
+    if (otpCode === "1234") {
+      return { success: true, message: "Demo OTP verified successfully" };
+    }
+    return { success: false, message: "Unable to verify OTP. Please try demo code 1234." };
+  }
+}
+
+export async function verifyHandshakeOtpApi(
+  bookingId: string,
+  otp: string
+): Promise<{ success: boolean; data?: BookingStatusData; message?: string }> {
+  const cleanId = bookingId.trim().toUpperCase();
+  try {
+    const res = await fetch(`${getBaseUrl()}/public/bookings/${cleanId}/verify-handshake`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ otp: otp.trim() }),
+    });
+    if (res.ok) {
+      const data: BookingStatusData = await res.json();
+      return { success: true, data };
+    }
+    const err = await res.json().catch(() => null);
+    return { success: false, message: err?.message || "Invalid 4-digit completion OTP." };
+  } catch (e) {
+    console.error("Handshake verification error:", e);
+    return { success: false, message: "Network error verifying completion OTP." };
+  }
 }
 
 export async function fetchBookingStatus(bookingId: string, mobile?: string): Promise<BookingStatusData | null> {
@@ -196,6 +242,7 @@ export async function fetchBookingStatus(bookingId: string, mobile?: string): Pr
     etaMinutes: "Dispatching (~45 mins)",
     quoteAmount: null,
     quoteApproved: false,
+    handshakeOtp: localData.handshakeOtp || "8341",
     stages: PRD_STAGES.map((name, i) => ({
       index: i,
       name,

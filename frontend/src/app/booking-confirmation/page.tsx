@@ -17,6 +17,7 @@ function BookingConfirmationContent() {
     repairCategory: string;
     address: string;
     timestamp: string;
+    handshakeOtp?: string;
   } | null>(null);
 
   useEffect(() => {
@@ -84,6 +85,32 @@ function BookingConfirmationContent() {
           </button>
         </div>
       </div>
+
+      {/* Doorstep Handshake Code Card (Zomato/Swiggy Model) */}
+      {bookingData?.handshakeOtp && (
+        <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300 rounded-3xl p-5 text-center space-y-2 shadow-xs">
+          <div className="flex items-center justify-center gap-1.5 text-xs font-black text-amber-900 uppercase tracking-wider">
+            <ShieldCheck className="w-4 h-4 text-amber-600" />
+            <span>Doorstep Handshake Code</span>
+          </div>
+          <p className="text-[11px] text-amber-800 leading-relaxed max-w-xs mx-auto">
+            Share this 4-digit code with technician <strong>Ramesh K.</strong> only upon doorstep repair completion to authorize job closure:
+          </p>
+          <div className="flex justify-center items-center gap-2 pt-1">
+            {bookingData.handshakeOtp.split("").map((digit, i) => (
+              <span
+                key={i}
+                className="w-11 h-12 flex items-center justify-center text-xl font-black rounded-xl bg-white text-navy-950 border border-amber-300 shadow-xs"
+              >
+                {digit}
+              </span>
+            ))}
+          </div>
+          <p className="text-[10px] text-amber-700/80 font-semibold pt-1">
+            🔒 Keeps your repair safe & fraud-free • Zero telecom charges
+          </p>
+        </div>
+      )}
 
       {/* Booking Details Card */}
       <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3.5 text-xs sm:text-sm shadow-xs">

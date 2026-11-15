@@ -14,6 +14,7 @@ public class BookingResponse {
     private String address;
     private BigDecimal visitCharge;
     private boolean firstVisitFree;
+    private String handshakeOtp;
     private String confirmationMessage;
     private LocalDateTime timestamp;
 
@@ -49,6 +50,9 @@ public class BookingResponse {
 
     public boolean isFirstVisitFree() { return firstVisitFree; }
     public void setFirstVisitFree(boolean firstVisitFree) { this.firstVisitFree = firstVisitFree; }
+
+    public String getHandshakeOtp() { return handshakeOtp; }
+    public void setHandshakeOtp(String handshakeOtp) { this.handshakeOtp = handshakeOtp; }
 
     public String getConfirmationMessage() { return confirmationMessage; }
     public void setConfirmationMessage(String confirmationMessage) { this.confirmationMessage = confirmationMessage; }

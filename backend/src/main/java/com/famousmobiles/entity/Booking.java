@@ -71,6 +71,9 @@ public class Booking {
     @Column(length = 50)
     private String etaMinutes;
 
+    @Column(length = 6)
+    private String handshakeOtp;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -144,6 +147,9 @@ public class Booking {
 
     public String getEtaMinutes() { return etaMinutes; }
     public void setEtaMinutes(String etaMinutes) { this.etaMinutes = etaMinutes; }
+
+    public String getHandshakeOtp() { return handshakeOtp; }
+    public void setHandshakeOtp(String handshakeOtp) { this.handshakeOtp = handshakeOtp; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

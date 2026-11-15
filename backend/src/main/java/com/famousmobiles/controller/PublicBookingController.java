@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/public/bookings")
@@ -60,6 +61,25 @@ public class PublicBookingController {
         return bookingService.getBookingStatus(bookingId, mobile)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
+    /**
+     * Technician Doorstep Handshake Verification (Zomato/Swiggy model - ₹0 SMS cost)
+     * Validates 4-digit completion code provided by customer upon job finish
+     */
+    @PostMapping("/{bookingId}/verify-handshake")
+    public ResponseEntity<?> verifyHandshake(
+            @PathVariable String bookingId,
+            @RequestBody Map<String, String> body) {
+        String otp = body != null ? body.get("otp") : null;
+        Optional<BookingStatusResponse> result = bookingService.verifyHandshakeAndComplete(bookingId, otp);
+        if (result.isPresent()) {
+            return ResponseEntity.ok(result.get());
+        }
+        return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Invalid 4-digit completion OTP. Please ask customer to check their live tracking screen."
+        ));
     }
 
     /**

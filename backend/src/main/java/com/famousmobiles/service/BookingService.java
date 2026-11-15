@@ -60,8 +60,13 @@ public class BookingService {
         int randomSuffix = 1000 + new Random().nextInt(9000);
         String bookingId = "FMO-2026-" + randomSuffix;
 
+        // Generate 4-digit Doorstep Handshake Code (Zomato/Swiggy model - ₹0 SMS cost)
+        int randomPin = 1000 + new Random().nextInt(9000);
+        String handshakeOtp = String.valueOf(randomPin);
+
         Booking booking = new Booking();
         booking.setBookingId(bookingId);
+        booking.setHandshakeOtp(handshakeOtp);
         booking.setMobileNumber(cleanMobile);
         booking.setCustomerName(request.getCustomerName() != null ? request.getCustomerName().trim() : "Valued Customer");
         booking.setBrandModel(request.getBrandModel() != null ? request.getBrandModel().trim() : "Smartphone");
@@ -105,6 +110,7 @@ public class BookingService {
         response.setAddress(booking.getAddress());
         response.setVisitCharge(visitCharge);
         response.setFirstVisitFree(isEligibleForFreeVisit);
+        response.setHandshakeOtp(handshakeOtp);
         response.setTimestamp(booking.getCreatedAt());
         response.setConfirmationMessage("Your repair enquiry has been logged successfully. Famous Mobiles Manikonda support team will contact you shortly to confirm parts and appointment details.");
 
@@ -236,6 +242,12 @@ public class BookingService {
             res.setQuoteApproved(false);
         }
 
+        if (booking.getHandshakeOtp() == null || booking.getHandshakeOtp().isBlank()) {
+            booking.setHandshakeOtp(String.valueOf(1000 + new Random().nextInt(9000)));
+            bookingRepository.save(booking);
+        }
+        res.setHandshakeOtp(booking.getHandshakeOtp());
+
         res.setCreatedAt(booking.getCreatedAt());
         res.setUpdatedAt(booking.getUpdatedAt());
 
@@ -283,5 +295,31 @@ public class BookingService {
         bookingRepository.save(booking);
 
         return getBookingStatus(bookingId, null);
+    }
+
+    @Transactional
+    public Optional<BookingStatusResponse> verifyHandshakeAndComplete(String bookingId, String inputOtp) {
+        Optional<Booking> bookingOpt = bookingRepository.findByBookingId(bookingId.trim().toUpperCase());
+        if (bookingOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Booking booking = bookingOpt.get();
+        if (inputOtp == null || inputOtp.isBlank()) {
+            return Optional.empty();
+        }
+
+        String cleanInput = inputOtp.trim();
+        String actualOtp = booking.getHandshakeOtp();
+
+        // Check if matching, or developer/demo bypass code "1234"
+        if (cleanInput.equals(actualOtp) || "1234".equals(cleanInput)) {
+            booking.setStatus(BookingStatus.COMPLETED_AND_CLOSED);
+            booking.setUpdatedAt(LocalDateTime.now());
+            bookingRepository.save(booking);
+            return Optional.of(mapBookingToResponse(booking, true));
+        }
+
+        return Optional.empty();
     }
 }

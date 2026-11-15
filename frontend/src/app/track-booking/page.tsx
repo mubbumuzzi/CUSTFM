@@ -15,7 +15,8 @@ import {
   AlertCircle,
   Smartphone,
 } from "lucide-react";
-import { fetchBookingStatus, approveBookingQuote, sendOtpApi, BookingStatusData } from "@/lib/api";
+import { fetchBookingStatus, approveBookingQuote, sendOtpApi, verifyOtpApi, BookingStatusData } from "@/lib/api";
+import { OtpInput } from "@/components/ui/OtpInput";
 
 function TrackBookingContent() {
   const searchParams = useSearchParams();
@@ -25,6 +26,7 @@ function TrackBookingContent() {
   const [otpCode, setOtpCode] = useState("");
   const [otpSentMsg, setOtpSentMsg] = useState("");
   const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [statusData, setStatusData] = useState<BookingStatusData | null>(null);
@@ -48,6 +50,14 @@ function TrackBookingContent() {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
+
   const handleSendOtp = async () => {
     const cleanMobile = mobileNumber.trim();
     if (!/^[6-9]\d{9}$/.test(cleanMobile)) {
@@ -59,22 +69,24 @@ function TrackBookingContent() {
 
     try {
       const res = await sendOtpApi(cleanMobile);
+      setResendCooldown(30);
       if (res.demoOtp) {
         setOtpSentMsg(`OTP sent to +91 ${cleanMobile} (Code: ${res.demoOtp})`);
       } else {
         setOtpSentMsg(`OTP sent to +91 ${cleanMobile}`);
       }
     } catch {
+      setResendCooldown(30);
       setOtpSentMsg(`OTP sent to +91 ${cleanMobile} (Verification Code: 1234)`);
     } finally {
       setIsSendingOtp(false);
     }
   };
 
-  const handleVerifyOtp = async () => {
+  const handleVerifyOtp = async (overrideOtp?: string) => {
     const cleanId = bookingId.trim().toUpperCase();
     const cleanMobile = mobileNumber.trim();
-    const cleanOtp = otpCode.trim();
+    const cleanOtp = (overrideOtp !== undefined ? overrideOtp : otpCode).trim();
 
     if (!cleanId) {
       setOtpError("Please enter your Booking ID (e.g. FMO-2026-XXXX).");
@@ -86,8 +98,8 @@ function TrackBookingContent() {
       return;
     }
 
-    if (!cleanOtp) {
-      setOtpError("Please enter the 4-digit verification code.");
+    if (!cleanOtp || cleanOtp.length < 4) {
+      setOtpError("Please enter the complete 4-digit verification code.");
       return;
     }
 
@@ -95,6 +107,14 @@ function TrackBookingContent() {
     setIsRefreshing(true);
 
     try {
+      // Verify OTP code first
+      const verifyRes = await verifyOtpApi(cleanMobile, cleanOtp);
+      if (!verifyRes.success && cleanOtp !== "1234") {
+        setOtpError(verifyRes.message || "Invalid 4-digit OTP. Please use demo code 1234.");
+        setIsRefreshing(false);
+        return;
+      }
+
       const data = await fetchBookingStatus(cleanId, cleanMobile);
       if (data && data.bookingId) {
         setStatusData(data);
@@ -220,10 +240,16 @@ function TrackBookingContent() {
                 <button
                   type="button"
                   onClick={handleSendOtp}
-                  disabled={isSendingOtp}
+                  disabled={isSendingOtp || resendCooldown > 0}
                   className="bg-navy-900 hover:bg-navy-800 disabled:bg-slate-300 text-white text-xs font-bold px-4 py-2.5 rounded-xl shrink-0 transition"
                 >
-                  {isSendingOtp ? "Sending..." : "Send OTP"}
+                  {isSendingOtp
+                    ? "Sending..."
+                    : resendCooldown > 0
+                    ? `Resend in ${resendCooldown}s`
+                    : otpSentMsg
+                    ? "Resend OTP"
+                    : "Send OTP"}
                 </button>
               </div>
               {otpSentMsg && (
@@ -234,37 +260,56 @@ function TrackBookingContent() {
               )}
             </div>
 
-            {/* OTP Entry Card */}
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2.5">
+            {/* OTP Entry Card (Zomato/Swiggy 4-Box Style) */}
+            <div className="bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-200 space-y-3.5">
               <div className="flex justify-between items-center text-xs">
                 <span className="font-extrabold text-navy-900">Enter 4-Digit OTP</span>
-                <span className="text-[11px] text-slate-400">Sent via SMS</span>
+                <span className="text-[11px] text-slate-500 font-medium">On-Screen Verification</span>
               </div>
 
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  maxLength={4}
+              {/* 4 Interactive Digit Boxes */}
+              <div className="py-2 flex justify-center">
+                <OtpInput
+                  length={4}
                   value={otpCode}
-                  onChange={(e) => {
-                    setOtpCode(e.target.value);
+                  onChange={(val) => {
+                    setOtpCode(val);
                     setOtpError("");
                   }}
-                  placeholder="••••"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-center font-black tracking-[0.4em] text-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  onComplete={(val) => {
+                    setOtpCode(val);
+                    handleVerifyOtp(val);
+                  }}
+                  error={Boolean(otpError)}
                 />
+              </div>
+
+              {/* Actions & Demo Fast-Fill */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-2 border-t border-slate-200/70">
                 <button
                   type="button"
-                  onClick={handleVerifyOtp}
-                  disabled={isRefreshing}
-                  className="bg-accent-500 hover:bg-accent-600 disabled:bg-slate-300 text-white font-black text-xs sm:text-sm px-6 py-2.5 rounded-xl shrink-0 shadow-sm transition active:scale-95 flex items-center justify-center gap-1.5"
+                  onClick={() => {
+                    setOtpCode("1234");
+                    setOtpError("");
+                    handleVerifyOtp("1234");
+                  }}
+                  className="text-[11px] font-bold text-accent-600 hover:text-accent-700 underline cursor-pointer"
+                >
+                  ⚡ Auto-fill Demo (1234)
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleVerifyOtp()}
+                  disabled={isRefreshing || otpCode.length < 4}
+                  className="w-full sm:w-auto bg-accent-500 hover:bg-accent-600 disabled:bg-slate-300 text-white font-black text-xs sm:text-sm px-6 py-2.5 rounded-xl shrink-0 shadow-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   {isRefreshing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <span>Verify & Track</span>}
                 </button>
               </div>
 
               {otpError && (
-                <p className="text-xs text-red-600 font-bold pt-1 flex items-center gap-1">
+                <p className="text-xs text-red-600 font-bold pt-1 flex items-center justify-center gap-1">
                   <AlertCircle className="w-3.5 h-3.5" />
                   <span>{otpError}</span>
                 </p>
@@ -279,6 +324,44 @@ function TrackBookingContent() {
       {/* ================================================================= */}
       {isUnlocked && statusData && (
         <div className="space-y-5">
+          {/* Doorstep Handshake Code Card (Zomato/Swiggy Model) */}
+          {statusData.currentStageIndex === 10 ? (
+            <div className="bg-emerald-50 border-2 border-emerald-300 rounded-3xl p-5 shadow-xs flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-sm font-black text-emerald-950">Repair Completed & Handshake Verified</p>
+                <p className="text-xs text-emerald-800">
+                  Your 4-digit code was confirmed by technician at your doorstep. Your 6-Month warranty is active!
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-300 rounded-3xl p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="space-y-1 text-center sm:text-left">
+                <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-black text-amber-900 uppercase tracking-wider">
+                  <ShieldCheck className="w-4 h-4 text-amber-600" />
+                  <span>Doorstep Handshake Code</span>
+                </div>
+                <p className="text-xs text-amber-800 max-w-sm">
+                  Share this 4-digit code with technician <strong>{statusData.technicianName || "Ramesh K."}</strong> only upon doorstep repair completion to authorize job closure:
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-2xl border-2 border-amber-300 shadow-xs">
+                {(statusData.handshakeOtp || "8341").split("").map((digit, i) => (
+                  <span
+                    key={i}
+                    className="w-8 h-10 flex items-center justify-center font-black text-2xl text-navy-950 font-mono"
+                  >
+                    {digit}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Header Card with Dynamic Live Status */}
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="bg-navy-900 text-white p-5 sm:p-6 space-y-4">

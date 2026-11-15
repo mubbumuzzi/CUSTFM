@@ -25,6 +25,7 @@ public class BookingStatusResponse {
     private String etaMinutes;
     private BigDecimal quoteAmount;
     private boolean quoteApproved;
+    private String handshakeOtp;
     private List<StageInfo> stages;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -110,6 +111,9 @@ public class BookingStatusResponse {
 
     public boolean isQuoteApproved() { return quoteApproved; }
     public void setQuoteApproved(boolean quoteApproved) { this.quoteApproved = quoteApproved; }
+
+    public String getHandshakeOtp() { return handshakeOtp; }
+    public void setHandshakeOtp(String handshakeOtp) { this.handshakeOtp = handshakeOtp; }
 
     public List<StageInfo> getStages() { return stages; }
     public void setStages(List<StageInfo> stages) { this.stages = stages; }
