@@ -20,19 +20,20 @@ test("Haversine distance to Lanco Hills (~17.404, 78.375) is within 1.0 - 2.0 km
   assert.ok(dist >= 1.0 && dist <= 2.0, `Expected ~1.4 km, got ${dist}`);
 });
 
-test("Locations beyond 5 km are correctly marked as Shop Visit Only", () => {
-  const distFar = calculateDistanceKm(17.4400, 78.3489); // Financial District
-  assert.ok(distFar > MAX_RADIUS_KM, `Expected > 5 km, got ${distFar}`);
+test("Locations beyond 6 km are correctly marked as Shop Visit Only", () => {
+  const distFar = calculateDistanceKm(17.4650, 78.3580); // Kondapur (~7.3 km)
+  assert.ok(distFar > MAX_RADIUS_KM, `Expected > 6 km, got ${distFar}`);
   const eta = getEtaForDistance(distFar);
   assert.strictEqual(eta, "Shop Visit Only");
 });
 
-test("Locations within 5 km receive valid arrival time ETAs", () => {
+test("Locations within 6 km receive valid arrival time ETAs", () => {
   assert.strictEqual(getEtaForDistance(0.2), "10-15 mins");
   assert.strictEqual(getEtaForDistance(0.4), "10-15 mins");
   assert.strictEqual(getEtaForDistance(1.2), "15-25 mins");
   assert.strictEqual(getEtaForDistance(2.2), "25-35 mins");
   assert.strictEqual(getEtaForDistance(4.5), "35-45 mins");
+  assert.strictEqual(getEtaForDistance(5.5), "45-60 mins");
 });
 
 test("reverseGeocode resolves coordinates to clean locality without administrative ward noise", async () => {

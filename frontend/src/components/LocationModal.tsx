@@ -47,15 +47,15 @@ interface SavedLocationItem {
 }
 
 const POPULAR_HUBS = [
-  { name: "Puppalaguda Main Rd", suburb: "Manikonda", lat: 17.4000, lng: 78.3862, km: 0.4, eligible: true, note: "Doorstep Eligible • 10-15 mins" },
-  { name: "OU Colony / Shaikpet", suburb: "Shaikpet", lat: 17.4085, lng: 78.3980, km: 1.2, eligible: true, note: "Doorstep Eligible • 15-20 mins" },
-  { name: "Lanco Hills", suburb: "Manikonda", lat: 17.4045, lng: 78.3752, km: 1.5, eligible: true, note: "Doorstep Eligible • 15-25 mins" },
-  { name: "Secretariat Colony", suburb: "Manikonda", lat: 17.4055, lng: 78.3768, km: 1.6, eligible: true, note: "Doorstep Eligible • 20-30 mins" },
-  { name: "Alkapoor Township", suburb: "Manikonda", lat: 17.3967, lng: 78.3717, km: 1.9, eligible: true, note: "Doorstep Eligible • 20-30 mins" },
-  { name: "Khajaguda", suburb: "Gachibowli", lat: 17.4200, lng: 78.3680, km: 2.8, eligible: true, note: "Doorstep Eligible • 25-35 mins" },
-  { name: "Nanakramguda", suburb: "Financial Dist", lat: 17.4150, lng: 78.3480, km: 4.5, eligible: true, note: "Doorstep Eligible • 35-45 mins" },
-  { name: "Gachibowli", suburb: "Cyberabad", lat: 17.4400, lng: 78.3489, km: 5.9, eligible: false, note: "Exceeds 5 km • Free In-Store Visit" },
-  { name: "Hitec City / Madhapur", suburb: "Cyberabad", lat: 17.4504, lng: 78.3808, km: 5.4, eligible: false, note: "Exceeds 5 km • Free In-Store Visit" },
+  { name: "Puppalaguda Main Rd", suburb: "Manikonda", lat: 17.4000, lng: 78.3862, km: 0.7, eligible: true, note: "Doorstep Eligible • 15-25 mins" },
+  { name: "OU Colony / Shaikpet", suburb: "Shaikpet", lat: 17.4085, lng: 78.3980, km: 1.1, eligible: true, note: "Doorstep Eligible • 15-25 mins" },
+  { name: "Lanco Hills", suburb: "Manikonda", lat: 17.4045, lng: 78.3752, km: 1.4, eligible: true, note: "Doorstep Eligible • 15-25 mins" },
+  { name: "Secretariat Colony", suburb: "Manikonda", lat: 17.4055, lng: 78.3768, km: 1.2, eligible: true, note: "Doorstep Eligible • 15-25 mins" },
+  { name: "Alkapoor Township", suburb: "Manikonda", lat: 17.3967, lng: 78.3717, km: 2.0, eligible: true, note: "Doorstep Eligible • 25-35 mins" },
+  { name: "Tolichowki", suburb: "Hyderabad", lat: 17.4020, lng: 78.4110, km: 2.5, eligible: true, note: "Doorstep Eligible • 25-35 mins" },
+  { name: "Khajaguda", suburb: "Gachibowli", lat: 17.4200, lng: 78.3680, km: 2.6, eligible: true, note: "Doorstep Eligible • 25-35 mins" },
+  { name: "Gachibowli", suburb: "Cyberabad", lat: 17.4400, lng: 78.3489, km: 5.6, eligible: true, note: "Doorstep Eligible • 45-60 mins" },
+  { name: "Kondapur", suburb: "Cyberabad", lat: 17.4650, lng: 78.3580, km: 7.3, eligible: false, note: "Exceeds 6 km • Free In-Store Visit" },
 ];
 
 export default function LocationModal({
@@ -265,7 +265,7 @@ export default function LocationModal({
                 {step === "CONFIRM" ? "Confirm Delivery Location" : "Select Location"}
               </h3>
               <p className="text-[11px] text-slate-500">
-                Famous Mobiles Manikonda (5 km doorstep service area)
+                Famous Mobiles Manikonda (6 km doorstep service area)
               </p>
             </div>
           </div>
@@ -594,7 +594,7 @@ export default function LocationModal({
                   <>
                     <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
                     <span>
-                      Outside 5 km doorstep zone ({selectedLoc.distanceKm} km) • Free Shop Visit Available
+                      Outside 6 km doorstep zone ({selectedLoc.distanceKm} km) • Free Shop Visit Available
                     </span>
                   </>
                 )}

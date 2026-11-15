@@ -66,6 +66,59 @@ export default function HomePage() {
 
   return (
     <>
+      {/* Local SEO FAQPage Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Which areas are covered under your 6 km doorstep pickup and delivery?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "We cover all neighborhoods within 6 km of our Shaikpet Main Road / Puppalaguda store, including Manikonda, Alkapur Township, Lanco Hills, OU Colony, Shaikpet, Tolichowki, Narsingi, Kokapet, Raidurg, Gachibowli, Film Nagar, Jubilee Hills, and Mehdipatnam."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What are your store timings? Are you open late at night?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. New Famous Mobile is open daily from 10:00 AM to 3:00 AM at Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda, allowing emergency late-night screen, battery, and charging repairs."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How fast can my phone be repaired?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Most screen, battery, and charging port replacements take 30 to 60 minutes for walk-in customers and 2 to 3 hours round-trip for 6 km doorstep pickup orders."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Do you offer original screens and batteries?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. We provide upfront quotes for both Original/Service-Pack parts and budget-friendly compatible options with clear warranty terms."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How does doorstep pickup work for gated communities like Lanco Hills or Alkapur Township?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Upon slot confirmation via website or WhatsApp (+91 9063786751), we share our rider's details immediately for MyGate, NoBrokerHood, or security gate approval."
+                }
+              }
+            ]
+          }),
+        }}
+      />
+
       {/* 1st Page GPS Permission Notification */}
       <GpsPromptBanner />
 
@@ -83,40 +136,52 @@ export default function HomePage() {
                 <span className="w-2 h-2 rounded-full bg-accent-500 animate-ping"></span>
                 <span>
                   {userLoc && userLoc.eligible && userLoc.eta && userLoc.eta !== "Shop Visit Only"
-                    ? `Hyperlocal Manikonda Service • ~${userLoc.eta} Arrival (${userLoc.areaTitle || userLoc.locality?.split(",")[0] || "Manikonda"})`
-                    : "Hyperlocal Manikonda Service • 10-45 Mins Arrival"}
+                    ? `Hyperlocal 6 km Service • ~${userLoc.eta} Arrival (${userLoc.areaTitle || userLoc.locality?.split(",")[0] || "Manikonda"})`
+                    : "Hyperlocal 6 km Service • 10-60 Mins Doorstep Arrival"}
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-navy-950 leading-[1.1]">
-                Mobile Repair at <br />
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-navy-950 leading-[1.15]">
+                <span>Express & Late-Night</span>{" "}
                 <span className="bg-gradient-to-r from-accent-600 to-orange-500 bg-clip-text text-transparent">
-                  Your Doorstep.
+                  Mobile Repair
+                </span>
+                <span className="block text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-navy-900 mt-2">
+                  Open 10 AM – 3 AM in Manikonda & Shaikpet
                 </span>
               </h1>
 
               <p className="text-sm sm:text-base text-slate-600 max-w-xl font-medium leading-relaxed">
-                Professional smartphone repairs completed right in front of you. Certified technicians, genuine OEM parts, transparent quotations, and a physical workshop in Manikonda.
+                Dropped your phone late at night? We are open daily from <strong>10:00 AM to 3:00 AM</strong> at Shaikpet Main Road, Puppalaguda—offering 30–60 minute walk-in repairs and on-demand doorstep pickup & delivery anywhere within 6 km, including Manikonda, Alkapur Township, Lanco Hills, Gachibowli, Narsingi, Tolichowki, and Jubilee Hills.
               </p>
 
               {/* Primary Call-to-actions */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
-                <Link
-                  href="/book-repair"
+                <a
+                  href="#services-grid"
                   className="bg-accent-500 hover:bg-accent-600 text-white font-extrabold text-sm sm:text-base px-6 py-3.5 rounded-2xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-center"
                 >
-                  <span>Book Free Doorstep Visit</span>
+                  <span>Get Instant Repair Quote</span>
                   <ArrowRight className="w-4 h-4" />
+                </a>
+
+                <Link
+                  href="/book-repair"
+                  className="bg-navy-950 hover:bg-navy-900 text-white font-extrabold text-sm sm:text-base px-6 py-3.5 rounded-2xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 text-center"
+                >
+                  <Clock className="w-4 h-4 text-amber-400" />
+                  <span>Book 6 km Doorstep Pickup</span>
                 </Link>
 
                 <a
-                  href="https://wa.me/919063786751?text=Hi%20Famous%20Mobiles,%20I%20need%20doorstep%20repair%20service"
+                  href="https://wa.me/919063786751?text=Hi%20New%20Famous%20Mobile,%20I%20need%20emergency%20repair%20service"
                   target="_blank"
                   rel="noreferrer"
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm sm:text-base px-6 py-3.5 rounded-2xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 text-center"
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm sm:text-base px-4 py-3.5 rounded-2xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 text-center"
+                  title="Chat directly on WhatsApp (+91 9063786751)"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  <span>WhatsApp Quote</span>
+                  <span className="hidden xl:inline">WhatsApp Quote</span>
                 </a>
               </div>
 
@@ -152,9 +217,9 @@ export default function HomePage() {
                   title="View physical workshop details, hours & directions"
                 >
                   <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Physical Shop: Manikonda Main Road</span>
+                  <span>Physical Shop: Opp Friends Colony Bus Stop</span>
                   <span className="text-[11px] font-black text-emerald-700 underline flex items-center gap-0.5 ml-0.5">
-                    Shop Details ↗
+                    Directions ↗
                   </span>
                 </button>
               </div>
@@ -176,7 +241,7 @@ export default function HomePage() {
                   </h2>
 
                   <p className="text-xs sm:text-sm font-semibold text-navy-900/85 leading-relaxed">
-                    Doorstep inspection within 5 km of Manikonda shop. No call-out fee for your first eligible enquiry.
+                    Doorstep inspection within 6 km of Shaikpet / Puppalaguda shop. No call-out fee for your first eligible enquiry.
                   </p>
 
                   <div className="p-3 bg-white/80 rounded-xl text-xs space-y-1">
@@ -210,7 +275,7 @@ export default function HomePage() {
       {/* ================================================================= */}
       {/* 2. REPAIR CATEGORIES & QUICK-COMMERCE PILLS                       */}
       {/* ================================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-5">
+      <section id="services-grid" className="max-w-7xl mx-auto px-4 sm:px-6 space-y-5 scroll-mt-20">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
           <div>
             <h2 className="text-lg sm:text-2xl font-black text-navy-900">
@@ -332,57 +397,45 @@ export default function HomePage() {
       </section>
 
       {/* ================================================================= */}
-      {/* 3. HOW IT WORKS (PRD 5-Step Lifecycle Stepper)                   */}
+      {/* 3. 3-STEP CUSTOMER CONVERSION FLOW (Section 4 of Brief)           */}
       {/* ================================================================= */}
       <section className="bg-navy-950 text-white py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
           <div className="text-center max-w-xl mx-auto space-y-2">
             <span className="text-xs font-extrabold uppercase tracking-widest text-accent-400">
-              Simple & Transparent
+              Friction-Free Process
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black">How Doorstep Repair Works</h2>
+            <h2 className="text-2xl sm:text-3xl font-black">3-Step Customer Conversion Flow</h2>
             <p className="text-xs sm:text-sm text-slate-300">
               No advance payment, zero hidden fees, and transparent pricing with prior approval.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
               {
                 step: "01",
-                title: "Book Online",
-                desc: "Provide only your 10-digit mobile number and address. No OTP or login needed.",
+                title: "Share Brand, Model & Issue",
+                desc: "Select your device (iPhone, Samsung, OnePlus, Vivo, Oppo, Redmi, Realme, Pixel, Nothing) to receive an upfront quote.",
               },
               {
                 step: "02",
-                title: "Team Confirms",
-                desc: "Our Manikonda desk calls in 10 mins to verify the issue and reserve OEM parts.",
+                title: "Choose Doorstep Pickup or Store Walk-In",
+                desc: "Schedule pickup within our 6 km radius or visit our Shaikpet Main Road store anytime between 10:00 AM and 3:00 AM.",
               },
               {
                 step: "03",
-                title: "Tech Arrives",
-                desc: `Certified technician reaches your doorstep in ${
-                  userLoc?.eta && userLoc.eta !== "Shop Visit Only" ? userLoc.eta : "15-45 mins"
-                } with tools and parts.`,
-              },
-              {
-                step: "04",
-                title: "You Approve Quote",
-                desc: "Device diagnosed right before you. Repair starts only after you approve the quote.",
-              },
-              {
-                step: "05",
-                title: "Pay & Warranty",
-                desc: "Test your device thoroughly. Pay via UPI/Cash and receive up to 6 months warranty.",
+                title: "60-Minute Precision Repair & Quality Check",
+                desc: "Multi-point diagnostics (touch response, True Tone/fingerprint sensor, camera, charging) before handover.",
               },
             ].map((item) => (
               <div
                 key={item.step}
-                className="bg-navy-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-2 relative"
+                className="bg-navy-900 border border-slate-800 rounded-2xl p-5 space-y-3 relative shadow-md"
               >
-                <div className="text-accent-400 font-black text-lg">{item.step}</div>
-                <h3 className="text-sm font-extrabold text-white">{item.title}</h3>
-                <p className="text-xs text-slate-300 leading-relaxed">{item.desc}</p>
+                <div className="text-accent-400 font-black text-xl">{item.step}</div>
+                <h3 className="text-base font-extrabold text-white">{item.title}</h3>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -390,77 +443,87 @@ export default function HomePage() {
       </section>
 
       {/* ================================================================= */}
-      {/* 4. WHY CHOOSE FAMOUS MOBILES (Trust & Physical Presence)          */}
+      {/* 4. CORE VALUE PROPOSITIONS (Trust & Conversion Blocks)            */}
       {/* ================================================================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
         <div className="text-center max-w-xl mx-auto space-y-2">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-slate-400">
-            Backed by a Real Store
+          <span className="text-xs font-extrabold uppercase tracking-widest text-accent-600 font-black">
+            Why West Hyderabad Trusts New Famous Mobile
           </span>
           <h2 className="text-2xl sm:text-3xl font-black text-navy-950">
-            Why Manikonda Trusts Famous Mobiles
+            Real Workshop. Genuine Parts. Open Till 3 AM.
           </h2>
           <p className="text-xs sm:text-sm text-slate-600">
-            Unlike anonymous aggregator apps, we have a physical shop in Manikonda you can walk into anytime.
+            Unlike anonymous aggregator apps, we operate an authentic physical workshop at Opp Friends Colony Bus Stop, Shaikpet Main Road.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 space-y-2 shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-accent-50 text-accent-600 flex items-center justify-center font-black">
-              ⭐
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 space-y-2.5 shadow-xs hover:border-accent-400 transition">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-black">
+              🌙
             </div>
-            <h3 className="text-base font-extrabold text-navy-950">10,000+ Completed Repairs</h3>
+            <h3 className="text-base font-extrabold text-navy-950">Open Late Until 3:00 AM Daily</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              From iPhone 16 screen replacements to motherboard water-damage recovery, our technicians have repaired over 10,000 devices with a 4.9★ rating.
+              Built for IT professionals, students, and night-shift workers—get broken screens or dead batteries fixed tonight so your phone is ready by morning.
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 space-y-2 shadow-xs">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 space-y-2.5 shadow-xs hover:border-emerald-400 transition">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black">
-              🛡️
-            </div>
-            <h3 className="text-base font-extrabold text-navy-950">First Visit FREE (₹0)</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              New customers enjoy a ₹0 inspection visit. Subsequent home visits cost ₹69, which is 100% adjusted against your repair bill when you proceed.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 space-y-2 shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-black">
               📍
             </div>
-            <h3 className="text-base font-extrabold text-navy-950">Physical Manikonda Hub</h3>
+            <h3 className="text-base font-extrabold text-navy-950">Real Store, Zero Aggregators</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Located on Main Road near Marrichettu Junction. Open daily from 9:30 AM to 3:30 AM for walk-ins, phone consultations, and warranty claims.
+              Visit our physical store at Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda—know exactly where your device is serviced.
             </p>
             <a
               href="https://share.google/U0L5BeQxKW1dBHUbJ"
               target="_blank"
               rel="noreferrer"
-              className="text-[11px] font-bold text-accent-600 hover:underline inline-flex items-center gap-1 pt-1"
+              className="text-[11px] font-bold text-emerald-700 hover:underline inline-flex items-center gap-1 pt-1"
             >
-              <span>Get Directions on Google Maps →</span>
+              <span>View Store on Google Maps →</span>
             </a>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 space-y-2.5 shadow-xs hover:border-blue-400 transition">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-black">
+              🛡️
+            </div>
+            <h3 className="text-base font-extrabold text-navy-950">6 km Pickup & Gated-Society Ready</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Seamless pickup and delivery across Lanco Hills, Alkapur Township, OU Colony, Gachibowli, and Narsingi with instant rider details for MyGate/NoBrokerHood approval.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 space-y-2.5 shadow-xs hover:border-purple-400 transition">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-black">
+              ⚖️
+            </div>
+            <h3 className="text-base font-extrabold text-navy-950">OEM vs Compatible Transparency</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Compare pricing between 100% Original/OEM-grade displays and batteries versus high-grade compatible options before repair begins, backed by warranty and strict data privacy.
+            </p>
           </div>
         </div>
       </section>
 
       {/* ================================================================= */}
-      {/* 5. SERVICE AREA RADIUS (5 km Coverage)                           */}
+      {/* 5. SERVICE AREA RADIUS (Strict 6 km Coverage)                    */}
       {/* ================================================================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="bg-gradient-to-r from-navy-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
           <div className="space-y-2 text-center md:text-left">
             <div className="inline-flex items-center gap-1.5 bg-accent-500 text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
               <MapPin className="w-3.5 h-3.5" />
-              <span>5 km Dedicated Coverage Area</span>
+              <span>Strict 6 km Dedicated Coverage Area</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black">
-              Serving All Major Localities Across Manikonda
+              Serving All 13 Major Localities Across West Hyderabad
             </h2>
-            <p className="text-xs text-slate-300 max-w-lg">
-              Lanco Hills • Puppalaguda Main Rd • Alkapoor Township • OU Colony • Shaikpet • Secretariat Colony
+            <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+              Manikonda • Puppalaguda • Shaikpet • Alkapur Township • Lanco Hills • OU Colony • Tolichowki • Narsingi • Kokapet • Raidurg • Gachibowli • Film Nagar • Jubilee Hills • Mehdipatnam
             </p>
           </div>
 
@@ -469,7 +532,7 @@ export default function HomePage() {
               href="/book-repair"
               className="bg-accent-500 hover:bg-accent-600 text-white font-extrabold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-md transition active:scale-95 text-center"
             >
-              Book Doorstep Repair →
+              Book 6 km Doorstep Repair →
             </Link>
             <a
               href="https://share.google/U0L5BeQxKW1dBHUbJ"
@@ -484,31 +547,38 @@ export default function HomePage() {
       </section>
 
       {/* ================================================================= */}
-      {/* 6. COMMON FAQS                                                    */}
+      {/* 6. LOCAL SEO FAQS (Section 5 with FAQPage Schema)                 */}
       {/* ================================================================= */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 space-y-4">
         <div className="text-center space-y-1">
+          <span className="text-xs font-black uppercase tracking-wider text-accent-600 bg-accent-50 px-3 py-1 rounded-full border border-accent-200">
+            Hyper-Local FAQs
+          </span>
           <h2 className="text-xl sm:text-2xl font-black text-navy-950">Frequently Asked Questions</h2>
-          <p className="text-xs text-slate-500">Everything you need to know about our doorstep repair service.</p>
+          <p className="text-xs text-slate-500">Everything you need to know about our 6 km doorstep repair service and late-night store hours.</p>
         </div>
 
         <div className="space-y-2.5">
           {[
             {
-              q: "How does the 'First Home Visit is FREE' offer work?",
-              a: "For all eligible new customers within our 5 km Manikonda service area, our technician visits your doorstep for ₹0. If you decide not to proceed with the repair after diagnosis, there is zero fee for your first visit. Subsequent visits are ₹69, which is 100% adjusted against your final repair bill if you proceed.",
+              q: "Which areas are covered under your 6 km doorstep pickup and delivery?",
+              a: "We cover all neighborhoods within 6 km of our Shaikpet Main Road / Puppalaguda store, including Manikonda, Alkapur Township, Lanco Hills, OU Colony, Shaikpet, Tolichowki, Narsingi, Kokapet, Raidurg, Gachibowli, Film Nagar, Jubilee Hills, and Mehdipatnam.",
             },
             {
-              q: "Do I need to create an account or verify OTP to book a repair?",
-              a: "No! Booking is completely frictionless. You only need to enter your 10-digit mobile number. OTP is required only if you want to look up live tracking details later to safeguard your privacy.",
+              q: "What are your store timings? Are you open late at night?",
+              a: "Yes. New Famous Mobile is open daily from 10:00 AM to 3:00 AM at Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda, allowing emergency late-night screen, battery, and charging repairs.",
             },
             {
-              q: "How long does a typical screen or battery repair take at doorstep?",
-              a: "Most screen replacements take 30 minutes, and battery replacements take around 20 minutes. All repairs are done in your presence.",
+              q: "How fast can my phone be repaired?",
+              a: "Most screen, battery, and charging port replacements take 30 to 60 minutes for walk-in customers and 2 to 3 hours round-trip for 6 km doorstep pickup orders.",
             },
             {
-              q: "Can water-damaged phones be repaired at home?",
-              a: "In alignment with technical standards, water damage diagnosis requires an industrial ultrasonic chemical bath and thermal microscope in our Manikonda workshop. We arrange doorstep pickup and safe return.",
+              q: "Do you offer original screens and batteries?",
+              a: "Yes. We provide upfront quotes for both Original/Service-Pack parts and budget-friendly compatible options with clear warranty terms.",
+            },
+            {
+              q: "How does doorstep pickup work for gated communities like Lanco Hills or Alkapur Township?",
+              a: "Upon slot confirmation via website or WhatsApp (+91 9063786751), we share our rider's details immediately for MyGate, NoBrokerHood, or security gate approval.",
             },
           ].map((faq, i) => (
             <div key={i} className="bg-white rounded-xl border border-slate-200 p-4 space-y-1.5 shadow-xs">

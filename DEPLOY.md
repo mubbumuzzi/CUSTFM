@@ -1,17 +1,17 @@
 # CustFM Production Deployment Guide
 
-Deploying the **Customer Facing Platform (`CustFM`)** to server `http://13.140.146.12:8080/`.
+Deploying the **Customer Facing Platform (`CustFM`)** for **`famousmobiles.com`** (Server: `13.140.146.12`).
 
 ---
 
 ## Architecture Overview
 
 ```
-Client Request (http://13.140.146.12:8080)
+Client Request (https://famousmobiles.com / http://13.140.146.12)
                      │
                      ▼
           ┌─────────────────────┐
-          │     Nginx :80       │ (Exposed on host port 8080)
+          │     Nginx :80       │ (Exposed on host port 80)
           └──────────┬──────────┘
                      │
         ┌────────────┴────────────┐
@@ -79,6 +79,6 @@ chmod +x scripts/deploy.sh
   docker compose down
   ```
 - **Access Endpoints:**
-  - Customer Web App: `http://13.140.146.12:8080/`
-  - Backend API: `http://13.140.146.12:8080/api/catalog/services`
-  - Database Console: `http://13.140.146.12:8080/h2-console`
+  - Customer Web App: `http://famousmobiles.com` (or `http://13.140.146.12/`)
+  - Backend API: `http://famousmobiles.com/api/catalog/services`
+  - Database Console: `http://13.140.146.12/h2-console`

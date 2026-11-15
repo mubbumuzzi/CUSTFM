@@ -108,8 +108,8 @@ class BookingServiceTest {
     void testDynamicGpsLinkedEtaAssigned() {
         BookingEnquiryRequest gpsRequest = new BookingEnquiryRequest();
         gpsRequest.setMobileNumber("9876543210");
-        gpsRequest.setLatitude(17.4006);
-        gpsRequest.setLongitude(78.3894); // ~0.2 km from shop hub
+        gpsRequest.setLatitude(17.4050);
+        gpsRequest.setLongitude(78.3880); // ~0.1 km from new shop hub (17.4058, 78.3879)
 
         ArgumentCaptor<Booking> captor = ArgumentCaptor.forClass(Booking.class);
         when(customerRepository.findByMobileNumber("9876543210")).thenReturn(Optional.empty());

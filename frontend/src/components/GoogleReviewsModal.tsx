@@ -296,13 +296,13 @@ export default function GoogleReviewsModal({
                 </div>
                 <div>
                   <h4 className="text-xs sm:text-sm font-black text-navy-950 flex items-center gap-1.5">
-                    <span>Physical Workshop: Manikonda Main Road</span>
+                    <span>Physical Workshop: Shaikpet / Puppalaguda</span>
                     <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-1.5 py-0.2 rounded-full border border-emerald-200">
                       Open to Public
                     </span>
                   </h4>
                   <p className="text-xs text-slate-600 font-medium mt-0.5 leading-relaxed">
-                    Main Road, Near Marrichettu Junction, Manikonda, Hyderabad, Telangana 500089
+                    Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda, Manikonda, Hyderabad, Telangana 500089
                   </p>
                 </div>
               </div>
@@ -321,7 +321,7 @@ export default function GoogleReviewsModal({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px] font-bold text-slate-700">
               <div className="flex items-center gap-1.5 bg-white/80 p-2 rounded-xl border border-emerald-100">
                 <Clock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>9:30 AM – 3:30 AM Daily</span>
+                <span>10:00 AM – 3:00 AM Daily</span>
               </div>
               <div className="flex items-center gap-1.5 bg-white/80 p-2 rounded-xl border border-emerald-100">
                 <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />

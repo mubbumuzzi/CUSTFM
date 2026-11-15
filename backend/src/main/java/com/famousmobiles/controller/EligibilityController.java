@@ -9,9 +9,9 @@ import java.util.Map;
 @RequestMapping("/api/public/eligibility")
 public class EligibilityController {
 
-    private static final double SHOP_LAT = 17.4022;
-    private static final double SHOP_LNG = 78.3888;
-    private static final double MAX_RADIUS_KM = 5.0;
+    private static final double SHOP_LAT = 17.4058;
+    private static final double SHOP_LNG = 78.3879;
+    private static final double MAX_RADIUS_KM = 6.0;
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> checkEligibility(
@@ -23,14 +23,16 @@ public class EligibilityController {
 
         if (locality != null) {
             String lower = locality.toLowerCase();
-            if (lower.contains("financial") || lower.contains("gachibowli") || lower.contains("hitec") || lower.contains("kondapur")) {
-                distance = 6.8;
+            if (lower.contains("kondapur") || lower.contains("hitec city")) {
+                distance = 7.2;
+            } else if (lower.contains("gachibowli")) {
+                distance = 4.8;
             } else if (lower.contains("puppalaguda")) {
-                distance = 2.6;
+                distance = 0.8;
             } else if (lower.contains("alkapoor")) {
-                distance = 3.3;
+                distance = 2.1;
             } else if (lower.contains("ou colony") || lower.contains("shaikpet")) {
-                distance = 2.9;
+                distance = 1.2;
             } else if (lower.contains("lanco")) {
                 distance = 1.4;
             }
@@ -44,8 +46,8 @@ public class EligibilityController {
                 "doorstepEligible", isDoorstepEligible,
                 "maxRadiusKm", MAX_RADIUS_KM,
                 "serviceMessage", isDoorstepEligible
-                        ? "Great news! Your location is within our 5 km doorstep repair zone. 1st visit is ₹0 FREE!"
-                        : "Your location exceeds 5 km (" + distance + " km). Doorstep is not available, but you can bring it to our Manikonda shop or request lab pickup."
+                        ? "Great news! Your location is within our 6 km doorstep repair zone. 1st visit is ₹0 FREE!"
+                        : "Your location exceeds 6 km (" + distance + " km). Doorstep is not available, but you can bring it to our Shaikpet / Puppalaguda shop or request lab pickup."
         ));
     }
 }

@@ -72,7 +72,7 @@ export default function Footer() {
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-accent-500 shrink-0 mt-0.5" />
                 <div>
-                  <span>Main Road, Near Marrichettu Junction, Manikonda, Hyderabad, Telangana 500089</span>
+                  <span>Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda, Manikonda, Hyderabad, Telangana 500089</span>
                   <a
                     href="https://share.google/U0L5BeQxKW1dBHUbJ"
                     target="_blank"
@@ -85,10 +85,10 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-accent-500 shrink-0" />
-                <span>Operating Hours: 9:30 AM – 3:30 AM (Everyday)</span>
+                <span>Operating Hours: 10:00 AM – 3:00 AM (Everyday)</span>
               </div>
               <div className="text-[11px] text-emerald-400 font-bold bg-emerald-950/60 p-2 rounded-lg border border-emerald-800/40">
-                🚲 Service Area: 5 km radius (Lanco Hills, Puppalaguda, Alkapoor Township, OU Colony, Shaikpet)
+                🚲 Service Area: Strict 6 km radius (Shaikpet, Puppalaguda, Manikonda, Lanco Hills, Alkapur Township, Tolichowki, Gachibowli, Narsingi, Kokapet)
               </div>
             </div>
           </div>
@@ -124,6 +124,34 @@ export default function Footer() {
               <span>•</span>
               <Link href="/terms" className="hover:underline">Terms</Link>
             </div>
+          </div>
+        </div>
+
+        {/* Hyperlocal Neighborhood Landing Pages for SEO */}
+        <div className="pt-6 border-t border-slate-800 text-xs text-slate-400 space-y-2">
+          <div className="font-extrabold text-slate-300 uppercase tracking-wider text-[11px]">
+            6 km Dedicated Neighborhood Doorstep Zones:
+          </div>
+          <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs">
+            <Link href="/mobile-repair-manikonda" className="hover:text-accent-400 transition">
+              📍 Manikonda & Lanco Hills
+            </Link>
+            <span className="text-slate-700">•</span>
+            <Link href="/mobile-repair-shaikpet-puppalaguda" className="hover:text-accent-400 transition">
+              📍 Shaikpet & Puppalaguda (Store Hub)
+            </Link>
+            <span className="text-slate-700">•</span>
+            <Link href="/doorstep-mobile-repair-gachibowli" className="hover:text-accent-400 transition">
+              📍 Gachibowli & Telecom Nagar
+            </Link>
+            <span className="text-slate-700">•</span>
+            <Link href="/mobile-repair-narsingi-kokapet" className="hover:text-accent-400 transition">
+              📍 Narsingi & Kokapet
+            </Link>
+            <span className="text-slate-700">•</span>
+            <Link href="/mobile-repair-tolichowki" className="hover:text-accent-400 transition">
+              📍 Tolichowki & Paramount Hills
+            </Link>
           </div>
         </div>
 

@@ -10,8 +10,28 @@ export const metadata: Metadata = {
 
 const FAQS = [
   {
+    q: "Which areas are covered under your 6 km doorstep pickup and delivery?",
+    a: "We cover all neighborhoods within 6 km of our Shaikpet Main Road / Puppalaguda store, including Manikonda, Alkapur Township, Lanco Hills, OU Colony, Shaikpet, Tolichowki, Narsingi, Kokapet, Raidurg, Gachibowli, Film Nagar, Jubilee Hills, and Mehdipatnam.",
+  },
+  {
+    q: "What are your store timings? Are you open late at night?",
+    a: "Yes. New Famous Mobile is open daily from 10:00 AM to 3:00 AM at Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda, allowing emergency late-night screen, battery, and charging repairs.",
+  },
+  {
     q: "How does the 'First Home Visit is FREE' offer work?",
-    a: "For all eligible new customers located within our 5 km Manikonda service perimeter, our technician visits your doorstep for ₹0. If you decline the repair after diagnosis, you pay ₹0. Subsequent visits cost ₹69, which is 100% adjusted against your final repair bill if the repair proceeds.",
+    a: "For all eligible new customers located within our 6 km service perimeter, our technician visits your doorstep for ₹0. If you decline the repair after diagnosis, you pay ₹0. Subsequent visits cost ₹69, which is 100% adjusted against your final repair bill if the repair proceeds.",
+  },
+  {
+    q: "How fast can my phone be repaired?",
+    a: "Most screen, battery, and charging port replacements take 30 to 60 minutes for walk-in customers and 2 to 3 hours round-trip for 6 km doorstep pickup orders.",
+  },
+  {
+    q: "Do you offer original screens and batteries?",
+    a: "Yes. We provide upfront quotes for both Original/Service-Pack parts and budget-friendly compatible options with clear warranty terms.",
+  },
+  {
+    q: "How does doorstep pickup work for gated communities like Lanco Hills or Alkapur Township?",
+    a: "Upon slot confirmation via website or WhatsApp (+91 9063786751), we share our rider's details immediately for MyGate, NoBrokerHood, or security gate approval.",
   },
   {
     q: "Do I need to give my phone passcode / PIN to the technician?",
@@ -20,18 +40,6 @@ const FAQS = [
   {
     q: "What warranty do you provide on replacement parts?",
     a: "Display panels carry up to 6 Months Warranty, while battery replacements carry an extended up to 8 Months Warranty. Charging ports and secondary board repairs carry 3 Months Warranty. If any covered defect arises, our technician revisits your doorstep to replace it free of charge.",
-  },
-  {
-    q: "What areas in Manikonda do you cover for 45-minute doorstep repair?",
-    a: "We cover all residential and commercial communities within 5 km of our shop, including Lanco Hills, Puppalaguda Main Rd, Alkapoor Township, OU Colony, Shaikpet, Secretariat Colony, and Manikonda Main Rd.",
-  },
-  {
-    q: "Why can't water damage be repaired at doorstep?",
-    a: "Liquid damage causes corrosion under motherboard micro-chips that requires an ultrasonic chemical bath and thermal microscope in our Manikonda workshop. We provide free doorstep pickup and safe return.",
-  },
-  {
-    q: "What payment modes do you accept upon repair completion?",
-    a: "We accept UPI (Google Pay, PhonePe, Paytm), cash, and digital net-banking only after you thoroughly test your repaired device.",
   },
 ];
 

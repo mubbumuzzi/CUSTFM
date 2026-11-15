@@ -66,7 +66,7 @@ public class LocationController {
         loc.setLatitude(request.getLatitude());
         loc.setLongitude(request.getLongitude());
         loc.setDistanceKm(request.getDistanceKm() != null ? request.getDistanceKm() : 0.0);
-        loc.setEligible(request.getEligible() != null ? request.getEligible() : (loc.getDistanceKm() <= 5.0));
+        loc.setEligible(request.getEligible() != null ? request.getEligible() : (loc.getDistanceKm() <= LocationService.MAX_RADIUS_KM));
         loc.setEta(request.getEta());
         loc.setMobileNumber(request.getMobileNumber());
 

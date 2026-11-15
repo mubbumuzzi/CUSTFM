@@ -23,9 +23,9 @@ public class LocationService {
 
     private static final Logger log = LoggerFactory.getLogger(LocationService.class);
 
-    public static final double SHOP_LAT = 17.4022;
-    public static final double SHOP_LNG = 78.3888;
-    public static final double MAX_RADIUS_KM = 5.0;
+    public static final double SHOP_LAT = 17.4058;
+    public static final double SHOP_LNG = 78.3879;
+    public static final double MAX_RADIUS_KM = 6.0;
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
@@ -91,7 +91,10 @@ public class LocationService {
         if (distanceKm <= 3.0) {
             return "25-35 mins";
         }
-        return "35-45 mins";
+        if (distanceKm <= 5.0) {
+            return "35-45 mins";
+        }
+        return "45-60 mins";
     }
 
     public ReverseGeocodeResponse reverseGeocode(double lat, double lon) {

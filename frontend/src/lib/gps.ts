@@ -1,8 +1,8 @@
 import { saveCustomerLocationApi } from "./api.ts";
 
-export const SHOP_LAT = 17.4022;
-export const SHOP_LNG = 78.3888;
-export const MAX_RADIUS_KM = 5.0;
+export const SHOP_LAT = 17.4058;
+export const SHOP_LNG = 78.3879;
+export const MAX_RADIUS_KM = 6.0;
 
 export interface GpsLocationData {
   areaTitle?: string;
@@ -74,7 +74,10 @@ export function getEtaForDistance(distanceKm: number): string {
   if (distanceKm <= 3.0) {
     return "25-35 mins";
   }
-  return "35-45 mins";
+  if (distanceKm <= 5.0) {
+    return "35-45 mins";
+  }
+  return "45-60 mins";
 }
 
 // Verified geometric centroids for Hyderabad / Manikonda localities

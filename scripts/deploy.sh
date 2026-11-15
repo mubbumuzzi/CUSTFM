@@ -18,7 +18,7 @@ if [[ -f .env ]]; then
   set +a
 fi
 
-echo "==> Building and deploying CustFM containers on port ${PORT:-8080}..."
+echo "==> Building and deploying CustFM containers on port ${PORT:-80}..."
 docker compose up -d --build
 
 echo "==> Checking container status..."
@@ -28,8 +28,9 @@ docker compose ps
 echo ""
 echo "=========================================================="
 echo " CustFM successfully deployed!"
-echo " Public URL:  http://13.140.146.12:${PORT:-8080}/"
-echo " Backend API: http://13.140.146.12:${PORT:-8080}/api"
+echo " Public Domain: http://famousmobiles.com"
+echo " Direct IP:     http://13.140.146.12:${PORT:-80}/"
+echo " Backend API:   http://famousmobiles.com/api"
 echo "=========================================================="
 echo ""
 echo "View logs:  docker compose logs -f"

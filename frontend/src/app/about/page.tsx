@@ -43,10 +43,10 @@ export default function AboutPage() {
       {/* Physical Store Details */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-4 shadow-sm">
         <h2 className="text-xl font-black text-navy-950">
-          Our Physical Workshop in Manikonda
+          Our Physical Workshop in Shaikpet / Puppalaguda
         </h2>
         <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-          Unlike online aggregators who outsource your expensive phone to unknown third parties, Famous Mobiles operates an authentic physical store on Main Road near Marrichettu Junction. Every technician who arrives at your doorstep is an in-house employee backed by our workshop equipment.
+          Unlike online aggregators who outsource your expensive phone to unknown third parties, New Famous Mobile operates an authentic physical store Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda. Every technician who arrives at your doorstep is an in-house employee backed by our workshop equipment.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -56,7 +56,7 @@ export default function AboutPage() {
               <span>Workshop Address</span>
             </div>
             <p className="text-xs text-slate-600">
-              Main Road, Near Marrichettu Junction, Manikonda, Hyderabad, Telangana 500089
+              Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda, Manikonda, Hyderabad, Telangana 500089
             </p>
             <a
               href="https://share.google/U0L5BeQxKW1dBHUbJ"
@@ -74,7 +74,7 @@ export default function AboutPage() {
               <span>Daily Working Hours</span>
             </div>
             <p className="text-xs text-slate-600">
-              Monday – Sunday: 9:30 AM – 3:30 AM (365 Days)
+              Monday – Sunday: 10:00 AM – 3:00 AM (365 Days)
             </p>
           </div>
         </div>

@@ -1,48 +1,44 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import GoogleReviewsModal from "@/components/GoogleReviewsModal";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-jakarta",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
   metadataBase: new URL("https://famousmobiles.com"),
   title: {
-    default: "Famous Mobiles — Doorstep Mobile Repair in Manikonda, Hyderabad",
+    default: "Mobile Repair Open Till 3 AM in Manikonda | Famous Mobiles",
     template: "%s | Famous Mobiles Manikonda",
   },
   description:
-    "Fast 45-minute doorstep mobile repair within 5 km of Manikonda shop. Display replacement, battery fix, charging port repair, and software solutions. Your First Home Visit is FREE!",
+    "Late-night mobile repair in Manikonda, Shaikpet & Gachibowli—open 10 AM to 3 AM! 60-min screen & battery repair + 6 km doorstep pickup. Call +91 9063786751.",
   keywords: [
-    "mobile repair in Manikonda",
-    "doorstep mobile repair Hyderabad",
-    "display replacement Manikonda",
-    "battery replacement Manikonda",
-    "charging repair near me",
+    "mobile repair open till 3 am Hyderabad",
+    "late night phone repair Manikonda",
+    "doorstep mobile repair Manikonda",
+    "doorstep phone screen replacement Gachibowli",
+    "mobile repair Shaikpet",
+    "mobile pickup and drop repair Narsingi",
+    "doorstep iPhone repair Tolichowki",
+    "mobile repair Lanco Hills",
+    "mobile repair Alkapur Township",
     "iPhone screen repair Manikonda",
-    "Samsung mobile repair Lanco Hills",
+    "Samsung screen repair Gachibowli",
   ],
-  authors: [{ name: "Famous Mobiles" }],
-  creator: "Famous Mobiles",
-  publisher: "Famous Mobiles",
+  authors: [{ name: "New Famous Mobile" }],
+  creator: "New Famous Mobile",
+  publisher: "New Famous Mobile",
   formatDetection: {
     telephone: true,
     address: true,
   },
   openGraph: {
-    title: "Famous Mobiles — Doorstep Mobile Repair in Manikonda, Hyderabad",
+    title: "Mobile Repair Open Till 3 AM in Manikonda | Famous Mobiles",
     description:
-      "Doorstep smartphone repair in 45 minutes. 10,000+ phones repaired, 4.9★ rating. First Home Visit is FREE (₹0)!",
+      "Late-night mobile repair in Manikonda, Shaikpet & Gachibowli—open 10 AM to 3 AM! 60-min screen & battery repair + 6 km doorstep pickup. Call +91 9063786751.",
     url: "https://famousmobiles.com",
-    siteName: "Famous Mobiles",
+    siteName: "New Famous Mobile",
     locale: "en_IN",
     type: "website",
   },
@@ -59,13 +55,16 @@ export default function RootLayout({
 }>) {
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": "Famous Mobiles",
-    "image": "https://famousmobiles.com/logo.png",
+    "@type": "MobilePhoneStore",
+    "@id": "https://famousmobiles.com/#organization",
+    "name": "New Famous Mobile",
+    "alternateName": "Famous Mobiles",
+    "url": "https://famousmobiles.com",
     "telephone": "+919063786751",
+    "priceRange": "₹₹",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "Main Road, Near Marrichettu Junction",
+      "streetAddress": "Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda",
       "addressLocality": "Manikonda, Hyderabad",
       "addressRegion": "Telangana",
       "postalCode": "500089",
@@ -73,15 +72,47 @@ export default function RootLayout({
     },
     "geo": {
       "@type": "GeoCoordinates",
-      "latitude": 17.4022,
-      "longitude": 78.3888
+      "latitude": 17.4058,
+      "longitude": 78.3879
     },
+    "areaServed": [
+      {
+        "@type": "GeoCircle",
+        "geoMidpoint": {
+          "@type": "GeoCoordinates",
+          "latitude": 17.4058,
+          "longitude": 78.3879
+        },
+        "geoRadius": "6000"
+      },
+      { "@type": "Place", "name": "Manikonda, Hyderabad" },
+      { "@type": "Place", "name": "Puppalaguda, Hyderabad" },
+      { "@type": "Place", "name": "Shaikpet, Hyderabad" },
+      { "@type": "Place", "name": "Alkapur Township, Hyderabad" },
+      { "@type": "Place", "name": "Lanco Hills, Manikonda" },
+      { "@type": "Place", "name": "Tolichowki, Hyderabad" },
+      { "@type": "Place", "name": "Narsingi, Hyderabad" },
+      { "@type": "Place", "name": "Kokapet, Hyderabad" },
+      { "@type": "Place", "name": "Raidurg, Hyderabad" },
+      { "@type": "Place", "name": "Gachibowli, Hyderabad" },
+      { "@type": "Place", "name": "Film Nagar, Hyderabad" },
+      { "@type": "Place", "name": "Jubilee Hills, Hyderabad" },
+      { "@type": "Place", "name": "Mehdipatnam, Hyderabad" }
+    ],
     "openingHoursSpecification": [
       {
         "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-        "opens": "09:30",
-        "closes": "03:30"
+        "dayOfWeek": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday"
+        ],
+        "opens": "10:00",
+        "closes": "03:00"
       }
     ],
     "aggregateRating": {
@@ -89,13 +120,18 @@ export default function RootLayout({
       "ratingValue": "4.9",
       "reviewCount": "1000"
     },
-    "hasMap": "https://share.google/U0L5BeQxKW1dBHUbJ",
-    "priceRange": "₹₹"
+    "hasMap": "https://share.google/U0L5BeQxKW1dBHUbJ"
   };
 
   return (
-    <html lang="en" className={plusJakartaSans.variable} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
+          rel="stylesheet"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
