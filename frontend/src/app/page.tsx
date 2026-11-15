@@ -161,7 +161,7 @@ export default function HomePage() {
                     </div>
                     <div className="flex justify-between text-[11px] text-slate-600">
                       <span>Subsequent Visits</span>
-                      <span>₹49 (100% adjusted if repair proceeds)</span>
+                      <span>₹69 (100% adjusted if repair proceeds)</span>
                     </div>
                   </div>
 
@@ -395,7 +395,7 @@ export default function HomePage() {
             </div>
             <h3 className="text-base font-extrabold text-navy-950">First Visit FREE (₹0)</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              New customers enjoy a ₹0 inspection visit. Subsequent home visits cost ₹49, which is 100% adjusted against your repair bill when you proceed.
+              New customers enjoy a ₹0 inspection visit. Subsequent home visits cost ₹69, which is 100% adjusted against your repair bill when you proceed.
             </p>
           </div>
 
@@ -469,7 +469,7 @@ export default function HomePage() {
           {[
             {
               q: "How does the 'First Home Visit is FREE' offer work?",
-              a: "For all eligible new customers within our 5 km Manikonda service area, our technician visits your doorstep for ₹0. If you decide not to proceed with the repair after diagnosis, there is zero fee for your first visit. Subsequent visits are ₹49, which is 100% adjusted against your final repair bill if you proceed.",
+              a: "For all eligible new customers within our 5 km Manikonda service area, our technician visits your doorstep for ₹0. If you decide not to proceed with the repair after diagnosis, there is zero fee for your first visit. Subsequent visits are ₹69, which is 100% adjusted against your final repair bill if you proceed.",
             },
             {
               q: "Do I need to create an account or verify OTP to book a repair?",

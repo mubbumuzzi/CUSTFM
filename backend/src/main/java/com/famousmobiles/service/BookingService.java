@@ -8,6 +8,7 @@ import com.famousmobiles.entity.BookingStatus;
 import com.famousmobiles.entity.Customer;
 import com.famousmobiles.repository.BookingRepository;
 import com.famousmobiles.repository.CustomerRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,9 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final CustomerRepository customerRepository;
+
+    @Value("${famousmobiles.service.subsequent-visit-fee:69.00}")
+    private BigDecimal subsequentVisitFee = new BigDecimal("69.00");
 
     private static final String[] PRD_STAGE_NAMES = {
             "New Enquiry Logged",
@@ -54,7 +58,7 @@ public class BookingService {
             isEligibleForFreeVisit = false;
         }
 
-        BigDecimal visitCharge = isEligibleForFreeVisit ? BigDecimal.ZERO : new BigDecimal("49.00");
+        BigDecimal visitCharge = isEligibleForFreeVisit ? BigDecimal.ZERO : subsequentVisitFee;
 
         // Unique Online Booking ID: FMO-2026-XXXX with collision retry loop
         String bookingId;

@@ -89,8 +89,8 @@ export default function AboutPage() {
         </div>
         <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-2">
           <ShieldCheck className="w-6 h-6 text-emerald-600" />
-          <h3 className="text-sm font-black text-navy-950">6-Month Warranty</h3>
-          <p className="text-xs text-slate-600">All major display and battery replacements carry up to 6 months replacement warranty backed by our store.</p>
+          <h3 className="text-sm font-black text-navy-950">Store Warranty</h3>
+          <p className="text-xs text-slate-600">All major display replacements carry up to 6 months and battery replacements carry up to 8 months warranty backed by our store.</p>
         </div>
         <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-2">
           <Users className="w-6 h-6 text-blue-600" />

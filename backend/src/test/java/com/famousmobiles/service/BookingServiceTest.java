@@ -70,7 +70,7 @@ class BookingServiceTest {
     }
 
     @Test
-    @DisplayName("PRD Business Rule: Returning customer who already claimed free visit is charged subsequent ₹49 fee")
+    @DisplayName("PRD Business Rule: Returning customer who already claimed free visit is charged subsequent ₹69 fee")
     void testReturningCustomerChargedSubsequentVisitFee() {
         Customer existingCustomer = new Customer("9876543210");
         existingCustomer.setTotalBookings(1);
@@ -82,7 +82,7 @@ class BookingServiceTest {
         BookingResponse response = bookingService.createEnquiry(standardRequest);
 
         assertThat(response.isFirstVisitFree()).isFalse();
-        assertThat(response.getVisitCharge()).isEqualByComparingTo(new BigDecimal("49.00"));
+        assertThat(response.getVisitCharge()).isEqualByComparingTo(new BigDecimal("69.00"));
     }
 
     @Test

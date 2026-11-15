@@ -67,7 +67,7 @@ export const SERVICES_DATA: ServiceItem[] = [
     shortDesc: "High-capacity certified battery for fast drain & heating issues.",
     fullDesc: "Get all-day battery life back. Our certified technicians replace degraded or swollen batteries using fresh grade-A cells with integrated overload and short-circuit protection.",
     doorstepFeasible: true,
-    warranty: "Up to 6 Months Warranty",
+    warranty: "Up to 8 Months Warranty",
     symptoms: [
       "Battery drains from 100% to 20% in just a few hours",
       "Phone shuts down abruptly when opening the camera or calling",

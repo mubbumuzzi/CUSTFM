@@ -34,7 +34,7 @@ export default function WarrantyPage() {
             </div>
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
               <span className="font-black text-navy-900 block">🔋 Battery Replacements</span>
-              <span className="text-xs text-emerald-700 font-bold">Up to 6 Months Warranty</span>
+              <span className="text-xs text-emerald-700 font-bold">Up to 8 Months Warranty</span>
               <p className="text-[11px] text-slate-500 mt-1">Covers abnormal fast drain, sudden percentage drop, or battery failure to retain charge.</p>
             </div>
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">

@@ -285,7 +285,7 @@ function BookRepairForm() {
             </span>
           </div>
           <p className="text-[11px] text-emerald-900/90 leading-relaxed">
-            Your first doorstep visit is completely free! For subsequent visits, a fee of <strong>₹49</strong> applies, which is <strong>100% adjusted</strong> against your final repair bill if the repair proceeds.
+            Your first doorstep visit is completely free! For subsequent visits, a fee of <strong>₹69</strong> applies, which is <strong>100% adjusted</strong> against your final repair bill if the repair proceeds.
           </p>
         </div>
 

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 const FAQS = [
   {
     q: "How does the 'First Home Visit is FREE' offer work?",
-    a: "For all eligible new customers located within our 5 km Manikonda service perimeter, our technician visits your doorstep for ₹0. If you decline the repair after diagnosis, you pay ₹0. Subsequent visits cost ₹49, which is 100% adjusted against your final repair bill if the repair proceeds.",
+    a: "For all eligible new customers located within our 5 km Manikonda service perimeter, our technician visits your doorstep for ₹0. If you decline the repair after diagnosis, you pay ₹0. Subsequent visits cost ₹69, which is 100% adjusted against your final repair bill if the repair proceeds.",
   },
   {
     q: "Do I need to give my phone passcode / PIN to the technician?",
@@ -19,7 +19,7 @@ const FAQS = [
   },
   {
     q: "What warranty do you provide on replacement parts?",
-    a: "Display panels and battery replacements carry up to 6 Months Warranty. Charging ports and secondary board repairs carry 3 Months Warranty. If any covered defect arises, our technician revisits your doorstep to replace it free of charge.",
+    a: "Display panels carry up to 6 Months Warranty, while battery replacements carry an extended up to 8 Months Warranty. Charging ports and secondary board repairs carry 3 Months Warranty. If any covered defect arises, our technician revisits your doorstep to replace it free of charge.",
   },
   {
     q: "What areas in Manikonda do you cover for 45-minute doorstep repair?",
