@@ -104,6 +104,24 @@ class BookingServiceTest {
     }
 
     @Test
+    @DisplayName("Dynamic GPS-Linked ETA: 0.2 km Manikonda coordinates assign ~10-15 mins ETA")
+    void testDynamicGpsLinkedEtaAssigned() {
+        BookingEnquiryRequest gpsRequest = new BookingEnquiryRequest();
+        gpsRequest.setMobileNumber("9876543210");
+        gpsRequest.setLatitude(17.4006);
+        gpsRequest.setLongitude(78.3894); // ~0.2 km from shop hub
+
+        ArgumentCaptor<Booking> captor = ArgumentCaptor.forClass(Booking.class);
+        when(customerRepository.findByMobileNumber("9876543210")).thenReturn(Optional.empty());
+        when(bookingRepository.save(captor.capture())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        bookingService.createEnquiry(gpsRequest);
+
+        Booking saved = captor.getValue();
+        assertThat(saved.getEtaMinutes()).isEqualTo("Dispatching (~10-15 mins)");
+    }
+
+    @Test
     @DisplayName("PRD 6.5 Rule: Booking status lookup returns exactly 11 lifecycle stages with correct active stage")
     void testGetBookingStatusReturnsAll11PrdStages() {
         Booking booking = new Booking();

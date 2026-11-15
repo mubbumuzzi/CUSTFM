@@ -97,7 +97,23 @@ public class BookingService {
         booking.setQuoteAmount(null);
         booking.setTechnicianName(null);
         booking.setTechnicianPhone(null);
-        booking.setEtaMinutes("Dispatching (~45 mins)");
+        String etaMinutes = "Dispatching (~45 mins)";
+        if (request.getLatitude() != null && request.getLongitude() != null) {
+            double dist = LocationService.calculateDistanceKm(
+                    request.getLatitude(), request.getLongitude(),
+                    LocationService.SHOP_LAT, LocationService.SHOP_LNG);
+            String eta = LocationService.getEtaForDistance(dist);
+            if (!"Shop Visit Only".equals(eta)) {
+                etaMinutes = "Dispatching (~" + eta + ")";
+            }
+        } else if (request.getPreferredTime() != null && request.getPreferredTime().contains("~")) {
+            int start = request.getPreferredTime().indexOf("(");
+            int end = request.getPreferredTime().lastIndexOf(")");
+            if (start != -1 && end != -1 && end > start) {
+                etaMinutes = "Dispatching " + request.getPreferredTime().substring(start, end + 1);
+            }
+        }
+        booking.setEtaMinutes(etaMinutes);
 
         bookingRepository.save(booking);
 

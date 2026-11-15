@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ShieldCheck,
@@ -18,9 +18,30 @@ import {
 import { SERVICES_DATA, ServiceItem } from "@/data/servicesData";
 import GpsPromptBanner from "@/components/GpsPromptBanner";
 import { GoogleIcon } from "@/components/GoogleReviewsModal";
+import { getStoredLocation, GpsLocationData } from "@/lib/gps";
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [userLoc, setUserLoc] = useState<Partial<GpsLocationData> | null>(null);
+
+  useEffect(() => {
+    // 1. Initial stored GPS data
+    const stored = getStoredLocation();
+    if (stored) {
+      setUserLoc(stored);
+    }
+
+    // 2. Listen for real-time location updates (from GPS detection, LocationModal, etc.)
+    const handleLocationChange = (e: Event) => {
+      const detail = (e as CustomEvent<GpsLocationData>).detail;
+      if (detail) {
+        setUserLoc(detail);
+      }
+    };
+
+    window.addEventListener("fm_location_updated", handleLocationChange);
+    return () => window.removeEventListener("fm_location_updated", handleLocationChange);
+  }, []);
 
   const categories = [
     { label: "All Repairs", cat: "All", icon: "⚡" },
@@ -60,7 +81,11 @@ export default function HomePage() {
             <div className="lg:col-span-7 space-y-4 md:space-y-6 text-left">
               <div className="inline-flex items-center gap-2 bg-navy-900 text-amber-300 text-xs font-black uppercase px-3 py-1 rounded-full shadow-xs">
                 <span className="w-2 h-2 rounded-full bg-accent-500 animate-ping"></span>
-                <span>Hyperlocal Manikonda Service • 45 Mins Arrival</span>
+                <span>
+                  {userLoc && userLoc.eligible && userLoc.eta && userLoc.eta !== "Shop Visit Only"
+                    ? `Hyperlocal Manikonda Service • ~${userLoc.eta} Arrival (${userLoc.areaTitle || userLoc.locality?.split(",")[0] || "Manikonda"})`
+                    : "Hyperlocal Manikonda Service • 10-45 Mins Arrival"}
+                </span>
               </div>
 
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-navy-950 leading-[1.1]">
@@ -224,7 +249,7 @@ export default function HomePage() {
         {/* Quick Filter Badges */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar pt-1">
           <span className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold shrink-0 flex items-center gap-1">
-            ⚡ Near & Fast (45 min arrival)
+            ⚡ {userLoc?.eta && userLoc.eta !== "Shop Visit Only" ? `Near you • ~${userLoc.eta} arrival` : "Near & Fast (10-45 min arrival)"}
           </span>
           <span className="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-900 border border-amber-200 text-[11px] font-bold shrink-0 flex items-center gap-1">
             🛡️ 1st Home Visit Free (₹0)
@@ -336,7 +361,9 @@ export default function HomePage() {
               {
                 step: "03",
                 title: "Tech Arrives",
-                desc: "Certified technician reaches your doorstep in 45 mins with tools and parts.",
+                desc: `Certified technician reaches your doorstep in ${
+                  userLoc?.eta && userLoc.eta !== "Shop Visit Only" ? userLoc.eta : "15-45 mins"
+                } with tools and parts.`,
               },
               {
                 step: "04",

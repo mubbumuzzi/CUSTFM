@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, ShieldCheck, MapPin, Sparkles, AlertCircle, Navigation, RefreshCw } from "lucide-react";
 import { submitBookingEnquiry } from "@/lib/api";
-import { detectGpsLocation } from "@/lib/gps";
+import { detectGpsLocation, getStoredLocation, GpsLocationData } from "@/lib/gps";
 
 function BookRepairForm() {
   const router = useRouter();
@@ -29,13 +29,16 @@ function BookRepairForm() {
     }
 
     if (typeof window !== "undefined") {
-      const savedLat = localStorage.getItem("fm_user_lat");
-      const savedLng = localStorage.getItem("fm_user_lng");
-      if (savedLat && savedLng) {
-        const lat = parseFloat(savedLat);
-        const lng = parseFloat(savedLng);
-        if (!isNaN(lat) && !isNaN(lng)) {
-          setGpsCoords({ latitude: lat, longitude: lng });
+      const stored = getStoredLocation();
+      if (stored) {
+        if (stored.locality) {
+          setAddress(stored.locality);
+        }
+        if (stored.latitude && stored.longitude) {
+          setGpsCoords({ latitude: stored.latitude, longitude: stored.longitude });
+        }
+        if (stored.eta && stored.eta !== "Shop Visit Only") {
+          setPreferredTime(`Earliest Available (~${stored.eta})`);
         }
       }
     }
@@ -49,11 +52,22 @@ function BookRepairForm() {
       if (data.latitude && data.longitude) {
         setGpsCoords({ latitude: data.latitude, longitude: data.longitude });
       }
+      if (data.eta && data.eta !== "Shop Visit Only") {
+        setPreferredTime(`Earliest Available (~${data.eta})`);
+      }
     } catch {
       if (typeof window !== "undefined") {
-        const savedLoc = localStorage.getItem("fm_user_locality");
-        if (savedLoc) {
-          setAddress(savedLoc);
+        const stored = getStoredLocation();
+        if (stored) {
+          if (stored.locality) {
+            setAddress(stored.locality);
+          }
+          if (stored.latitude && stored.longitude) {
+            setGpsCoords({ latitude: stored.latitude, longitude: stored.longitude });
+          }
+          if (stored.eta && stored.eta !== "Shop Visit Only") {
+            setPreferredTime(`Earliest Available (~${stored.eta})`);
+          }
         }
       }
     } finally {
@@ -109,7 +123,7 @@ function BookRepairForm() {
           Book Doorstep Mobile Repair
         </h1>
         <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto">
-          Only your 10-digit mobile number is mandatory. Our technician reaches your home within 45 minutes.
+          Only your 10-digit mobile number is mandatory. Our technician reaches your doorstep in {preferredTime.includes("~") ? preferredTime.split("~")[1].replace(")", "") : "15-45 minutes"}.
         </p>
       </div>
 

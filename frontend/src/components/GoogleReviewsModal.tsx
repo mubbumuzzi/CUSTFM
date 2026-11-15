@@ -15,6 +15,7 @@ import {
   MessageSquare,
   Sparkles,
 } from "lucide-react";
+import { getStoredLocation, GpsLocationData } from "@/lib/gps";
 
 interface GoogleReviewsModalProps {
   isOpen?: boolean;
@@ -118,8 +119,15 @@ export default function GoogleReviewsModal({
 }: GoogleReviewsModalProps) {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"ALL" | "DISPLAY" | "BATTERY" | "DOORSTEP">("ALL");
+  const [userLoc, setUserLoc] = useState<Partial<GpsLocationData> | null>(null);
 
   const isOpen = propIsOpen !== undefined ? propIsOpen : internalIsOpen;
+
+  useEffect(() => {
+    if (isOpen) {
+      setUserLoc(getStoredLocation());
+    }
+  }, [isOpen]);
 
   const handleClose = useCallback(() => {
     setInternalIsOpen(false);
@@ -423,7 +431,9 @@ export default function GoogleReviewsModal({
 
           <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium pt-1 px-1">
             <span>📞 Call Desk: +91 90637 86751</span>
-            <span className="text-emerald-700 font-bold">🛵 45-Min Arrival in Manikonda</span>
+            <span className="text-emerald-700 font-bold">
+              🛵 {userLoc?.eta && userLoc.eta !== "Shop Visit Only" ? `~${userLoc.eta} Arrival` : "10-45 Min Arrival"} in {userLoc?.areaTitle || "Manikonda"}
+            </span>
           </div>
         </div>
       </div>
