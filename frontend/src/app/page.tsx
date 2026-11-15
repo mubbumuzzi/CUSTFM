@@ -262,9 +262,15 @@ export default function HomePage() {
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] sm:text-xs mb-1.5">
-                  <span className="bg-emerald-50 text-emerald-700 font-extrabold px-1.5 py-0.5 rounded">
-                    {service.rating}
-                  </span>
+                  <button
+                    type="button"
+                    onClick={handleOpenReviews}
+                    className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-extrabold px-1.5 py-0.5 rounded flex items-center gap-1 transition cursor-pointer"
+                    title="View 1k+ Google Reviews"
+                  >
+                    <span>{service.rating}</span>
+                    <span className="text-[10px] text-emerald-600 font-bold">(1k+)</span>
+                  </button>
                   <span className="text-slate-500 font-medium flex items-center gap-1">
                     <Clock className="w-3 h-3 text-slate-400" />
                     <span>{service.turnaround}</span>
@@ -283,7 +289,7 @@ export default function HomePage() {
                 <div>
                   <span className="text-[10px] text-slate-400 block leading-tight">Warranty</span>
                   <span className="text-[11px] sm:text-xs font-black text-navy-900 block leading-tight">
-                    {service.warranty.split(" ")[0]} {service.warranty.split(" ")[1] || "Cover"}
+                    {service.warranty.replace(/ Warranty$/, "")}
                   </span>
                 </div>
 

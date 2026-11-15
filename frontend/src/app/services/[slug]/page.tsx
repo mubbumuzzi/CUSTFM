@@ -67,13 +67,18 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             <h1 className="text-2xl sm:text-3xl font-black text-navy-950 mt-1">
               {service.title}
             </h1>
-            <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 font-semibold">
+            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1 font-semibold">
               <span className="flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5 text-slate-400" />
                 <span>Turnaround: {service.turnaround}</span>
               </span>
               <span>•</span>
-              <span className="text-emerald-700">{service.warranty}</span>
+              <span className="text-emerald-700 font-bold">{service.warranty}</span>
+              <span>•</span>
+              <span className="text-amber-600 font-bold flex items-center gap-1">
+                <span>⭐ 4.9</span>
+                <span className="text-slate-400 font-normal">(1k+ Reviews)</span>
+              </span>
             </div>
           </div>
         </div>
