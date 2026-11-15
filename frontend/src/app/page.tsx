@@ -378,7 +378,7 @@ export default function HomePage() {
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] text-slate-400 block leading-tight">Warranty</span>
-                  <span className="text-[11px] sm:text-xs font-black text-navy-900 block leading-tight">
+                  <span className="text-[11px] sm:text-xs font-black text-navy-900 block leading-tight whitespace-nowrap">
                     {service.warranty.replace(/ Warranty$/, "")}
                   </span>
                 </div>

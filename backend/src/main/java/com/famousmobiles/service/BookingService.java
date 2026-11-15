@@ -396,4 +396,17 @@ public class BookingService {
 
         return Optional.empty();
     }
+
+    @Transactional
+    public boolean deleteBooking(String bookingId) {
+        if (bookingId == null || bookingId.isBlank()) {
+            return false;
+        }
+        Optional<Booking> bookingOpt = bookingRepository.findByBookingId(bookingId.trim().toUpperCase());
+        if (bookingOpt.isPresent()) {
+            bookingRepository.delete(bookingOpt.get());
+            return true;
+        }
+        return false;
+    }
 }

@@ -145,4 +145,39 @@ public class PublicBookingController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
+
+    /**
+     * Delete an enquiry/booking from POS dashboard (Secured by API Key)
+     */
+    @DeleteMapping("/{bookingId}")
+    public ResponseEntity<?> deleteBooking(
+            @PathVariable String bookingId,
+            @RequestHeader(value = "X-POS-API-KEY", required = false) String apiKeyHeader,
+            @RequestParam(value = "apiKey", required = false) String apiKeyParam) {
+        if (!isPosAuthorized(apiKeyHeader, apiKeyParam)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "error", "Unauthorized",
+                    "message", "POS API Key required."
+            ));
+        }
+        boolean deleted = bookingService.deleteBooking(bookingId);
+        if (deleted) {
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Booking " + bookingId + " deleted successfully."
+            ));
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "error", "Not Found",
+                "message", "Booking not found."
+        ));
+    }
+
+    @PostMapping("/{bookingId}/delete")
+    public ResponseEntity<?> deleteBookingPost(
+            @PathVariable String bookingId,
+            @RequestHeader(value = "X-POS-API-KEY", required = false) String apiKeyHeader,
+            @RequestParam(value = "apiKey", required = false) String apiKeyParam) {
+        return deleteBooking(bookingId, apiKeyHeader, apiKeyParam);
+    }
 }
