@@ -1,29 +1,40 @@
 package com.famousmobiles.service;
 
+import com.famousmobiles.entity.Booking;
 import com.famousmobiles.entity.OtpToken;
+import com.famousmobiles.repository.BookingRepository;
 import com.famousmobiles.repository.OtpTokenRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class OtpService {
 
     private final OtpTokenRepository otpTokenRepository;
+    private final BookingRepository bookingRepository;
 
-    public OtpService(OtpTokenRepository otpTokenRepository) {
+    public OtpService(OtpTokenRepository otpTokenRepository, BookingRepository bookingRepository) {
         this.otpTokenRepository = otpTokenRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     @Transactional
     public String generateAndSaveOtp(String mobileNumber) {
-        // Standard demo/secure OTP (1234 supported for testing without SMS gateway charges)
-        String otpCode = "1234";
-        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(10);
+        String cleanMobile = mobileNumber.trim();
+        List<Booking> bookings = bookingRepository.findByMobileNumberOrderByCreatedAtDesc(cleanMobile);
 
-        OtpToken token = new OtpToken(mobileNumber, otpCode, expiresAt);
+        // If customer has a booking, synchronize with their handshake OTP code
+        String otpCode = "1234";
+        if (!bookings.isEmpty() && bookings.get(0).getHandshakeOtp() != null) {
+            otpCode = bookings.get(0).getHandshakeOtp();
+        }
+
+        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(10);
+        OtpToken token = new OtpToken(cleanMobile, otpCode, expiresAt);
         otpTokenRepository.save(token);
 
         return otpCode;
@@ -31,10 +42,29 @@ public class OtpService {
 
     @Transactional
     public boolean verifyOtp(String mobileNumber, String inputOtp) {
-        if ("1234".equals(inputOtp.trim())) {
-            return true; // Developer & customer demo bypass for testing
+        if (inputOtp == null || inputOtp.isBlank()) {
+            return false;
         }
 
+        String cleanOtp = inputOtp.trim();
+
+        // 1. Universal developer & customer demo bypass for testing
+        if ("1234".equals(cleanOtp)) {
+            return true;
+        }
+
+        // 2. Customer's 4-digit doorstep handshake code for their active booking
+        if (mobileNumber != null && !mobileNumber.isBlank()) {
+            String cleanMobile = mobileNumber.trim();
+            List<Booking> bookings = bookingRepository.findByMobileNumberOrderByCreatedAtDesc(cleanMobile);
+            for (Booking b : bookings) {
+                if (b.getHandshakeOtp() != null && b.getHandshakeOtp().equals(cleanOtp)) {
+                    return true;
+                }
+            }
+        }
+
+        // 3. Database token verification (from Send OTP)
         Optional<OtpToken> tokenOpt = otpTokenRepository
                 .findTopByMobileNumberAndVerifiedFalseAndExpiresAtAfterOrderByCreatedAtDesc(
                         mobileNumber, LocalDateTime.now());
@@ -46,7 +76,7 @@ public class OtpService {
         OtpToken token = tokenOpt.get();
         token.setAttempts(token.getAttempts() + 1);
 
-        if (token.getOtpCode().equals(inputOtp.trim())) {
+        if (token.getOtpCode().equals(cleanOtp)) {
             token.setVerified(true);
             otpTokenRepository.save(token);
             return true;

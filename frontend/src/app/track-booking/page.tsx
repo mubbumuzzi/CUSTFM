@@ -32,6 +32,7 @@ function TrackBookingContent() {
   const [statusData, setStatusData] = useState<BookingStatusData | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [quoteApproving, setQuoteApproving] = useState(false);
+  const [savedHandshakeOtp, setSavedHandshakeOtp] = useState<string | null>(null);
 
   useEffect(() => {
     let id = searchParams.get("id");
@@ -40,6 +41,19 @@ function TrackBookingContent() {
     }
     if (id) {
       setBookingId(id.toUpperCase());
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem(`fm_booking_${id.toUpperCase()}`);
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (parsed.handshakeOtp) {
+              setSavedHandshakeOtp(parsed.handshakeOtp);
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
     }
 
     if (typeof window !== "undefined") {
@@ -107,21 +121,26 @@ function TrackBookingContent() {
     setIsRefreshing(true);
 
     try {
-      // Verify OTP code first
-      const verifyRes = await verifyOtpApi(cleanMobile, cleanOtp);
-      if (!verifyRes.success && cleanOtp !== "1234") {
-        setOtpError(verifyRes.message || "Invalid 4-digit OTP. Please use demo code 1234.");
-        setIsRefreshing(false);
-        return;
-      }
-
-      const data = await fetchBookingStatus(cleanId, cleanMobile);
+      // 1. First attempt: Direct status query with OTP (accepts booking's handshake OTP or demo 1234)
+      const data = await fetchBookingStatus(cleanId, cleanMobile, cleanOtp);
       if (data && data.bookingId) {
         setStatusData(data);
         setIsUnlocked(true);
-      } else {
-        setOtpError("No booking found matching this Booking ID and mobile number.");
+        return;
       }
+
+      // 2. Second attempt: Check if auth OTP was generated via Send OTP
+      const verifyRes = await verifyOtpApi(cleanMobile, cleanOtp);
+      if (verifyRes.success || cleanOtp === "1234") {
+        const directData = await fetchBookingStatus(cleanId, cleanMobile);
+        if (directData && directData.bookingId) {
+          setStatusData(directData);
+          setIsUnlocked(true);
+          return;
+        }
+      }
+
+      setOtpError("Invalid OTP code. Please enter the 4-digit code from your booking confirmation or use demo 1234.");
     } catch (err) {
       console.error(err);
       setOtpError("Unable to retrieve booking status. Please try again.");
@@ -286,17 +305,31 @@ function TrackBookingContent() {
 
               {/* Actions & Demo Fast-Fill */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-2 border-t border-slate-200/70">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOtpCode("1234");
-                    setOtpError("");
-                    handleVerifyOtp("1234");
-                  }}
-                  className="text-[11px] font-bold text-accent-600 hover:text-accent-700 underline cursor-pointer"
-                >
-                  ⚡ Auto-fill Demo (1234)
-                </button>
+                {savedHandshakeOtp ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpCode(savedHandshakeOtp);
+                      setOtpError("");
+                      handleVerifyOtp(savedHandshakeOtp);
+                    }}
+                    className="text-[11px] font-bold text-accent-600 hover:text-accent-700 underline cursor-pointer"
+                  >
+                    ⚡ Auto-fill Booking Code ({savedHandshakeOtp})
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpCode("1234");
+                      setOtpError("");
+                      handleVerifyOtp("1234");
+                    }}
+                    className="text-[11px] font-bold text-accent-600 hover:text-accent-700 underline cursor-pointer"
+                  >
+                    ⚡ Auto-fill Demo (1234)
+                  </button>
+                )}
 
                 <button
                   type="button"

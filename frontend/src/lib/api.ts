@@ -180,12 +180,16 @@ export async function verifyHandshakeOtpApi(
   }
 }
 
-export async function fetchBookingStatus(bookingId: string, mobile?: string): Promise<BookingStatusData | null> {
+export async function fetchBookingStatus(bookingId: string, mobile?: string, otp?: string): Promise<BookingStatusData | null> {
   const cleanId = bookingId.trim().toUpperCase();
   try {
     let url = `${getBaseUrl()}/public/bookings/${cleanId}/status`;
-    if (mobile) {
-      url += `?mobile=${encodeURIComponent(mobile)}`;
+    const params = new URLSearchParams();
+    if (mobile) params.set("mobile", mobile.trim());
+    if (otp) params.set("otp", otp.trim());
+    const queryStr = params.toString();
+    if (queryStr) {
+      url += `?${queryStr}`;
     }
     const res = await fetch(url);
     if (res.ok) {
@@ -205,6 +209,14 @@ export async function fetchBookingStatus(bookingId: string, mobile?: string): Pr
       } catch (e) {
         console.error(e);
       }
+    }
+  }
+
+  // If OTP is specified in fallback mode, validate it
+  if (otp && localData.handshakeOtp) {
+    const cleanOtp = otp.trim();
+    if (cleanOtp !== localData.handshakeOtp && cleanOtp !== "1234") {
+      return null;
     }
   }
 

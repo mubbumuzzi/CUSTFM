@@ -57,7 +57,13 @@ public class PublicBookingController {
     @GetMapping("/{bookingId}/status")
     public ResponseEntity<?> getBookingStatus(
             @PathVariable String bookingId,
-            @RequestParam(required = false) String mobile) {
+            @RequestParam(required = false) String mobile,
+            @RequestParam(required = false) String otp) {
+        if (otp != null && !otp.isBlank()) {
+            return bookingService.getBookingStatus(bookingId, mobile, otp)
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+        }
         return bookingService.getBookingStatus(bookingId, mobile)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
