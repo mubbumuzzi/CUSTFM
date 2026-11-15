@@ -48,16 +48,16 @@ export default function Header({ onSearch }: HeaderProps) {
   }, [applyGpsData]);
 
   useEffect(() => {
-    // 1. Check if user already had a saved GPS location
+    // 1. Check if user already had a saved location preference
     const stored = getStoredLocation();
     const isSavedGps = typeof window !== "undefined" && localStorage.getItem("fm_user_is_gps") === "true";
 
-    if (stored && stored.locality && isSavedGps) {
+    if (stored && stored.locality) {
       setLocality(stored.locality);
       setDistance(stored.distanceKm ?? 0);
-      setIsGps(true);
+      setIsGps(isSavedGps);
     } else {
-      // 2. Automatically prompt & detect device GPS on load
+      // 2. Automatically prompt & detect device GPS on initial load
       triggerGpsDetection();
     }
 
@@ -73,7 +73,7 @@ export default function Header({ onSearch }: HeaderProps) {
     return () => window.removeEventListener("fm_location_updated", handleLocationChange);
   }, [triggerGpsDetection, applyGpsData]);
 
-  const handleLocSelect = (name: string, km: number) => {
+  const handleLocSelect = (name: string, km: number, eligible: boolean) => {
     setLocality(name);
     setDistance(km);
     if (typeof window !== "undefined") {

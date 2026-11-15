@@ -5,13 +5,35 @@ export const SHOP_LNG = 78.3888;
 export const MAX_RADIUS_KM = 5.0;
 
 export interface GpsLocationData {
+  areaTitle?: string;
   locality: string;
+  formattedAddress?: string;
   distanceKm: number;
   latitude: number;
   longitude: number;
   eligible: boolean;
   eta: string;
+  postalCode?: string;
+  source?: string;
 }
+
+export interface PlaceSuggestion {
+  placeId: string;
+  title: string;
+  subtitle: string;
+  latitude: number;
+  longitude: number;
+  distanceKm: number;
+  eligible: boolean;
+  eta: string;
+}
+
+const getApiBaseUrl = (): string => {
+  if (typeof window !== "undefined") {
+    return process.env.NEXT_PUBLIC_API_URL || "/api";
+  }
+  return process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081/api";
+};
 
 /**
  * Calculates Haversine distance in kilometers from Famous Mobiles Manikonda shop
@@ -51,118 +73,225 @@ export function getEtaForDistance(distanceKm: number): string {
   return "45-60 mins";
 }
 
-/**
- * Local proximity fallback for Hyderabad/Manikonda area
- */
-function getLocalLandmarkFallback(lat: number, lng: number): string {
-  const km = calculateDistanceKm(lat, lng);
-  if (km <= 1.0) return "Manikonda Main Rd, Hyderabad";
-  if (km <= 1.8) return "Lanco Hills, Manikonda";
-  if (km <= 2.8) return "Puppalaguda, Hyderabad";
-  if (km <= 3.8) return "Alkapoor Township, Manikonda";
-  if (km <= 5.0) return "OU Colony / Shaikpet, Hyderabad";
-  if (km <= 7.0) return "Gachibowli, Hyderabad";
-  if (km <= 10.0) return "Hitec City, Hyderabad";
-  return `GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+// Verified geometric centroids for Hyderabad / Manikonda localities
+// Used as geometric nearest-neighbor fallback when network is offline (NEVER blind radial scalar)
+const VERIFIED_LOCALITIES = [
+  { area: "Lanco Hills", suburb: "Manikonda", lat: 17.4045, lng: 78.3752, postcode: "500089" },
+  { area: "Secretariat Colony", suburb: "Manikonda", lat: 17.4055, lng: 78.3768, postcode: "500089" },
+  { area: "Manikonda Main Road", suburb: "Manikonda", lat: 17.4022, lng: 78.3888, postcode: "500089" },
+  { area: "Puppalaguda", suburb: "Manikonda", lat: 17.4000, lng: 78.3862, postcode: "500089" },
+  { area: "Alkapoor Township", suburb: "Manikonda", lat: 17.3967, lng: 78.3717, postcode: "500089" },
+  { area: "Neknampur", suburb: "Manikonda", lat: 17.3892, lng: 78.3812, postcode: "500089" },
+  { area: "OU Colony", suburb: "Shaikpet", lat: 17.4085, lng: 78.3980, postcode: "500008" },
+  { area: "Shaikpet", suburb: "Hyderabad", lat: 17.4120, lng: 78.4050, postcode: "500008" },
+  { area: "Tolichowki", suburb: "Hyderabad", lat: 17.4020, lng: 78.4110, postcode: "500008" },
+  { area: "Khajaguda", suburb: "Gachibowli", lat: 17.4200, lng: 78.3680, postcode: "500075" },
+  { area: "Nanakramguda", suburb: "Financial District", lat: 17.4150, lng: 78.3480, postcode: "500032" },
+  { area: "Financial District", suburb: "Gachibowli", lat: 17.4180, lng: 78.3380, postcode: "500032" },
+  { area: "Gachibowli", suburb: "Hyderabad", lat: 17.4400, lng: 78.3489, postcode: "500032" },
+  { area: "Raidurg", suburb: "Knowledge City", lat: 17.4350, lng: 78.3800, postcode: "500081" },
+  { area: "Hitec City", suburb: "Hyderabad", lat: 17.4504, lng: 78.3808, postcode: "500081" },
+  { area: "Madhapur", suburb: "Hyderabad", lat: 17.4485, lng: 78.3908, postcode: "500081" },
+  { area: "Jubilee Hills", suburb: "Hyderabad", lat: 17.4319, lng: 78.4073, postcode: "500033" },
+  { area: "Banjara Hills", suburb: "Hyderabad", lat: 17.4156, lng: 78.4352, postcode: "500034" },
+  { area: "Film Nagar", suburb: "Jubilee Hills", lat: 17.4185, lng: 78.4120, postcode: "500096" },
+  { area: "Narsingi", suburb: "Hyderabad", lat: 17.3820, lng: 78.3640, postcode: "500075" },
+  { area: "Kokapet", suburb: "Gandipet", lat: 17.3980, lng: 78.3280, postcode: "500075" },
+  { area: "Mehdipatnam", suburb: "Hyderabad", lat: 17.3916, lng: 78.4414, postcode: "500028" },
+  { area: "Attapur", suburb: "Hyderabad", lat: 17.3680, lng: 78.4280, postcode: "500048" },
+  { area: "Kondapur", suburb: "Hyderabad", lat: 17.4650, lng: 78.3580, postcode: "500084" },
+];
+
+function findNearestVerifiedCentroid(lat: number, lng: number) {
+  let best = VERIFIED_LOCALITIES[0];
+  let minDistance = Infinity;
+
+  for (const loc of VERIFIED_LOCALITIES) {
+    const d = calculateDistanceKm(lat, lng, loc.lat, loc.lng);
+    if (d < minDistance) {
+      minDistance = d;
+      best = loc;
+    }
+  }
+
+  return {
+    areaTitle: best.area,
+    locality: `${best.area}, ${best.suburb}`,
+    formattedAddress: `${best.area}, ${best.suburb}, Hyderabad ${best.postcode}`,
+    postalCode: best.postcode,
+  };
 }
 
 /**
- * Reverse geocodes coordinates to a human-readable locality string
+ * Reverse geocodes coordinates through our backend proxy with User-Agent,
+ * in-memory caching, ward sanitization, and geometric centroid fallback.
  */
-export async function reverseGeocode(lat: number, lng: number): Promise<string> {
-  // Use AbortController with 3.5s timeout so reverse geocode never blocks or hangs
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 3500);
+export async function reverseGeocode(lat: number, lng: number): Promise<GpsLocationData> {
+  const distanceKm = calculateDistanceKm(lat, lng);
+  const eligible = distanceKm <= MAX_RADIUS_KM;
+  const eta = getEtaForDistance(distanceKm);
 
+  // 1. Primary: Query our Spring Boot backend reverse geocode proxy
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+      `${getApiBaseUrl()}/public/location/reverse?lat=${lat}&lng=${lng}`,
       {
         signal: controller.signal,
-        headers: { "Accept-Language": "en" },
+        headers: { Accept: "application/json" },
       }
     );
     clearTimeout(timer);
 
     if (res.ok) {
       const data = await res.json();
-      const addr = data.address || {};
-      const locality =
-        addr.suburb ||
-        addr.neighbourhood ||
-        addr.residential ||
-        addr.road ||
-        addr.quarter ||
-        addr.city_district ||
-        addr.county;
-      const city = addr.city || addr.town || addr.state_district || "Hyderabad";
-
-      if (locality) {
-        return `${locality}, ${city}`;
-      }
+      return {
+        areaTitle: data.areaTitle || data.locality?.split(",")[0]?.trim(),
+        locality: data.locality || `${data.areaTitle}, Manikonda`,
+        formattedAddress: data.formattedAddress,
+        distanceKm: typeof data.distanceKm === "number" ? data.distanceKm : distanceKm,
+        latitude: lat,
+        longitude: lng,
+        eligible: typeof data.eligible === "boolean" ? data.eligible : eligible,
+        eta: data.eta || eta,
+        postalCode: data.postalCode,
+        source: data.source || "BACKEND_PROXY",
+      };
     }
   } catch (err) {
-    clearTimeout(timer);
-    console.warn("Reverse geocode fetch failed or timed out, using fallback:", err);
+    console.warn("Backend reverse geocode proxy unavailable, checking client fallback:", err);
   }
 
-  return getLocalLandmarkFallback(lat, lng);
+  // 2. Secondary fallback: High-reliability client reverse geocode
+  try {
+    const res = await fetch(
+      `https://api-bdc.io/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+    );
+    if (res.ok) {
+      const bdc = await res.json();
+      const rawLocality = bdc.locality || bdc.city || "Manikonda";
+      const cleanLocality = rawLocality.replace(/^Ward\s*\d+\s*/i, "").trim();
+      const areaTitle = cleanLocality || "Manikonda";
+      const locality = `${areaTitle}, ${bdc.principalSubdivision || "Hyderabad"}`;
+
+      return {
+        areaTitle,
+        locality,
+        formattedAddress: `${areaTitle}, Hyderabad, Telangana ${bdc.postcode || "500089"}`,
+        distanceKm,
+        latitude: lat,
+        longitude: lng,
+        eligible,
+        eta,
+        postalCode: bdc.postcode || "500089",
+        source: "CLIENT_BDC",
+      };
+    }
+  } catch (err) {
+    console.warn("Client BDC geocode unavailable:", err);
+  }
+
+  // 3. Geometric nearest-centroid fallback (never blind radial distance)
+  const centroid = findNearestVerifiedCentroid(lat, lng);
+  return {
+    areaTitle: centroid.areaTitle,
+    locality: centroid.locality,
+    formattedAddress: centroid.formattedAddress,
+    distanceKm,
+    latitude: lat,
+    longitude: lng,
+    eligible,
+    eta,
+    postalCode: centroid.postalCode,
+    source: "GEOMETRIC_CENTROID",
+  };
 }
 
 /**
- * Actively queries device GPS and resolves full doorstep eligibility
+ * Searches places, apartments, and landmarks for autocomplete
+ */
+export async function searchPlacesApi(query: string): Promise<PlaceSuggestion[]> {
+  if (!query || query.trim().length < 2) return [];
+
+  try {
+    const res = await fetch(
+      `${getApiBaseUrl()}/public/location/search?query=${encodeURIComponent(query.trim())}`,
+      { headers: { Accept: "application/json" } }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        return data;
+      }
+    }
+  } catch (err) {
+    console.warn("Search places API failed:", err);
+  }
+
+  // Local fallback search from verified localities
+  const q = query.toLowerCase().trim();
+  return VERIFIED_LOCALITIES.filter(
+    (loc) => loc.area.toLowerCase().includes(q) || loc.suburb.toLowerCase().includes(q)
+  ).map((loc) => {
+    const dist = calculateDistanceKm(loc.lat, loc.lng);
+    return {
+      placeId: `local-${loc.area.toLowerCase().replace(/\s+/g, "-")}`,
+      title: `${loc.area}, ${loc.suburb}`,
+      subtitle: `Hyderabad, Telangana ${loc.postcode}`,
+      latitude: loc.lat,
+      longitude: loc.lng,
+      distanceKm: dist,
+      eligible: dist <= MAX_RADIUS_KM,
+      eta: getEtaForDistance(dist),
+    };
+  });
+}
+
+/**
+ * Actively queries device GPS with high accuracy and resolves full doorstep eligibility
  */
 export function detectGpsLocation(): Promise<GpsLocationData> {
   return new Promise((resolve, reject) => {
     if (typeof window === "undefined" || !navigator.geolocation) {
-      return reject(new Error("Geolocation is not supported by your browser."));
+      return reject(new Error("Geolocation is not supported by your browser. Please search manually."));
     }
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         try {
           const { latitude, longitude } = pos.coords;
-          const distanceKm = calculateDistanceKm(latitude, longitude);
-          const locality = await reverseGeocode(latitude, longitude);
-          const eligible = distanceKm <= MAX_RADIUS_KM;
-          const eta = getEtaForDistance(distanceKm);
-
-          const result: GpsLocationData = {
-            locality,
-            distanceKm,
-            latitude,
-            longitude,
-            eligible,
-            eta,
-          };
+          const locationData = await reverseGeocode(latitude, longitude);
 
           if (typeof window !== "undefined") {
-            localStorage.setItem("fm_user_locality", locality);
-            localStorage.setItem("fm_user_distance", String(distanceKm));
+            localStorage.setItem("fm_user_locality", locationData.locality);
+            localStorage.setItem("fm_user_area_title", locationData.areaTitle || locationData.locality.split(",")[0]);
+            localStorage.setItem("fm_user_distance", String(locationData.distanceKm));
             localStorage.setItem("fm_user_lat", String(latitude));
             localStorage.setItem("fm_user_lng", String(longitude));
             localStorage.setItem("fm_user_is_gps", "true");
-            localStorage.setItem("fm_user_eligible", String(eligible));
-            localStorage.setItem("fm_user_eta", eta);
+            localStorage.setItem("fm_user_eligible", String(locationData.eligible));
+            localStorage.setItem("fm_user_eta", locationData.eta);
 
-            // Persist location to backend DB
+            // Record to backend DB
             saveCustomerLocationApi({
-              locality,
+              locality: locationData.locality,
               latitude,
               longitude,
-              distanceKm,
-              eligible,
-              eta,
+              distanceKm: locationData.distanceKm,
+              eligible: locationData.eligible,
+              eta: locationData.eta,
               mobileNumber: localStorage.getItem("fm_latest_mobile") || undefined,
             }).catch((err) => console.warn("Background location persist err:", err));
 
-            // Notify all listening components across the application
+            // Broadcast to Header and all listeners
             window.dispatchEvent(
-              new CustomEvent("fm_location_updated", { detail: result })
+              new CustomEvent("fm_location_updated", { detail: locationData })
             );
           }
 
-          resolve(result);
+          resolve(locationData);
         } catch (e) {
           reject(e);
         }
@@ -170,18 +299,18 @@ export function detectGpsLocation(): Promise<GpsLocationData> {
       (error) => {
         let msg = "Could not retrieve GPS coordinates.";
         if (error.code === error.PERMISSION_DENIED) {
-          msg = "Location permission denied. Please allow location in your browser or select below.";
+          msg = "Location permission denied. Please search your area or select a neighborhood.";
         } else if (error.code === error.POSITION_UNAVAILABLE) {
-          msg = "GPS location unavailable on this device.";
+          msg = "GPS position unavailable. Please search your area below.";
         } else if (error.code === error.TIMEOUT) {
-          msg = "Location request timed out. Please try again.";
+          msg = "GPS request timed out. Please tap to try again or search below.";
         }
         reject(new Error(msg));
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 15000,
+        timeout: 12000,
+        maximumAge: 0,
       }
     );
   });
@@ -193,17 +322,22 @@ export function detectGpsLocation(): Promise<GpsLocationData> {
 export function getStoredLocation(): Partial<GpsLocationData> | null {
   if (typeof window === "undefined") return null;
   const locality = localStorage.getItem("fm_user_locality");
+  const areaTitle = localStorage.getItem("fm_user_area_title");
   const distanceStr = localStorage.getItem("fm_user_distance");
-  const isGpsStr = localStorage.getItem("fm_user_is_gps");
   const eligibleStr = localStorage.getItem("fm_user_eligible");
   const etaStr = localStorage.getItem("fm_user_eta");
+  const latStr = localStorage.getItem("fm_user_lat");
+  const lngStr = localStorage.getItem("fm_user_lng");
 
   if (!locality && !distanceStr) return null;
 
   const distanceKm = distanceStr ? parseFloat(distanceStr) : 0;
   return {
+    areaTitle: areaTitle || locality?.split(",")[0]?.trim(),
     locality: locality || undefined,
     distanceKm: isNaN(distanceKm) ? 0 : distanceKm,
+    latitude: latStr ? parseFloat(latStr) : undefined,
+    longitude: lngStr ? parseFloat(lngStr) : undefined,
     eligible: eligibleStr === "true",
     eta: etaStr || getEtaForDistance(distanceKm),
   };
