@@ -214,4 +214,28 @@ class BookingServiceTest {
                 .contains("https://www.google.com/maps/dir/?api=1&destination=")
                 .contains("Puppalguda");
     }
+
+    @Test
+    @DisplayName("deleteBooking returns true and removes record when booking exists")
+    void testDeleteBookingSuccess() {
+        Booking booking = new Booking();
+        booking.setBookingId("FM-2026-1234");
+        when(bookingRepository.findByBookingId("FM-2026-1234")).thenReturn(Optional.of(booking));
+
+        boolean result = bookingService.deleteBooking("FM-2026-1234");
+
+        assertThat(result).isTrue();
+        verify(bookingRepository).delete(booking);
+    }
+
+    @Test
+    @DisplayName("deleteBooking returns false when booking does not exist or id is blank")
+    void testDeleteBookingNotFoundOrBlank() {
+        when(bookingRepository.findByBookingId("FM-NONEXISTENT")).thenReturn(Optional.empty());
+
+        assertThat(bookingService.deleteBooking("FM-NONEXISTENT")).isFalse();
+        assertThat(bookingService.deleteBooking("   ")).isFalse();
+        assertThat(bookingService.deleteBooking(null)).isFalse();
+        verify(bookingRepository, never()).delete(any());
+    }
 }

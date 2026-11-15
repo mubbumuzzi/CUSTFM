@@ -21,6 +21,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -133,5 +134,46 @@ class PublicBookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.quoteApproved").value(true))
                 .andExpect(jsonPath("$.statusCode").value("REPAIR_IN_PROGRESS"));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/public/bookings/{id} - Fails 401 when POS API Key is missing")
+    void testDeleteBookingWithoutApiKeyReturns401() throws Exception {
+        mockMvc.perform(delete("/api/public/bookings/FM-2026-9812"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error").value("Unauthorized"));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/public/bookings/{id} - Succeeds 200 when POS API Key is valid and record exists")
+    void testDeleteBookingWithValidApiKeyReturns200() throws Exception {
+        when(bookingService.deleteBooking("FM-2026-9812")).thenReturn(true);
+
+        mockMvc.perform(delete("/api/public/bookings/FM-2026-9812")
+                        .header("X-POS-API-KEY", "famous-pos-sec-2026"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("Booking FM-2026-9812 deleted successfully."));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/public/bookings/{id} - Returns 404 when booking does not exist")
+    void testDeleteBookingNotFoundReturns404() throws Exception {
+        when(bookingService.deleteBooking("FM-UNKNOWN")).thenReturn(false);
+
+        mockMvc.perform(delete("/api/public/bookings/FM-UNKNOWN")
+                        .header("X-POS-API-KEY", "famous-pos-sec-2026"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Not Found"));
+    }
+
+    @Test
+    @DisplayName("POST /api/public/bookings/{id}/delete - POST fallback endpoint succeeds with query param apiKey")
+    void testDeleteBookingPostFallbackWithQueryParam() throws Exception {
+        when(bookingService.deleteBooking("FM-2026-9812")).thenReturn(true);
+
+        mockMvc.perform(post("/api/public/bookings/FM-2026-9812/delete?apiKey=famous-pos-sec-2026"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
     }
 }
