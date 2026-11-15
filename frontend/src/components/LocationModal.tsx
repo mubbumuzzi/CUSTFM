@@ -47,13 +47,13 @@ interface SavedLocationItem {
 }
 
 const POPULAR_HUBS = [
-  { name: "Lanco Hills", suburb: "Manikonda", lat: 17.4045, lng: 78.3752, km: 1.5, eligible: true, note: "Doorstep Eligible • 30-45 mins" },
-  { name: "Secretariat Colony", suburb: "Manikonda", lat: 17.4055, lng: 78.3768, km: 1.6, eligible: true, note: "Doorstep Eligible • 30-45 mins" },
-  { name: "Puppalaguda Main Rd", suburb: "Manikonda", lat: 17.4000, lng: 78.3862, km: 0.4, eligible: true, note: "Doorstep Eligible • 25-30 mins" },
-  { name: "Alkapoor Township", suburb: "Manikonda", lat: 17.3967, lng: 78.3717, km: 1.9, eligible: true, note: "Doorstep Eligible • 30-45 mins" },
-  { name: "OU Colony / Shaikpet", suburb: "Shaikpet", lat: 17.4085, lng: 78.3980, km: 1.2, eligible: true, note: "Doorstep Eligible • 30-45 mins" },
-  { name: "Khajaguda", suburb: "Gachibowli", lat: 17.4200, lng: 78.3680, km: 2.8, eligible: true, note: "Doorstep Eligible • 45-60 mins" },
-  { name: "Nanakramguda", suburb: "Financial Dist", lat: 17.4150, lng: 78.3480, km: 4.5, eligible: true, note: "Doorstep Eligible • 45-60 mins" },
+  { name: "Puppalaguda Main Rd", suburb: "Manikonda", lat: 17.4000, lng: 78.3862, km: 0.4, eligible: true, note: "Doorstep Eligible • 10-15 mins" },
+  { name: "OU Colony / Shaikpet", suburb: "Shaikpet", lat: 17.4085, lng: 78.3980, km: 1.2, eligible: true, note: "Doorstep Eligible • 15-20 mins" },
+  { name: "Lanco Hills", suburb: "Manikonda", lat: 17.4045, lng: 78.3752, km: 1.5, eligible: true, note: "Doorstep Eligible • 15-25 mins" },
+  { name: "Secretariat Colony", suburb: "Manikonda", lat: 17.4055, lng: 78.3768, km: 1.6, eligible: true, note: "Doorstep Eligible • 20-30 mins" },
+  { name: "Alkapoor Township", suburb: "Manikonda", lat: 17.3967, lng: 78.3717, km: 1.9, eligible: true, note: "Doorstep Eligible • 20-30 mins" },
+  { name: "Khajaguda", suburb: "Gachibowli", lat: 17.4200, lng: 78.3680, km: 2.8, eligible: true, note: "Doorstep Eligible • 25-35 mins" },
+  { name: "Nanakramguda", suburb: "Financial Dist", lat: 17.4150, lng: 78.3480, km: 4.5, eligible: true, note: "Doorstep Eligible • 35-45 mins" },
   { name: "Gachibowli", suburb: "Cyberabad", lat: 17.4400, lng: 78.3489, km: 5.9, eligible: false, note: "Exceeds 5 km • Free In-Store Visit" },
   { name: "Hitec City / Madhapur", suburb: "Cyberabad", lat: 17.4504, lng: 78.3808, km: 5.4, eligible: false, note: "Exceeds 5 km • Free In-Store Visit" },
 ];
@@ -108,9 +108,10 @@ export default function LocationModal({
     return () => clearTimeout(timer);
   }, [isOpen]);
 
-  // Debounced search query
+  // Debounced search query with race-condition prevention
   useEffect(() => {
-    if (!searchQuery.trim() || searchQuery.trim().length < 2) {
+    const trimmed = searchQuery.trim();
+    if (!trimmed || trimmed.length < 2) {
       setSearchResults([]);
       setIsSearching(false);
       return;
@@ -119,18 +120,27 @@ export default function LocationModal({
     setIsSearching(true);
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
 
+    let isCurrent = true;
+
     searchTimeoutRef.current = setTimeout(async () => {
       try {
-        const results = await searchPlacesApi(searchQuery);
-        setSearchResults(results);
+        const results = await searchPlacesApi(trimmed);
+        if (isCurrent) {
+          setSearchResults(results);
+        }
       } catch (err) {
-        console.warn("Place search failed:", err);
+        if (isCurrent) {
+          console.warn("Place search failed:", err);
+        }
       } finally {
-        setIsSearching(false);
+        if (isCurrent) {
+          setIsSearching(false);
+        }
       }
     }, 280);
 
     return () => {
+      isCurrent = false;
       if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     };
   }, [searchQuery]);
@@ -482,13 +492,21 @@ export default function LocationModal({
               </div>
             </div>
 
-            {/* Shop Hub Footer */}
-            <div className="p-2.5 bg-slate-50 rounded-xl text-[11px] text-slate-500 flex items-center justify-between border border-slate-100">
-              <div className="flex items-center gap-1.5">
-                <span className="text-accent-600 font-bold">📍 Shop Hub:</span>
-                <span className="truncate">Manikonda Main Road (Beside SBI Bank)</span>
+            {/* Shop Hub Footer with Direct Google Maps Link */}
+            <div className="p-2.5 bg-slate-50 rounded-xl text-[11px] text-slate-600 flex items-center justify-between border border-slate-200/80">
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="text-accent-600 font-extrabold">📍 Physical Workshop:</span>
+                <span className="truncate">Manikonda Main Road</span>
               </div>
-              <span className="text-[10px] font-black text-slate-400 shrink-0">5 km Doorstep Radius</span>
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Famous+Mobiles+Manikonda+Hyderabad"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] font-black text-blue-600 hover:text-blue-700 underline flex items-center gap-0.5 shrink-0 cursor-pointer"
+                title="Open verified Famous Mobiles shop on Google Maps"
+              >
+                <span>Google Maps ↗</span>
+              </a>
             </div>
           </div>
         )}

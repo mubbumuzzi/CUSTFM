@@ -5,7 +5,7 @@ import { Star, ShieldCheck, ExternalLink, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Customer Reviews & Ratings — Famous Mobiles Manikonda",
-  description: "Read genuine customer reviews for Famous Mobiles Manikonda. Rated 4.9/5 by 657 customers across Lanco Hills, Puppalaguda, and Alkapoor Township.",
+  description: "Read genuine customer reviews for Famous Mobiles Manikonda. Rated 4.9/5 by 1k+ customers across Lanco Hills, Puppalaguda, and Alkapoor Township.",
 };
 
 const REVIEWS = [
@@ -56,7 +56,7 @@ export default function ReviewsPage() {
           Verified Customer Feedback
         </span>
         <h1 className="text-2xl sm:text-4xl font-black text-navy-950">
-          657+ Genuine Customer Reviews
+          1k+ Genuine Customer Reviews
         </h1>
         <p className="text-xs sm:text-sm text-slate-600">
           See why residents across Manikonda and Lanco Hills rate Famous Mobiles 4.9/5 stars.
@@ -74,7 +74,7 @@ export default function ReviewsPage() {
               ))}
             </div>
             <p className="text-xs text-slate-300 mt-1 font-semibold">
-              Overall rating based on 657 Google Business reviews
+              Overall rating based on 1k+ Google Business reviews
             </p>
           </div>
         </div>

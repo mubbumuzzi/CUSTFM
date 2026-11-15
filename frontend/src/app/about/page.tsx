@@ -32,7 +32,7 @@ export default function AboutPage() {
         </div>
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs">
           <div className="text-2xl sm:text-3xl font-black text-emerald-600">4.9 ★</div>
-          <div className="text-[11px] sm:text-xs text-slate-500 font-bold mt-1">657 Verified Reviews</div>
+          <div className="text-[11px] sm:text-xs text-slate-500 font-bold mt-1">1k+ Verified Reviews</div>
         </div>
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs">
           <div className="text-2xl sm:text-3xl font-black text-accent-600">₹0</div>

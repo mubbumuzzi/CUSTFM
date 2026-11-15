@@ -59,18 +59,22 @@ export function calculateDistanceKm(
 
 /**
  * Returns estimated doorstep arrival time based on distance from Manikonda shop
+ * Hyperlocal scaling: immediate neighborhood (<0.5km) is 10-15 mins
  */
 export function getEtaForDistance(distanceKm: number): string {
   if (distanceKm > MAX_RADIUS_KM) {
     return "Shop Visit Only";
   }
-  if (distanceKm <= 1.0) {
-    return "25-30 mins";
+  if (distanceKm <= 0.5) {
+    return "10-15 mins";
   }
-  if (distanceKm <= 2.5) {
-    return "30-45 mins";
+  if (distanceKm <= 1.5) {
+    return "15-25 mins";
   }
-  return "45-60 mins";
+  if (distanceKm <= 3.0) {
+    return "25-35 mins";
+  }
+  return "35-45 mins";
 }
 
 // Verified geometric centroids for Hyderabad / Manikonda localities

@@ -13,9 +13,11 @@ import {
   MapPin,
   ChevronRight,
   Sparkles,
+  ExternalLink,
 } from "lucide-react";
 import { SERVICES_DATA, ServiceItem } from "@/data/servicesData";
 import GpsPromptBanner from "@/components/GpsPromptBanner";
+import { GoogleIcon } from "@/components/GoogleReviewsModal";
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -34,6 +36,12 @@ export default function HomePage() {
     if (selectedCategory === "All") return true;
     return s.slug === selectedCategory;
   });
+
+  const handleOpenReviews = () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("fm_open_reviews_modal"));
+    }
+  };
 
   return (
     <>
@@ -87,16 +95,43 @@ export default function HomePage() {
                 </a>
               </div>
 
-              {/* Trust Indicators Strip */}
-              <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-bold text-slate-700">
-                <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
+              {/* Trust Indicators Strip with Interactive Google Modal Trigger */}
+              <div className="pt-2 flex flex-wrap items-center gap-2.5 text-xs font-bold text-slate-700">
+                <div className="flex items-center gap-1.5 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-xs">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   <span>10,000+ Phones Repaired</span>
                 </div>
-                <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
-                  <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                  <span>4.9 / 5 Rating (657 Reviews)</span>
-                </div>
+
+                <button
+                  type="button"
+                  onClick={handleOpenReviews}
+                  className="flex items-center gap-2 bg-white hover:bg-amber-50/50 px-3 py-2 rounded-xl border border-slate-200 hover:border-amber-300 hover:shadow-md shadow-xs transition group cursor-pointer text-left active:scale-[0.98]"
+                  title="Open Google verified ratings & customer reviews"
+                >
+                  <GoogleIcon className="w-4 h-4 shrink-0" />
+                  <div className="flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                    <span className="text-navy-950 font-black">4.9 / 5</span>
+                  </div>
+                  <span className="text-slate-500 font-medium hidden sm:inline">(1k+ Google Reviews)</span>
+                  <span className="text-slate-500 font-medium sm:hidden">(1k+)</span>
+                  <span className="text-[10px] font-black bg-blue-50 text-blue-700 border border-blue-200 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                    Verified ↗
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleOpenReviews}
+                  className="flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-900 border border-emerald-200 hover:border-emerald-300 hover:shadow-md px-3 py-2 rounded-xl shadow-xs transition group cursor-pointer text-left active:scale-[0.98]"
+                  title="View physical workshop details, hours & directions"
+                >
+                  <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Physical Shop: Manikonda Main Road</span>
+                  <span className="text-[11px] font-black text-emerald-700 underline flex items-center gap-0.5 ml-0.5">
+                    Shop Details ↗
+                  </span>
+                </button>
               </div>
             </div>
 
@@ -194,9 +229,13 @@ export default function HomePage() {
           <span className="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-900 border border-amber-200 text-[11px] font-bold shrink-0 flex items-center gap-1">
             🛡️ 1st Home Visit Free (₹0)
           </span>
-          <span className="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-800 border border-blue-200 text-[11px] font-bold shrink-0 flex items-center gap-1">
-            ⭐ 4.9 ★ Rating (657 Reviews)
-          </span>
+          <button
+            type="button"
+            onClick={handleOpenReviews}
+            className="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 text-[11px] font-bold shrink-0 flex items-center gap-1 cursor-pointer transition"
+          >
+            ⭐ 4.9 ★ Rating (1k+ Reviews)
+          </button>
           <span className="px-3 py-1.5 rounded-lg bg-purple-50 text-purple-800 border border-purple-200 text-[11px] font-bold shrink-0 flex items-center gap-1">
             🏪 Verified Manikonda Physical Shop
           </span>

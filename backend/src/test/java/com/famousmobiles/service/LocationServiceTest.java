@@ -38,9 +38,11 @@ class LocationServiceTest {
     @Test
     @DisplayName("Doorstep arrival ETA correctly maps to distance buckets")
     void testGetEtaForDistance() {
-        assertThat(LocationService.getEtaForDistance(0.5)).isEqualTo("25-30 mins");
-        assertThat(LocationService.getEtaForDistance(1.8)).isEqualTo("30-45 mins");
-        assertThat(LocationService.getEtaForDistance(4.2)).isEqualTo("45-60 mins");
+        assertThat(LocationService.getEtaForDistance(0.2)).isEqualTo("10-15 mins");
+        assertThat(LocationService.getEtaForDistance(0.5)).isEqualTo("10-15 mins");
+        assertThat(LocationService.getEtaForDistance(1.2)).isEqualTo("15-25 mins");
+        assertThat(LocationService.getEtaForDistance(2.2)).isEqualTo("25-35 mins");
+        assertThat(LocationService.getEtaForDistance(4.2)).isEqualTo("35-45 mins");
         assertThat(LocationService.getEtaForDistance(6.5)).isEqualTo("Shop Visit Only");
     }
 

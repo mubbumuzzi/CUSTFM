@@ -101,7 +101,7 @@ class PublicBookingControllerTest {
         statusRes.setTotalStages(11);
         statusRes.setStages(Collections.emptyList());
 
-        when(bookingService.getBookingStatus(eq("FM-2026-9812"), any())).thenReturn(Optional.of(statusRes));
+        when(bookingService.getBookingStatus(eq("FM-2026-9812"), any(), any())).thenReturn(Optional.of(statusRes));
 
         mockMvc.perform(get("/api/public/bookings/FM-2026-9812/status?mobile=9876543210"))
                 .andExpect(status().isOk())
@@ -113,7 +113,7 @@ class PublicBookingControllerTest {
     @Test
     @DisplayName("GET /api/public/bookings/{id}/status - Non-existent ID returns 404 Not Found")
     void testGetBookingStatusNotFoundReturns404() throws Exception {
-        when(bookingService.getBookingStatus(eq("FM-INVALID-ID"), any())).thenReturn(Optional.empty());
+        when(bookingService.getBookingStatus(eq("FM-INVALID-ID"), any(), any())).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/public/bookings/FM-INVALID-ID/status"))
                 .andExpect(status().isNotFound());

@@ -28,9 +28,11 @@ test("Locations beyond 5 km are correctly marked as Shop Visit Only", () => {
 });
 
 test("Locations within 5 km receive valid arrival time ETAs", () => {
-  assert.strictEqual(getEtaForDistance(0.4), "25-30 mins");
-  assert.strictEqual(getEtaForDistance(1.8), "30-45 mins");
-  assert.strictEqual(getEtaForDistance(4.5), "45-60 mins");
+  assert.strictEqual(getEtaForDistance(0.2), "10-15 mins");
+  assert.strictEqual(getEtaForDistance(0.4), "10-15 mins");
+  assert.strictEqual(getEtaForDistance(1.2), "15-25 mins");
+  assert.strictEqual(getEtaForDistance(2.2), "25-35 mins");
+  assert.strictEqual(getEtaForDistance(4.5), "35-45 mins");
 });
 
 test("reverseGeocode resolves coordinates to clean locality without administrative ward noise", async () => {

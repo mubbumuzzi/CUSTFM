@@ -35,7 +35,7 @@ class LocationControllerTest {
                 "longitude", 78.375,
                 "distanceKm", 0.4,
                 "eligible", true,
-                "eta", "25-30 mins"
+                "eta", "10-15 mins"
         );
 
         mockMvc.perform(post("/api/public/location")

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MapPin, Phone, Package, Search, Mic, ChevronDown, Navigation, RefreshCw } from "lucide-react";
+import { MapPin, Phone, Package, Search, Mic, ChevronDown, Navigation, RefreshCw, ExternalLink } from "lucide-react";
 import LocationModal from "./LocationModal";
 import { detectGpsLocation, getStoredLocation, getEtaForDistance, GpsLocationData } from "@/lib/gps";
 
@@ -102,7 +102,19 @@ export default function Header({ onSearch }: HeaderProps) {
           </div>
           <div className="hidden sm:flex items-center gap-4 text-[11px] text-slate-300">
             <span>📞 Call Desk: +91 90637 86751</span>
-            <span>⭐ 4.9/5 Rating (657 Reviews)</span>
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("fm_open_reviews_modal"));
+                }
+              }}
+              className="hover:text-amber-300 transition flex items-center gap-1 cursor-pointer"
+              title="View Famous Mobiles verified Google Maps location & customer reviews"
+            >
+              <span>⭐ 4.9/5 on Google Maps (1k+ Reviews)</span>
+              <ExternalLink className="w-2.5 h-2.5 opacity-70" />
+            </button>
           </div>
         </div>
 
@@ -174,6 +186,17 @@ export default function Header({ onSearch }: HeaderProps) {
                   }`}
                 />
               </button>
+
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Famous+Mobiles+Manikonda+Hyderabad"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="View physical workshop on Google Maps"
+                className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-600 hover:text-emerald-700 transition flex items-center gap-1 cursor-pointer"
+              >
+                <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-[11px] font-bold text-slate-700 hidden lg:inline">Maps</span>
+              </a>
             </div>
           </div>
 
@@ -264,6 +287,18 @@ export default function Header({ onSearch }: HeaderProps) {
 
             {/* Quick Actions */}
             <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(new CustomEvent("fm_open_reviews_modal"));
+                  }
+                }}
+                className="w-8 h-8 rounded-full bg-white border border-amber-300 shadow-xs flex items-center justify-center text-emerald-700 text-xs font-bold"
+                title="View physical workshop details & Google reviews"
+              >
+                <MapPin className="w-4 h-4 text-emerald-600" />
+              </button>
               <button
                 type="button"
                 onClick={triggerGpsDetection}

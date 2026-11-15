@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     Optional<Booking> findByBookingId(String bookingId);
+    boolean existsByBookingId(String bookingId);
     Optional<Booking> findByBookingIdAndMobileNumber(String bookingId, String mobileNumber);
     List<Booking> findByMobileNumberOrderByCreatedAtDesc(String mobileNumber);
     List<Booking> findAllByOrderByCreatedAtDesc();

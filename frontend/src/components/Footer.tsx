@@ -20,7 +20,7 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-2 pt-1 text-xs text-amber-300 font-bold">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>10,000+ Repairs • 4.9/5 Rating (657 Reviews)</span>
+              <span>10,000+ Repairs • 4.9/5 Rating (1k+ Reviews)</span>
             </div>
           </div>
 

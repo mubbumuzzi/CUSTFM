@@ -5,6 +5,7 @@ import com.famousmobiles.dto.BookingResponse;
 import com.famousmobiles.dto.BookingStatusResponse;
 import com.famousmobiles.service.BookingService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,15 +19,33 @@ public class PublicBookingController {
 
     private final BookingService bookingService;
 
+    @Value("${famousmobiles.pos.api-key:famous-pos-sec-2026}")
+    private String posApiKey;
+
     public PublicBookingController(BookingService bookingService) {
         this.bookingService = bookingService;
     }
 
+    private boolean isPosAuthorized(String headerKey, String queryKey) {
+        if (posApiKey == null || posApiKey.isBlank()) {
+            return true;
+        }
+        return posApiKey.equals(headerKey) || posApiKey.equals(queryKey);
+    }
+
     /**
-     * List all customer bookings for the shop-side POS dashboard
+     * List all customer bookings for the shop-side POS dashboard (Secured by API Key)
      */
     @GetMapping
-    public ResponseEntity<?> getAllBookings() {
+    public ResponseEntity<?> getAllBookings(
+            @RequestHeader(value = "X-POS-API-KEY", required = false) String apiKeyHeader,
+            @RequestParam(value = "apiKey", required = false) String apiKeyParam) {
+        if (!isPosAuthorized(apiKeyHeader, apiKeyParam)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "error", "Unauthorized",
+                    "message", "POS API Key required. Provide 'X-POS-API-KEY' header or 'apiKey' parameter."
+            ));
+        }
         return ResponseEntity.ok(bookingService.getAllBookingsForPos());
     }
 
@@ -40,33 +59,41 @@ public class PublicBookingController {
     }
 
     /**
-     * POS staff stage advancement, technician assignment, and quote updates
+     * POS staff stage advancement, technician assignment, and quote updates (Secured by API Key)
      */
     @PostMapping("/{bookingId}/pos-update")
     public ResponseEntity<?> updateBookingFromPos(
             @PathVariable String bookingId,
+            @RequestHeader(value = "X-POS-API-KEY", required = false) String apiKeyHeader,
+            @RequestParam(value = "apiKey", required = false) String apiKeyParam,
             @RequestBody Map<String, Object> updates) {
+        if (!isPosAuthorized(apiKeyHeader, apiKeyParam)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "error", "Unauthorized",
+                    "message", "POS API Key required."
+            ));
+        }
         return bookingService.updateBookingFromPos(bookingId, updates)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
     /**
-     * Secure status lookup. Requires booking ID and optionally verified mobile.
+     * Secure status lookup. Requires booking ID and matching mobile or OTP (IDOR Protected).
      */
     @GetMapping("/{bookingId}/status")
     public ResponseEntity<?> getBookingStatus(
             @PathVariable String bookingId,
             @RequestParam(required = false) String mobile,
             @RequestParam(required = false) String otp) {
-        if (otp != null && !otp.isBlank()) {
-            return bookingService.getBookingStatus(bookingId, mobile, otp)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+        Optional<BookingStatusResponse> status = bookingService.getBookingStatus(bookingId, mobile, otp);
+        if (status.isPresent()) {
+            return ResponseEntity.ok(status.get());
         }
-        return bookingService.getBookingStatus(bookingId, mobile)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "error", "Not Found",
+                "message", "No booking found matching this ID, mobile number, and OTP."
+        ));
     }
 
     /**
@@ -99,13 +126,21 @@ public class PublicBookingController {
     }
 
     /**
-     * Lifecycle simulation endpoint for demonstrating stages in test environment
+     * Lifecycle simulation endpoint for demonstrating stages in test environment (Secured by API Key)
      */
     @PostMapping("/{bookingId}/simulate")
     public ResponseEntity<?> simulateStage(
             @PathVariable String bookingId,
+            @RequestHeader(value = "X-POS-API-KEY", required = false) String apiKeyHeader,
+            @RequestParam(value = "apiKey", required = false) String apiKeyParam,
             @RequestBody Map<String, String> body) {
-        String scenario = body.getOrDefault("scenario", "on_the_way");
+        if (!isPosAuthorized(apiKeyHeader, apiKeyParam)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "error", "Unauthorized",
+                    "message", "POS API Key required."
+            ));
+        }
+        String scenario = body != null ? body.getOrDefault("scenario", "on_the_way") : "on_the_way";
         return bookingService.advanceStageForSimulation(bookingId, scenario)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));

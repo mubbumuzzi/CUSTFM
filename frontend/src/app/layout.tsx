@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import GoogleReviewsModal from "@/components/GoogleReviewsModal";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -86,7 +87,7 @@ export default function RootLayout({
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
-      "reviewCount": "657"
+      "reviewCount": "1000"
     },
     "hasMap": "https://share.google/U0L5BeQxKW1dBHUbJ",
     "priceRange": "₹₹"
@@ -108,6 +109,7 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <MobileBottomNav />
+        <GoogleReviewsModal />
       </body>
     </html>
   );

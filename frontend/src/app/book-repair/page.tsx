@@ -247,7 +247,10 @@ function BookRepairForm() {
               <input
                 type="text"
                 value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                onChange={(e) => {
+                  setAddress(e.target.value);
+                  setGpsCoords({ latitude: undefined, longitude: undefined });
+                }}
                 placeholder="e.g., Flat 402, Lanco Hills Tower 8, Manikonda"
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm font-medium focus:outline-none focus:ring-1 focus:ring-navy-900"
               />
