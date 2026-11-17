@@ -7,14 +7,9 @@ export const getBaseUrl = (): string => {
     if (isLocalDev) {
       return "http://127.0.0.1:8081/api";
     }
-    // In production, Docker, or mobile browsing, ALWAYS use relative /api through Nginx reverse proxy
-    if (
-      process.env.NEXT_PUBLIC_API_URL &&
-      !process.env.NEXT_PUBLIC_API_URL.includes("127.0.0.1") &&
-      !process.env.NEXT_PUBLIC_API_URL.includes("localhost")
-    ) {
-      return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, "");
-    }
+    // In production, Docker, mobile, or cloud browsing (e.g. famousmobiles.com),
+    // ALWAYS use relative "/api" through reverse proxy. This guarantees same-origin,
+    // prevents Mixed Content (HTTPS -> HTTP) blocking, and avoids cross-origin preflights.
     return "/api";
   }
   return process.env.INTERNAL_API_URL || "http://127.0.0.1:8081/api";
