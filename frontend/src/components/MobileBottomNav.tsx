@@ -17,7 +17,7 @@ export default function MobileBottomNav() {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBEB] py-2 px-2 flex items-center justify-around z-40 shadow-card">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBEB] pt-2 pb-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] px-3 flex items-center justify-around z-40 shadow-lg">
       {navItems.map((item) => {
         const active = pathname === item.href;
         const Icon = item.icon;
@@ -29,7 +29,7 @@ export default function MobileBottomNav() {
               href={item.href}
               className="flex flex-col items-center gap-0.5"
             >
-              <div className="w-10 h-10 rounded-[12px] bg-[#F97316] text-white flex items-center justify-center shadow-xs transition active:scale-95">
+              <div className="w-10 h-10 rounded-xl bg-[#F97316] text-white flex items-center justify-center shadow-sm transition active:scale-95">
                 <Icon className="w-5 h-5" />
               </div>
               <span className="text-[10px] font-bold text-[#F97316]">

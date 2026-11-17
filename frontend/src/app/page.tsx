@@ -123,167 +123,165 @@ export default function HomePage() {
       {/* GPS Prompt Banner */}
       <GpsPromptBanner />
 
-      <div className="space-y-12 md:space-y-20 pb-16">
+      <div className="space-y-10 md:space-y-16 pb-16">
         {/* ================================================================= */}
-        {/* 1. HERO SECTION (Urban Company Minimalism)                        */}
+        {/* 1. HERO & QUICK SERVICE TILES (Urban Company Mobile-First Architecture) */}
         {/* ================================================================= */}
-        <section className="bg-white border-b border-[#EBEBEB] pt-8 pb-12 md:py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-              
-              {/* Left Column: Headlines & CTAs */}
-              <div className="lg:col-span-7 space-y-5 text-left">
-                {/* Hyperlocal ETA Pill */}
-                <div className="inline-flex items-center gap-2 bg-[#F7F7F8] border border-[#EBEBEB] text-[#121212] text-xs font-semibold px-3 py-1.5 rounded-full">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span>
-                    {userLoc && userLoc.eligible && userLoc.eta && userLoc.eta !== "Shop Visit Only"
-                      ? `~${userLoc.eta} Doorstep Arrival in ${userLoc.areaTitle || userLoc.locality?.split(",")[0] || "Manikonda"}`
-                      : "15–45 Mins Express Arrival • 6 km Radius"}
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#121212] leading-[1.15]">
-                    Express Mobile Repair <br className="hidden sm:inline" />
-                    <span className="text-[#F97316]">at Your Doorstep</span>
-                  </h1>
-                  <p className="text-base sm:text-lg font-medium text-[#555555]">
-                    Open Daily 10:00 AM – 3:00 AM • Manikonda & Shaikpet
-                  </p>
-                </div>
-
-                <p className="text-xs sm:text-sm text-[#767676] max-w-xl font-normal leading-relaxed">
-                  Cracked screen or fast battery drain? Our certified technician arrives at your home or office in <strong>15–45 minutes</strong> with genuine OEM parts. Repairs completed in 30 minutes in front of you.
-                </p>
-
-                {/* Primary Action Buttons */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
-                  <Link
-                    href="/book-repair"
-                    className="bg-[#F97316] hover:bg-[#EA580C] text-white font-bold text-sm sm:text-base px-6 py-3.5 rounded-[12px] shadow-sm transition active:scale-95 flex items-center justify-center gap-2 text-center"
-                  >
-                    <span>Book Doorstep Visit</span>
-                    <span className="bg-white/20 text-xs px-2 py-0.5 rounded font-black">₹0 Fee</span>
-                    <ArrowRight className="w-4 h-4 ml-0.5" />
-                  </Link>
-
-                  <a
-                    href="https://wa.me/919063786751?text=Hi%20Famous%20Mobiles,%20I%20need%20a%20doorstep%20repair%20quote"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="bg-[#15803D] hover:bg-[#16A34A] text-white font-bold text-sm sm:text-base px-5 py-3.5 rounded-[12px] shadow-sm transition active:scale-95 flex items-center justify-center gap-2 text-center"
-                    title="Get upfront price quote on WhatsApp"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    <span>WhatsApp Quote</span>
-                  </a>
-
-                  <a
-                    href="#services-grid"
-                    className="bg-[#F7F7F8] hover:bg-[#EFEFEF] border border-[#EBEBEB] text-[#121212] font-semibold text-sm sm:text-base px-5 py-3.5 rounded-[12px] transition flex items-center justify-center gap-1.5 text-center"
-                  >
-                    <span>View Pricing</span>
-                  </a>
-                </div>
-
-                {/* Trust Strip */}
-                <div className="pt-2 flex flex-wrap items-center gap-2.5 text-xs text-[#555555]">
-                  <div className="flex items-center gap-1.5 bg-[#F7F7F8] px-3 py-1.5 rounded-[10px] border border-[#EBEBEB] font-medium">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                    <span>10,000+ Phones Repaired</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleOpenReviews}
-                    className="flex items-center gap-1.5 bg-[#F7F7F8] hover:bg-[#EFEFEF] px-3 py-1.5 rounded-[10px] border border-[#EBEBEB] transition cursor-pointer font-medium"
-                  >
-                    <GoogleIcon className="w-3.5 h-3.5" />
-                    <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                    <span className="text-[#121212] font-bold">4.9 / 5</span>
-                    <span className="text-[#767676]">(1k+ Google Reviews)</span>
-                  </button>
-
-                  <a
-                    href="https://share.google/U0L5BeQxKW1dBHUbJ"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-[10px] font-medium hover:bg-emerald-100 transition"
-                  >
-                    <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Opp Friends Colony, Shaikpet</span>
-                    <span className="text-[10px] font-bold underline ml-0.5">Directions ↗</span>
-                  </a>
-                </div>
+        <section className="bg-white border-b border-[#EBEBEB] pt-4 pb-8 sm:py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
+            
+            {/* Top Row: Hyperlocal ETA & Headline */}
+            <div className="space-y-3 text-left max-w-3xl">
+              {/* Hyperlocal ETA Pill */}
+              <div className="inline-flex items-center gap-2 bg-[#F7F7F8] border border-[#EBEBEB] text-[#121212] text-xs font-semibold px-3 py-1 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>
+                  {userLoc && userLoc.eligible && userLoc.eta && userLoc.eta !== "Shop Visit Only"
+                    ? `~${userLoc.eta} Doorstep Arrival in ${userLoc.areaTitle || userLoc.locality?.split(",")[0] || "Manikonda"}`
+                    : "15–45 Mins Express Arrival • 6 km Radius"}
+                </span>
               </div>
 
-              {/* Right Column: Clean Urban Company Quick Booking Card */}
-              <div className="lg:col-span-5">
-                <div className="bg-[#FFFFFF] border border-[#EBEBEB] rounded-2xl p-6 shadow-card space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#EBEBEB]">
-                    <div>
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                        First Visit Offer
-                      </span>
-                      <h2 className="text-lg font-bold text-[#121212] mt-1.5">
-                        Free Doorstep Inspection (₹0)
-                      </h2>
+              <div>
+                <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-[#121212] leading-tight">
+                  Express Mobile Repair <br className="hidden sm:inline" />
+                  <span className="text-[#F97316]">at Your Doorstep</span>
+                </h1>
+                <p className="text-xs sm:text-base font-medium text-[#555555] mt-1">
+                  Open Daily 10:00 AM – 3:00 AM • Repaired in 30 Mins Live in Front of You
+                </p>
+              </div>
+            </div>
+
+            {/* Urban Company 6-Tile Quick Service Grid */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#121212]">
+                  Select Repair Service
+                </span>
+                <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  ₹0 Inspection Fee
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3.5">
+                {SERVICES_DATA.map((service) => (
+                  <Link
+                    key={service.slug}
+                    href={`/book-repair?category=${encodeURIComponent(service.title)}`}
+                    className="bg-white rounded-2xl border border-[#EBEBEB] p-3 sm:p-4 shadow-card hover:shadow-card-hover hover:border-[#F97316] transition flex flex-col items-center text-center group active:scale-95"
+                  >
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#F7F7F8] group-hover:bg-[#FFF7ED] flex items-center justify-center text-xl sm:text-2xl transition mb-2">
+                      {service.icon}
                     </div>
-                    <span className="text-xl font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-[10px] border border-emerald-200">
-                      ₹0
+                    <span className="text-xs font-bold text-[#121212] group-hover:text-[#F97316] transition leading-tight line-clamp-1">
+                      {service.title.replace(" Replacement", "").replace(" Repair", "")}
+                    </span>
+                    <span className="text-[10px] font-semibold text-[#767676] mt-0.5">
+                      {service.turnaround}
+                    </span>
+                    <span className="text-[9px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded mt-1.5 border border-emerald-100">
+                      {service.warranty.replace(/ Warranty$/, "")}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Popular Brand Selectors (One-Tap Chips) */}
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#121212]">
+                  Select Your Phone Brand
+                </span>
+                <span className="text-[11px] text-[#767676]">All models serviced</span>
+              </div>
+              <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                {["iPhone", "Samsung", "OnePlus", "Vivo", "Xiaomi", "Pixel", "Realme", "Oppo"].map((brand) => (
+                  <Link
+                    key={brand}
+                    href={`/book-repair?brand=${encodeURIComponent(brand)}`}
+                    className="px-2 py-2 text-center text-xs font-semibold rounded-xl bg-[#F8F9FA] hover:bg-[#FFF7ED] hover:text-[#F97316] hover:border-[#FFEDD5] border border-[#EBEBEB] text-[#121212] transition active:scale-95 flex items-center justify-center"
+                  >
+                    {brand}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* High-Converting Doorstep Action Card */}
+            <div className="bg-[#FFFFFF] border border-[#EBEBEB] rounded-2xl p-4 sm:p-5 shadow-card flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5 text-left w-full md:w-auto">
+                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex flex-col items-center justify-center shrink-0">
+                  <span className="text-sm font-black leading-none">₹0</span>
+                  <span className="text-[8px] font-bold uppercase tracking-tighter">FREE</span>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-[#121212]">Free Doorstep Inspection</h3>
+                    <span className="text-[9px] font-extrabold uppercase text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded">
+                      First Visit Offer
                     </span>
                   </div>
-
-                  <p className="text-xs text-[#767676] leading-relaxed">
-                    Zero call-out charges for your first repair booking within our 6 km coverage radius.
+                  <p className="text-xs text-[#767676] mt-0.5">
+                    Arrives in 15–30 mins. Replaced in front of you with genuine OEM parts. Pay after testing.
                   </p>
-
-                  {/* Popular Brand Selectors */}
-                  <div className="space-y-2 pt-1">
-                    <label className="text-xs font-semibold text-[#121212] block">
-                      Select Your Phone Brand:
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {["iPhone", "Samsung", "OnePlus", "Vivo", "Pixel", "Xiaomi"].map((brand) => (
-                        <Link
-                          key={brand}
-                          href={`/book-repair?brand=${encodeURIComponent(brand)}`}
-                          className="px-2.5 py-2 text-center text-xs font-semibold rounded-[10px] bg-[#F7F7F8] hover:bg-[#FFF7ED] hover:text-[#F97316] hover:border-[#FFEDD5] border border-[#EBEBEB] text-[#121212] transition"
-                        >
-                          {brand}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Visit Charge Transparency Box */}
-                  <div className="bg-[#F7F7F8] rounded-[12px] p-3 border border-[#EBEBEB] text-xs space-y-1.5">
-                    <div className="flex justify-between items-center">
-                      <span className="text-[#555555]">First Home Visit</span>
-                      <span className="font-bold text-emerald-700">₹0 FREE</span>
-                    </div>
-                    <div className="flex justify-between items-center text-[11px] text-[#767676]">
-                      <span>Subsequent Visits</span>
-                      <span>₹69 (Adjusted in repair bill)</span>
-                    </div>
-                    <div className="flex justify-between items-center text-[11px] text-[#767676]">
-                      <span>Repair Warranty</span>
-                      <span className="font-semibold text-[#121212]">Up to 6 Months</span>
-                    </div>
-                  </div>
-
-                  <Link
-                    href="/book-repair"
-                    className="w-full bg-[#121212] hover:bg-[#F97316] text-white font-bold text-xs sm:text-sm py-3 px-4 rounded-[12px] shadow-xs transition flex items-center justify-center gap-2"
-                  >
-                    <span>Continue with Booking</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
                 </div>
               </div>
 
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
+                <Link
+                  href="/book-repair"
+                  className="flex-1 md:flex-initial bg-[#F97316] hover:bg-[#EA580C] text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-xs transition active:scale-95 flex items-center justify-center gap-2 text-center"
+                >
+                  <span>Book Doorstep Visit</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+
+                <a
+                  href="https://wa.me/919063786751?text=Hi%20Famous%20Mobiles,%20I%20need%20a%20doorstep%20repair%20quote"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-[#15803D] hover:bg-[#16A34A] text-white font-bold text-xs sm:text-sm px-4 py-3 rounded-xl shadow-xs transition active:scale-95 flex items-center justify-center gap-1.5 text-center shrink-0"
+                  title="WhatsApp Quote"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span className="hidden sm:inline">WhatsApp</span>
+                </a>
+              </div>
             </div>
+
+            {/* Trust Strip */}
+            <div className="flex flex-wrap items-center gap-2 text-xs text-[#555555] pt-1">
+              <div className="flex items-center gap-1.5 bg-[#F7F7F8] px-3 py-1.5 rounded-xl border border-[#EBEBEB] font-medium">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>10,000+ Repaired</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleOpenReviews}
+                className="flex items-center gap-1.5 bg-[#F7F7F8] hover:bg-[#EFEFEF] px-3 py-1.5 rounded-xl border border-[#EBEBEB] transition cursor-pointer font-medium"
+              >
+                <GoogleIcon className="w-3.5 h-3.5" />
+                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                <span className="text-[#121212] font-bold">4.9/5</span>
+                <span className="text-[#767676]">(1k+ Google Reviews)</span>
+              </button>
+
+              <a
+                href="https://share.google/U0L5BeQxKW1dBHUbJ"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-xl font-medium hover:bg-emerald-100 transition"
+              >
+                <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Shaikpet Main Rd Workshop</span>
+                <span className="text-[10px] font-bold underline ml-0.5">Directions ↗</span>
+              </a>
+            </div>
+
           </div>
         </section>
 

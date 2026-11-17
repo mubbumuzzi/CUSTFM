@@ -99,8 +99,8 @@ export default function Header({ onSearch }: HeaderProps) {
   return (
     <>
       <header className="sticky top-0 z-40 bg-white border-b border-[#EBEBEB] transition-all">
-        {/* Sleek Urban Company Top Utility Bar */}
-        <div className="bg-[#121212] text-white text-[11px] font-medium py-1.5 px-4 sm:px-6">
+        {/* Sleek Urban Company Top Utility Bar (Hidden on Mobile to Maximize Screen Real Estate) */}
+        <div className="hidden sm:block bg-[#121212] text-white text-[11px] font-medium py-1.5 px-4 sm:px-6">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
@@ -108,7 +108,7 @@ export default function Header({ onSearch }: HeaderProps) {
                 Express Doorstep Repair <span className="text-white/40">•</span> Open Daily 10:00 AM – 3:00 AM
               </span>
             </div>
-            <div className="hidden sm:flex items-center gap-5 text-[#B0B0B0]">
+            <div className="flex items-center gap-5 text-[#B0B0B0]">
               <a
                 href="tel:+919063786751"
                 className="hover:text-white transition flex items-center gap-1.5"
@@ -245,87 +245,66 @@ export default function Header({ onSearch }: HeaderProps) {
           </div>
         </div>
 
-        {/* Mobile Minimalist Header */}
+        {/* Mobile Minimalist Header (Urban Company Style) */}
         <div className="md:hidden px-4 py-2.5 space-y-2 bg-white">
           <div className="flex items-center justify-between gap-2">
-            {/* Location Selector */}
-            <button
-              onClick={() => setIsLocationModalOpen(true)}
-              className="flex items-center gap-2 text-left min-w-0 flex-1"
-            >
-              <div
-                className={`w-7 h-7 rounded-[8px] flex items-center justify-center shrink-0 ${
-                  isDetecting
-                    ? "bg-[#F7F7F8] text-[#F97316]"
-                    : isGps
-                    ? "bg-emerald-50 text-[#16A34A] border border-emerald-200"
-                    : "bg-[#F7F7F8] text-[#121212] border border-[#EBEBEB]"
-                }`}
-              >
-                {isDetecting ? (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                ) : isGps ? (
-                  <Navigation className="w-3.5 h-3.5 fill-[#16A34A]" />
-                ) : (
-                  <MapPin className="w-3.5 h-3.5" />
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1 text-xs font-bold text-[#121212]">
-                  <span className="truncate">{isDetecting ? "Detecting GPS..." : locality.split(",")[0]}</span>
-                  {isGps && (
-                    <span className="text-[9px] bg-emerald-50 text-emerald-800 font-bold px-1 rounded">
-                      GPS
-                    </span>
-                  )}
-                  <ChevronDown className="w-3 h-3 text-[#767676]" />
-                </div>
-                <div className="text-[10px] text-[#767676] truncate">
-                  {isDetecting ? (
-                    "Acquiring position..."
-                  ) : distance !== null ? (
-                    `${distance} km • ${distance > 6.0 ? "Shop Visit Only" : `${getEtaForDistance(distance)} doorstep`}`
-                  ) : (
-                    "Tap to set location"
-                  )}
-                </div>
-              </div>
-            </button>
+            {/* Left: Brand Identity & Location */}
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <Link href="/" className="font-extrabold text-sm text-[#121212] tracking-tight shrink-0 flex items-center">
+                <span>Famous Mobiles</span>
+                <span className="text-[#F97316] text-base leading-none">.</span>
+              </Link>
 
-            {/* Quick Actions */}
-            <div className="flex items-center gap-1.5 shrink-0">
+              {/* Location Pill Button */}
               <button
-                type="button"
-                onClick={triggerGpsDetection}
-                disabled={isDetecting}
-                className="w-7 h-7 rounded-[8px] bg-[#F7F7F8] border border-[#EBEBEB] flex items-center justify-center text-[#121212] text-xs"
-                title="Detect GPS"
+                onClick={() => setIsLocationModalOpen(true)}
+                className="flex items-center gap-1 text-left min-w-0 bg-[#F7F7F8] hover:bg-[#EFEFEF] border border-[#EBEBEB] px-2 py-1 rounded-full text-[11px] transition"
               >
-                <Navigation
-                  className={`w-3.5 h-3.5 ${
-                    isDetecting ? "animate-spin text-[#F97316]" : isGps ? "text-[#16A34A] fill-[#16A34A]" : ""
+                <div
+                  className={`w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 ${
+                    isDetecting
+                      ? "text-[#F97316]"
+                      : isGps
+                      ? "text-[#16A34A]"
+                      : "text-[#767676]"
                   }`}
-                />
+                >
+                  {isDetecting ? (
+                    <RefreshCw className="w-3 h-3 animate-spin" />
+                  ) : isGps ? (
+                    <Navigation className="w-3 h-3 fill-[#16A34A]" />
+                  ) : (
+                    <MapPin className="w-3 h-3" />
+                  )}
+                </div>
+                <span className="truncate max-w-[100px] font-semibold text-[#121212]">
+                  {isDetecting ? "Locating..." : locality.split(",")[0]}
+                </span>
+                <ChevronDown className="w-3 h-3 text-[#767676] shrink-0" />
               </button>
+            </div>
+
+            {/* Right: Quick Action Buttons */}
+            <div className="flex items-center gap-1.5 shrink-0">
               <Link
                 href="/track-booking"
-                className="w-7 h-7 rounded-[8px] bg-[#F7F7F8] border border-[#EBEBEB] flex items-center justify-center text-[#121212] text-xs"
+                className="w-8 h-8 rounded-full bg-[#F7F7F8] border border-[#EBEBEB] flex items-center justify-center text-[#121212] text-xs transition active:scale-95"
                 title="Track Booking"
               >
-                <Package className="w-3.5 h-3.5 text-[#121212]" />
+                <Package className="w-4 h-4 text-[#555555]" />
               </Link>
               <a
                 href="tel:+919063786751"
-                className="w-7 h-7 rounded-[8px] bg-[#121212] text-white flex items-center justify-center text-xs"
-                title="Call Shop Desk"
+                className="w-8 h-8 rounded-full bg-[#121212] text-white flex items-center justify-center text-xs transition active:scale-95 shadow-xs"
+                title="Call Shop Desk (+91 90637 86751)"
               >
-                <Phone className="w-3.5 h-3.5" />
+                <Phone className="w-3.5 h-3.5 text-white" />
               </a>
             </div>
           </div>
 
-          {/* Clean Search Input */}
-          <div className="flex items-center gap-2 bg-[#F7F7F8] rounded-[10px] border border-[#EBEBEB] px-3 py-1.5">
+          {/* Clean Urban Company Search Input */}
+          <div className="flex items-center gap-2 bg-[#F7F7F8] rounded-[10px] border border-[#EBEBEB] px-3 py-2 transition focus-within:border-[#121212] focus-within:bg-white">
             <Search className="w-3.5 h-3.5 text-[#767676] shrink-0" />
             <input
               type="text"
@@ -334,7 +313,7 @@ export default function Header({ onSearch }: HeaderProps) {
                 setSearchVal(e.target.value);
                 if (onSearch) onSearch(e.target.value);
               }}
-              placeholder='Search "iPhone screen", "battery replacement"...'
+              placeholder='Search "iPhone screen", "battery", "charging"...'
               className="w-full bg-transparent text-xs font-normal text-[#121212] placeholder-[#767676] focus:outline-none"
             />
           </div>
