@@ -1,5 +1,6 @@
 package com.famousmobiles.controller;
 
+import com.famousmobiles.config.CorsConfig;
 import com.famousmobiles.dto.BookingEnquiryRequest;
 import com.famousmobiles.dto.BookingResponse;
 import com.famousmobiles.dto.BookingStatusResponse;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -23,11 +25,13 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PublicBookingController.class)
+@Import(CorsConfig.class)
 class PublicBookingControllerTest {
 
     @Autowired
@@ -175,5 +179,15 @@ class PublicBookingControllerTest {
         mockMvc.perform(post("/api/public/bookings/FM-2026-9812/delete?apiKey=famous-pos-sec-2026"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
+    }
+
+    @Test
+    @DisplayName("OPTIONS /api/public/bookings - CORS preflight returns 200 OK with allowed headers")
+    void testCorsPreflightReturns200Ok() throws Exception {
+        mockMvc.perform(options("/api/public/bookings")
+                        .header("Origin", "http://13.140.146.12:8080")
+                        .header("Access-Control-Request-Method", "GET")
+                        .header("Access-Control-Request-Headers", "X-POS-API-KEY"))
+                .andExpect(status().isOk());
     }
 }
