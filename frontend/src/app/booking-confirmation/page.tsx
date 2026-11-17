@@ -47,28 +47,30 @@ function BookingConfirmationContent() {
   };
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-8 sm:py-12 space-y-6">
+    <div className="max-w-xl mx-auto px-4 py-8 sm:py-14 space-y-6">
       {/* Top Banner Card */}
-      <div className="bg-navy-950 text-white rounded-3xl p-6 sm:p-8 text-center space-y-3.5 shadow-xl border border-navy-900 relative overflow-hidden">
-        <div className="w-14 h-14 rounded-full bg-emerald-500 text-white mx-auto flex items-center justify-center shadow-md">
-          <CheckCircle2 className="w-8 h-8" />
+      <div className="bg-white rounded-2xl p-6 sm:p-8 text-center space-y-3.5 shadow-card border border-[#EBEBEB]">
+        <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center border border-emerald-200">
+          <CheckCircle2 className="w-7 h-7" />
         </div>
 
-        <span className="inline-block bg-white/10 text-amber-300 text-[11px] font-black uppercase px-3 py-1 rounded-full">
+        <span className="inline-block bg-[#F7F7F8] border border-[#EBEBEB] text-[#121212] text-[11px] font-semibold px-3 py-1 rounded-full">
           Status: New Enquiry Logged
         </span>
 
-        <h1 className="text-2xl sm:text-3xl font-black">Enquiry Submitted!</h1>
-        <p className="text-xs sm:text-sm text-slate-300 max-w-sm mx-auto leading-relaxed">
-          Famous Mobiles Manikonda desk has received your request. Our support team will call you in ~10 mins to confirm parts and technician dispatch.
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#121212] tracking-tight">
+          Enquiry Received!
+        </h1>
+        <p className="text-xs sm:text-sm text-[#767676] max-w-sm mx-auto leading-relaxed">
+          Famous Mobiles support team has received your request. We will call you within ~10 minutes to verify parts availability and dispatch a technician.
         </p>
 
-        {/* Unique Booking ID Box with Copy */}
-        <div className="inline-flex items-center gap-3 bg-white text-navy-950 px-4 py-2.5 rounded-2xl text-sm font-black shadow-md mt-2">
-          <span>{bookingId}</span>
+        {/* Unique Booking ID Box with Copy Button */}
+        <div className="inline-flex items-center gap-3 bg-[#F7F7F8] border border-[#EBEBEB] text-[#121212] px-4 py-2.5 rounded-[12px] text-sm font-bold shadow-xs mt-2">
+          <span>{bookingId || "FMO-2026-LIVE"}</span>
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1 text-xs bg-slate-100 hover:bg-slate-200 text-navy-900 px-2.5 py-1 rounded-lg transition"
+            className="flex items-center gap-1 text-xs bg-white hover:bg-[#EFEFEF] border border-[#EBEBEB] text-[#121212] px-2.5 py-1 rounded-[8px] transition cursor-pointer"
             title="Copy Booking ID"
           >
             {copied ? (
@@ -78,7 +80,7 @@ function BookingConfirmationContent() {
               </>
             ) : (
               <>
-                <Copy className="w-3.5 h-3.5 text-slate-600" />
+                <Copy className="w-3.5 h-3.5 text-[#767676]" />
                 <span>Copy</span>
               </>
             )}
@@ -86,101 +88,96 @@ function BookingConfirmationContent() {
         </div>
       </div>
 
-      {/* Doorstep Handshake Code Card (Zomato/Swiggy Model) */}
+      {/* Doorstep Handshake Code Card */}
       {bookingData?.handshakeOtp && (
-        <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300 rounded-3xl p-5 text-center space-y-2 shadow-xs">
-          <div className="flex items-center justify-center gap-1.5 text-xs font-black text-amber-900 uppercase tracking-wider">
-            <ShieldCheck className="w-4 h-4 text-amber-600" />
+        <div className="bg-[#FFF7ED] border border-[#FFEDD5] rounded-2xl p-5 text-center space-y-2 shadow-card">
+          <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-[#F97316] uppercase tracking-wider">
+            <ShieldCheck className="w-4 h-4 text-[#F97316]" />
             <span>Doorstep Handshake Code</span>
           </div>
-          <p className="text-[11px] text-amber-800 leading-relaxed max-w-xs mx-auto">
-            Share this 4-digit code with technician <strong>Ramesh K.</strong> only upon doorstep repair completion to authorize job closure:
+          <p className="text-[11px] text-[#9A3412] leading-relaxed max-w-xs mx-auto">
+            Share this 4-digit security code with technician only after repair is completed to your satisfaction:
           </p>
           <div className="flex justify-center items-center gap-2 pt-1">
             {bookingData.handshakeOtp.split("").map((digit, i) => (
-              <span
+              <div
                 key={i}
-                className="w-11 h-12 flex items-center justify-center text-xl font-black rounded-xl bg-white text-navy-950 border border-amber-300 shadow-xs"
+                className="w-10 h-12 bg-white rounded-[10px] border border-[#FDBA74] flex items-center justify-center text-xl font-bold text-[#121212] shadow-xs"
               >
                 {digit}
-              </span>
+              </div>
             ))}
           </div>
-          <p className="text-[10px] text-amber-700/80 font-semibold pt-1">
-            🔒 Keeps your repair safe & fraud-free • Zero telecom charges
+          <p className="text-[10px] text-[#C2410C]">
+            🔒 Protects your repair • Prevents unauthorized completion
           </p>
         </div>
       )}
 
-      {/* Booking Details Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3.5 text-xs sm:text-sm shadow-xs">
-        <h3 className="font-black text-navy-900 border-b border-slate-100 pb-2">
-          Enquiry Summary
-        </h3>
-
-        <div className="flex justify-between items-center text-slate-600">
-          <span>Registered Mobile</span>
-          <span className="font-extrabold text-navy-900">
-            {bookingData?.mobileNumber ? `+91 ${bookingData.mobileNumber}` : "+91 Customer Registered"}
-          </span>
+      {/* Booking Summary Card */}
+      {bookingData && (
+        <div className="bg-white rounded-2xl border border-[#EBEBEB] p-5 shadow-card space-y-3">
+          <h2 className="text-xs font-bold text-[#121212] uppercase tracking-wider border-b border-[#EBEBEB] pb-2">
+            Enquiry Summary
+          </h2>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between py-1 border-b border-[#F7F7F8]">
+              <span className="text-[#767676]">Device</span>
+              <span className="font-semibold text-[#121212]">{bookingData.brandModel || "Smartphone"}</span>
+            </div>
+            <div className="flex justify-between py-1 border-b border-[#F7F7F8]">
+              <span className="text-[#767676]">Service</span>
+              <span className="font-semibold text-[#121212]">{bookingData.repairCategory}</span>
+            </div>
+            <div className="flex justify-between py-1 border-b border-[#F7F7F8]">
+              <span className="text-[#767676]">Registered Mobile</span>
+              <span className="font-semibold text-[#121212]">+91 {bookingData.mobileNumber}</span>
+            </div>
+            {bookingData.address && (
+              <div className="flex justify-between py-1 border-b border-[#F7F7F8]">
+                <span className="text-[#767676]">Address</span>
+                <span className="font-semibold text-[#121212] text-right max-w-[200px] truncate">{bookingData.address}</span>
+              </div>
+            )}
+            <div className="flex justify-between py-1">
+              <span className="text-[#767676]">First Visit Fee</span>
+              <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-[6px] border border-emerald-200">
+                ₹0 FREE
+              </span>
+            </div>
+          </div>
         </div>
-
-        <div className="flex justify-between items-center text-slate-600">
-          <span>Device / Brand</span>
-          <span className="font-extrabold text-navy-900">
-            {bookingData?.brandModel || "Smartphone"}
-          </span>
-        </div>
-
-        <div className="flex justify-between items-center text-slate-600">
-          <span>Repair Service</span>
-          <span className="font-extrabold text-navy-900">
-            {bookingData?.repairCategory || "Display Replacement"}
-          </span>
-        </div>
-
-        <div className="flex justify-between items-center text-slate-600">
-          <span>Doorstep Location</span>
-          <span className="font-extrabold text-navy-900 text-right truncate max-w-[200px]">
-            {bookingData?.address || "Manikonda Doorstep Hub"}
-          </span>
-        </div>
-
-        <div className="flex justify-between items-center text-slate-600 pt-1 border-t border-slate-100">
-          <span>Visit Fee Promotion</span>
-          <span className="font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-            ₹0 FREE (First Visit)
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* Action Buttons */}
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         <Link
           href={`/track-booking?id=${bookingId}`}
-          className="w-full bg-accent-500 hover:bg-accent-600 text-white font-extrabold py-3.5 px-4 rounded-2xl shadow-md text-sm transition active:scale-95 flex items-center justify-center gap-2"
+          className="w-full bg-[#121212] hover:bg-[#F97316] text-white font-bold py-3.5 rounded-[12px] text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-xs"
         >
           <Package className="w-4 h-4" />
-          <span>Track Booking Status Live →</span>
+          <span>Track Live Order Status</span>
         </Link>
 
         <a
-          href={`https://wa.me/919063786751?text=Hi%20Famous%20Mobiles,%20I%20just%20submitted%20booking%20enquiry%20${bookingId}.`}
+          href={`https://wa.me/919063786751?text=Hi%20Famous%20Mobiles,%20I%20just%20submitted%20enquiry%20${bookingId}.%20Can%20we%20confirm%20my%20slot?`}
           target="_blank"
           rel="noreferrer"
-          className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3 px-4 rounded-2xl shadow-xs text-sm transition flex items-center justify-center gap-2"
+          className="w-full bg-[#15803D] hover:bg-[#16A34A] text-white font-bold py-3.5 rounded-[12px] text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-xs"
         >
           <MessageSquare className="w-4 h-4" />
-          <span>Notify Store on WhatsApp</span>
+          <span>Confirm on WhatsApp Desk</span>
         </a>
 
-        <Link
-          href="/"
-          className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-2xl text-xs transition flex items-center justify-center gap-1.5"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Return to Homepage</span>
-        </Link>
+        <div className="text-center pt-2">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#767676] hover:text-[#121212]"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Return to Homepage</span>
+          </Link>
+        </div>
       </div>
     </div>
   );
@@ -188,7 +185,7 @@ function BookingConfirmationContent() {
 
 export default function BookingConfirmationPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-500">Loading confirmation...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-xs text-[#767676]">Loading confirmation...</div>}>
       <BookingConfirmationContent />
     </Suspense>
   );

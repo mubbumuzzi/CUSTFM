@@ -3,7 +3,18 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MapPin, Phone, Package, Search, Mic, ChevronDown, Navigation, RefreshCw, ExternalLink } from "lucide-react";
+import {
+  MapPin,
+  Phone,
+  Package,
+  Search,
+  ChevronDown,
+  Navigation,
+  RefreshCw,
+  ExternalLink,
+  ShieldCheck,
+  Star,
+} from "lucide-react";
 import LocationModal from "./LocationModal";
 import { detectGpsLocation, getStoredLocation, getEtaForDistance, GpsLocationData } from "@/lib/gps";
 
@@ -19,7 +30,6 @@ export default function Header({ onSearch }: HeaderProps) {
   const [isGps, setIsGps] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [searchVal, setSearchVal] = useState("");
-  const [oemOnly, setOemOnly] = useState(true);
 
   const applyGpsData = useCallback((data: GpsLocationData) => {
     setLocality(data.locality);
@@ -35,7 +45,6 @@ export default function Header({ onSearch }: HeaderProps) {
       applyGpsData(data);
     } catch {
       setIsDetecting(false);
-      // Fallback if permission was denied or device has no GPS
       const stored = getStoredLocation();
       if (stored && stored.locality) {
         setLocality(stored.locality);
@@ -48,7 +57,6 @@ export default function Header({ onSearch }: HeaderProps) {
   }, [applyGpsData]);
 
   useEffect(() => {
-    // 1. Check if user already had a saved location preference
     const stored = getStoredLocation();
     const isSavedGps = typeof window !== "undefined" && localStorage.getItem("fm_user_is_gps") === "true";
 
@@ -57,11 +65,9 @@ export default function Header({ onSearch }: HeaderProps) {
       setDistance(stored.distanceKm ?? 0);
       setIsGps(isSavedGps);
     } else {
-      // 2. Automatically prompt & detect device GPS on initial load
       triggerGpsDetection();
     }
 
-    // 3. Listen for location updates dispatched by modal or booking forms
     const handleLocationChange = (e: Event) => {
       const detail = (e as CustomEvent<GpsLocationData>).detail;
       if (detail) {
@@ -73,7 +79,7 @@ export default function Header({ onSearch }: HeaderProps) {
     return () => window.removeEventListener("fm_location_updated", handleLocationChange);
   }, [triggerGpsDetection, applyGpsData]);
 
-  const handleLocSelect = (name: string, km: number, eligible: boolean) => {
+  const handleLocSelect = (name: string, km: number) => {
     setLocality(name);
     setDistance(km);
     if (typeof window !== "undefined") {
@@ -82,163 +88,165 @@ export default function Header({ onSearch }: HeaderProps) {
   };
 
   const navLinks = [
-    { name: "Home", href: "/" },
     { name: "Services", href: "/services" },
     { name: "Book Repair", href: "/book-repair" },
     { name: "Track Order", href: "/track-booking" },
-    { name: "About", href: "/about" },
+    { name: "About Us", href: "/about" },
     { name: "Reviews", href: "/reviews" },
     { name: "Contact", href: "/contact" },
   ];
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
-        {/* Top Express Dispatch Strip */}
-        <div className="bg-gradient-to-r from-purple-950 via-navy-900 to-indigo-950 text-white text-[11px] font-bold py-1 px-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 mx-auto sm:mx-0">
-            <span className="w-2 h-2 rounded-full bg-accent-500 animate-ping"></span>
-            <span>⚡ Express Doorstep Mode • Manikonda & Shaikpet Active (10:00 AM – 3:00 AM)</span>
-          </div>
-          <div className="hidden sm:flex items-center gap-4 text-[11px] text-slate-300">
-            <span>📞 Call Desk: +91 90637 86751</span>
-            <button
-              type="button"
-              onClick={() => {
-                if (typeof window !== "undefined") {
-                  window.dispatchEvent(new CustomEvent("fm_open_reviews_modal"));
-                }
-              }}
-              className="hover:text-amber-300 transition flex items-center gap-1 cursor-pointer"
-              title="View Famous Mobiles verified Google Maps location & customer reviews"
-            >
-              <span>⭐ 4.9/5 on Google Maps (1k+ Reviews)</span>
-              <ExternalLink className="w-2.5 h-2.5 opacity-70" />
-            </button>
+      <header className="sticky top-0 z-40 bg-white border-b border-[#EBEBEB] transition-all">
+        {/* Sleek Urban Company Top Utility Bar */}
+        <div className="bg-[#121212] text-white text-[11px] font-medium py-1.5 px-4 sm:px-6">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span className="text-[#E0E0E0]">
+                Express Doorstep Repair <span className="text-white/40">•</span> Open Daily 10:00 AM – 3:00 AM
+              </span>
+            </div>
+            <div className="hidden sm:flex items-center gap-5 text-[#B0B0B0]">
+              <a
+                href="tel:+919063786751"
+                className="hover:text-white transition flex items-center gap-1.5"
+              >
+                <Phone className="w-3 h-3 text-emerald-400" />
+                <span>+91 90637 86751</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(new CustomEvent("fm_open_reviews_modal"));
+                  }
+                }}
+                className="hover:text-white transition flex items-center gap-1 cursor-pointer"
+                title="View verified customer reviews & Google rating"
+              >
+                <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                <span>4.9/5 (1k+ Google Reviews)</span>
+                <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Main Desktop Navbar */}
-        <div className="hidden md:flex items-center justify-between max-w-7xl mx-auto px-6 py-3.5">
-          {/* Logo & Location */}
+        <div className="hidden md:flex items-center justify-between max-w-7xl mx-auto px-6 h-16">
+          {/* Logo & Location Pill */}
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-accent-500 text-white font-black text-sm flex items-center justify-center shadow-sm">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-[10px] bg-[#121212] text-white font-bold text-xs flex items-center justify-center shadow-xs group-hover:bg-[#F97316] transition">
                 FM
               </div>
-              <div>
-                <span className="text-base font-black tracking-tight text-navy-950 block leading-tight">
+              <div className="flex flex-col">
+                <span className="text-[15px] font-bold tracking-tight text-[#121212] leading-tight">
                   Famous Mobiles
                 </span>
-                <span className="text-[10px] font-bold text-accent-600 block leading-none">
+                <span className="text-[10px] font-medium text-[#767676] tracking-tight">
                   Doorstep Repair • Manikonda
                 </span>
               </div>
             </Link>
 
-            {/* Location selector pill & GPS Trigger */}
+            {/* Urban Company-style Location Selector Pill */}
             <div className="flex items-center gap-1.5">
               <button
+                type="button"
                 onClick={() => setIsLocationModalOpen(true)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-left transition group"
-                title="Doorstep service area (5 km radius from Manikonda shop)"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-[#F7F7F8] hover:bg-[#EFEFEF] border border-[#EBEBEB] text-left transition group cursor-pointer"
+                title="Select delivery location within 6 km radius"
               >
                 {isDetecting ? (
-                  <RefreshCw className="w-4 h-4 text-accent-500 animate-spin" />
+                  <RefreshCw className="w-3.5 h-3.5 text-[#F97316] animate-spin shrink-0" />
                 ) : isGps ? (
-                  <Navigation className="w-4 h-4 text-emerald-600 fill-emerald-600" />
+                  <Navigation className="w-3.5 h-3.5 text-[#16A34A] fill-[#16A34A] shrink-0" />
                 ) : (
-                  <MapPin className="w-4 h-4 text-accent-500" />
+                  <MapPin className="w-3.5 h-3.5 text-[#F97316] shrink-0" />
                 )}
                 <div className="text-xs">
-                  <span className="font-extrabold text-navy-900 block leading-tight flex items-center gap-1">
-                    <span>{isDetecting ? "Detecting GPS..." : locality.split(",")[0]}</span>
+                  <span className="font-semibold text-[#121212] block leading-tight flex items-center gap-1">
+                    <span className="max-w-[130px] truncate">{isDetecting ? "Detecting GPS..." : locality.split(",")[0]}</span>
                     {isGps && (
-                      <span className="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-1 rounded flex items-center gap-0.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span className="text-[9px] bg-emerald-50 text-emerald-800 font-bold px-1 py-0.2 rounded border border-emerald-200">
                         GPS
                       </span>
                     )}
                   </span>
-                  <span className="text-[10px] text-slate-500 block leading-none">
+                  <span className="text-[10px] text-[#767676] block leading-none mt-0.5">
                     {isDetecting ? (
                       "Acquiring position..."
                     ) : distance !== null ? (
-                      `${distance} km • ${distance > 5.0 ? "Shop Visit Only" : `${getEtaForDistance(distance)} doorstep`}`
+                      `${distance} km • ${distance > 6.0 ? "Shop Visit Only" : `${getEtaForDistance(distance)} doorstep`}`
                     ) : (
-                      "Click to set location"
+                      "Set location"
                     )}
                   </span>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1 group-hover:text-navy-900 transition" />
+                <ChevronDown className="w-3 h-3 text-[#767676] ml-0.5 group-hover:text-[#121212] transition" />
               </button>
 
               <button
                 type="button"
                 onClick={triggerGpsDetection}
                 disabled={isDetecting}
-                title="Detect Current Location via GPS"
-                className="p-2 rounded-xl bg-slate-100 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-600 hover:text-emerald-700 transition"
+                title="Detect Current Location via Device GPS"
+                className="p-2 rounded-[10px] bg-[#F7F7F8] hover:bg-[#EFEFEF] border border-[#EBEBEB] text-[#767676] hover:text-[#121212] transition cursor-pointer"
               >
                 <Navigation
                   className={`w-3.5 h-3.5 ${
-                    isDetecting ? "animate-spin text-accent-500" : isGps ? "text-emerald-600 fill-emerald-600" : ""
+                    isDetecting ? "animate-spin text-[#F97316]" : isGps ? "text-[#16A34A] fill-[#16A34A]" : ""
                   }`}
                 />
               </button>
-
-              <a
-                href="https://www.google.com/maps/search/?api=1&query=Famous+Mobiles+Manikonda+Hyderabad"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="View physical workshop on Google Maps"
-                className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-600 hover:text-emerald-700 transition flex items-center gap-1 cursor-pointer"
-              >
-                <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-[11px] font-bold text-slate-700 hidden lg:inline">Maps</span>
-              </a>
             </div>
           </div>
 
-          {/* Navigation links */}
-          <nav className="flex items-center gap-5 text-xs font-bold text-slate-600">
+          {/* Clean Navigation Links */}
+          <nav className="flex items-center gap-6 text-[13px] font-medium text-[#555555]">
             {navLinks.map((item) => {
               const active = pathname === item.href;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`transition hover:text-accent-600 py-1 ${
-                    active ? "text-accent-600 font-extrabold border-b-2 border-accent-500" : ""
+                  className={`transition hover:text-[#121212] relative py-1 ${
+                    active ? "text-[#121212] font-bold" : ""
                   }`}
                 >
                   {item.name}
+                  {active && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F97316] rounded-full"></span>
+                  )}
                 </Link>
               );
             })}
           </nav>
 
           {/* Right Action CTAs */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <Link
               href="/track-booking"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 text-navy-900 hover:bg-slate-50"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-[10px] text-[12px] font-medium text-[#121212] hover:bg-[#F7F7F8] border border-[#EBEBEB] transition"
             >
-              <Package className="w-4 h-4 text-slate-600" />
+              <Package className="w-3.5 h-3.5 text-[#767676]" />
               <span>Track Order</span>
             </Link>
             <Link
               href="/book-repair"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold bg-accent-500 hover:bg-accent-600 text-white shadow-sm transition active:scale-95"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[12px] font-bold bg-[#F97316] hover:bg-[#EA580C] text-white shadow-xs transition active:scale-95"
             >
-              <span>Book Doorstep Visit</span>
-              <span className="bg-white/20 text-[10px] px-1.5 py-0.5 rounded font-black">₹0</span>
+              <span>Book Doorstep</span>
+              <span className="bg-white/20 text-[10px] px-1.5 py-0.2 rounded font-black">₹0 Fee</span>
             </Link>
           </div>
         </div>
 
-        {/* Mobile Quick-Commerce Header */}
-        <div className="md:hidden px-4 py-2.5 space-y-2 bg-gradient-to-r from-amber-50/60 via-white to-orange-50/60">
+        {/* Mobile Minimalist Header */}
+        <div className="md:hidden px-4 py-2.5 space-y-2 bg-white">
           <div className="flex items-center justify-between gap-2">
             {/* Location Selector */}
             <button
@@ -246,38 +254,37 @@ export default function Header({ onSearch }: HeaderProps) {
               className="flex items-center gap-2 text-left min-w-0 flex-1"
             >
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm ${
+                className={`w-7 h-7 rounded-[8px] flex items-center justify-center shrink-0 ${
                   isDetecting
-                    ? "bg-slate-200 text-accent-600"
+                    ? "bg-[#F7F7F8] text-[#F97316]"
                     : isGps
-                    ? "bg-emerald-600 text-white"
-                    : "bg-accent-500 text-white"
+                    ? "bg-emerald-50 text-[#16A34A] border border-emerald-200"
+                    : "bg-[#F7F7F8] text-[#121212] border border-[#EBEBEB]"
                 }`}
               >
                 {isDetecting ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                 ) : isGps ? (
-                  <Navigation className="w-4 h-4 fill-white" />
+                  <Navigation className="w-3.5 h-3.5 fill-[#16A34A]" />
                 ) : (
-                  <MapPin className="w-4 h-4" />
+                  <MapPin className="w-3.5 h-3.5" />
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1 text-xs font-extrabold text-navy-900">
+                <div className="flex items-center gap-1 text-xs font-bold text-[#121212]">
                   <span className="truncate">{isDetecting ? "Detecting GPS..." : locality.split(",")[0]}</span>
                   {isGps && (
-                    <span className="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-1 rounded flex items-center gap-0.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span className="text-[9px] bg-emerald-50 text-emerald-800 font-bold px-1 rounded">
                       GPS
                     </span>
                   )}
-                  <ChevronDown className="w-3 h-3 text-slate-500" />
+                  <ChevronDown className="w-3 h-3 text-[#767676]" />
                 </div>
-                <div className="text-[10px] font-medium text-slate-500 truncate">
+                <div className="text-[10px] text-[#767676] truncate">
                   {isDetecting ? (
                     "Acquiring position..."
                   ) : distance !== null ? (
-                    `${distance} km • ${distance > 5.0 ? "Shop Visit Only" : `${getEtaForDistance(distance)} doorstep`}`
+                    `${distance} km • ${distance > 6.0 ? "Shop Visit Only" : `${getEtaForDistance(distance)} doorstep`}`
                   ) : (
                     "Tap to set location"
                   )}
@@ -289,49 +296,37 @@ export default function Header({ onSearch }: HeaderProps) {
             <div className="flex items-center gap-1.5 shrink-0">
               <button
                 type="button"
-                onClick={() => {
-                  if (typeof window !== "undefined") {
-                    window.dispatchEvent(new CustomEvent("fm_open_reviews_modal"));
-                  }
-                }}
-                className="w-8 h-8 rounded-full bg-white border border-amber-300 shadow-xs flex items-center justify-center text-emerald-700 text-xs font-bold"
-                title="View physical workshop details & Google reviews"
-              >
-                <MapPin className="w-4 h-4 text-emerald-600" />
-              </button>
-              <button
-                type="button"
                 onClick={triggerGpsDetection}
                 disabled={isDetecting}
-                className="w-8 h-8 rounded-full bg-white border border-amber-300 shadow-xs flex items-center justify-center text-navy-900 text-xs font-bold"
+                className="w-7 h-7 rounded-[8px] bg-[#F7F7F8] border border-[#EBEBEB] flex items-center justify-center text-[#121212] text-xs"
                 title="Detect GPS"
               >
                 <Navigation
-                  className={`w-4 h-4 ${
-                    isDetecting ? "animate-spin text-accent-500" : isGps ? "text-emerald-600 fill-emerald-600" : "text-navy-900"
+                  className={`w-3.5 h-3.5 ${
+                    isDetecting ? "animate-spin text-[#F97316]" : isGps ? "text-[#16A34A] fill-[#16A34A]" : ""
                   }`}
                 />
               </button>
               <Link
                 href="/track-booking"
-                className="w-8 h-8 rounded-full bg-white border border-amber-300 shadow-xs flex items-center justify-center text-navy-900 text-xs font-bold"
+                className="w-7 h-7 rounded-[8px] bg-[#F7F7F8] border border-[#EBEBEB] flex items-center justify-center text-[#121212] text-xs"
                 title="Track Booking"
               >
-                <Package className="w-4 h-4 text-navy-900" />
+                <Package className="w-3.5 h-3.5 text-[#121212]" />
               </Link>
               <a
                 href="tel:+919063786751"
-                className="w-8 h-8 rounded-full bg-navy-900 text-white shadow-xs flex items-center justify-center text-xs font-bold"
-                title="Call Shop"
+                className="w-7 h-7 rounded-[8px] bg-[#121212] text-white flex items-center justify-center text-xs"
+                title="Call Shop Desk"
               >
-                <Phone className="w-4 h-4" />
+                <Phone className="w-3.5 h-3.5" />
               </a>
             </div>
           </div>
 
-          {/* Search Bar with Voice and OEM Toggle */}
-          <div className="flex items-center gap-2 bg-white rounded-2xl border border-amber-300/80 px-3 py-2 shadow-xs">
-            <Search className="w-4 h-4 text-slate-400 shrink-0" />
+          {/* Clean Search Input */}
+          <div className="flex items-center gap-2 bg-[#F7F7F8] rounded-[10px] border border-[#EBEBEB] px-3 py-1.5">
+            <Search className="w-3.5 h-3.5 text-[#767676] shrink-0" />
             <input
               type="text"
               value={searchVal}
@@ -339,32 +334,14 @@ export default function Header({ onSearch }: HeaderProps) {
                 setSearchVal(e.target.value);
                 if (onSearch) onSearch(e.target.value);
               }}
-              placeholder='Search "iPhone display", "battery"...'
-              className="w-full bg-transparent text-xs font-medium text-navy-900 placeholder-slate-400 focus:outline-none"
+              placeholder='Search "iPhone screen", "battery replacement"...'
+              className="w-full bg-transparent text-xs font-normal text-[#121212] placeholder-[#767676] focus:outline-none"
             />
-            <button
-              type="button"
-              onClick={() => alert('Voice search ready: Try saying "iPhone display repair"')}
-              className="text-accent-500 hover:text-accent-600 shrink-0"
-              title="Voice Search"
-            >
-              <Mic className="w-4 h-4" />
-            </button>
-            <div className="h-3.5 w-px bg-slate-200"></div>
-            <label className="flex items-center gap-1 cursor-pointer" title="Original Equipment Manufacturer Parts">
-              <span className="text-[9px] font-extrabold text-slate-600 uppercase">OEM</span>
-              <input
-                type="checkbox"
-                checked={oemOnly}
-                onChange={(e) => setOemOnly(e.target.checked)}
-                className="w-3.5 h-3.5 accent-accent-500 rounded"
-              />
-            </label>
           </div>
         </div>
       </header>
 
-      {/* Location Modal Sheet */}
+      {/* Location Modal */}
       <LocationModal
         isOpen={isLocationModalOpen}
         onClose={() => setIsLocationModalOpen(false)}

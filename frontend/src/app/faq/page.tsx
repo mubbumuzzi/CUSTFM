@@ -46,38 +46,38 @@ const FAQS = [
 export default function FaqPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-14 space-y-8">
-      <div className="text-center space-y-2">
-        <span className="text-xs font-black uppercase tracking-wider text-accent-600 bg-accent-50 px-3 py-1 rounded-full border border-accent-200">
-          Got Questions?
+      <div className="text-center space-y-1.5">
+        <span className="text-xs font-bold uppercase tracking-wider text-[#F97316] bg-[#FFF7ED] px-3 py-1 rounded-full border border-[#FFEDD5]">
+          Clear Answers
         </span>
-        <h1 className="text-2xl sm:text-4xl font-black text-navy-950">
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-[#121212]">
           Frequently Asked Questions
         </h1>
-        <p className="text-xs sm:text-sm text-slate-600">
-          Clear answers about doorstep mobile repair, pricing, and warranty policies.
+        <p className="text-xs sm:text-sm text-[#767676]">
+          Everything you need to know about doorstep repair, pricing, and warranty policies.
         </p>
       </div>
 
       <div className="space-y-3">
         {FAQS.map((faq, i) => (
-          <div key={i} className="bg-white rounded-2xl border border-slate-200 p-5 space-y-2 shadow-xs">
-            <h2 className="text-sm font-extrabold text-navy-950 flex items-start gap-2">
-              <HelpCircle className="w-4 h-4 text-accent-500 shrink-0 mt-0.5" />
+          <div key={i} className="bg-white rounded-2xl border border-[#EBEBEB] p-5 space-y-2 shadow-card">
+            <h2 className="text-sm font-bold text-[#121212] flex items-start gap-2">
+              <HelpCircle className="w-4 h-4 text-[#F97316] shrink-0 mt-0.5" />
               <span>{faq.q}</span>
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pl-6">
+            <p className="text-xs sm:text-sm text-[#555555] leading-relaxed pl-6">
               {faq.a}
             </p>
           </div>
         ))}
       </div>
 
-      <div className="bg-amber-50 border border-amber-300 rounded-3xl p-6 text-center space-y-3">
-        <h3 className="text-base font-black text-navy-950">Have a specific question?</h3>
-        <p className="text-xs text-slate-600">Call our Manikonda workshop desk directly at +91 90637 86751 or book a free doorstep visit.</p>
+      <div className="bg-white border border-[#EBEBEB] rounded-2xl p-6 text-center space-y-3 shadow-card">
+        <h3 className="text-base font-bold text-[#121212]">Have a specific repair question?</h3>
+        <p className="text-xs text-[#767676]">Call our Manikonda workshop desk directly at +91 90637 86751 or claim your free doorstep inspection.</p>
         <Link
           href="/book-repair"
-          className="inline-flex items-center gap-1.5 bg-accent-500 hover:bg-accent-600 text-white font-black text-xs px-5 py-3 rounded-xl transition"
+          className="inline-flex items-center gap-1.5 bg-[#F97316] hover:bg-[#EA580C] text-white font-bold text-xs px-5 py-3 rounded-[10px] transition shadow-xs"
         >
           <span>Book Free Doorstep Visit →</span>
         </Link>

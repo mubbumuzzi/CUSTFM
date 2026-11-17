@@ -9,6 +9,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        canvas: "#F8F9FA",
+        surface: "#FFFFFF",
+        borderSubtle: "#EBEBEB",
+        brandDark: "#121212",
+        brandMuted: "#767676",
+        brandOrange: {
+          DEFAULT: "#F97316",
+          hover: "#EA580C",
+          light: "#FFF7ED",
+          border: "#FFEDD5",
+        },
+        brandGreen: {
+          DEFAULT: "#16A34A",
+          dark: "#0E8345",
+          light: "#F0FDF4",
+          border: "#DCFCE7",
+        },
         navy: {
           950: "#071529",
           900: "#0F294A",
@@ -25,6 +42,10 @@ const config: Config = {
           100: "#FFEDD5",
           50: "#FFF7ED",
         },
+      },
+      boxShadow: {
+        card: "0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)",
+        "card-hover": "0 6px 16px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04)",
       },
       fontFamily: {
         sans: [
