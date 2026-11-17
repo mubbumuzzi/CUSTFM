@@ -375,7 +375,7 @@ function TrackBookingContent() {
                   <span>Doorstep Handshake Code</span>
                 </div>
                 <p className="text-xs text-[#9A3412] max-w-sm">
-                  Share this 4-digit code with technician <strong>{statusData.technicianName || "Ramesh K."}</strong> only upon repair completion to authorize job closure:
+                  Share this 4-digit code with {statusData.technicianName ? <>technician <strong>{statusData.technicianName}</strong></> : "your assigned technician"} only upon repair completion to authorize job closure:
                 </p>
               </div>
 
@@ -459,10 +459,12 @@ function TrackBookingContent() {
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-[#121212]">
-                      {statusData.technicianName || "Assigning Certified Technician..."}
+                      {statusData.technicianName ? `Technician: ${statusData.technicianName}` : "Assigning Certified Technician..."}
                     </h3>
                     <p className="text-xs text-[#767676]">
-                      {statusData.brandModel || "Smartphone"} • {statusData.repairCategory}
+                      {statusData.technicianName
+                        ? `${statusData.brandModel || "Smartphone"} • Certified Hardware Expert`
+                        : `${statusData.brandModel || "Smartphone"} • ${statusData.repairCategory}`}
                     </p>
                   </div>
                 </div>

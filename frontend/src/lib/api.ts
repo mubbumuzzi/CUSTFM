@@ -43,6 +43,8 @@ export interface BookingResponseData {
   visitCharge: number;
   firstVisitFree: boolean;
   handshakeOtp?: string;
+  technicianName?: string;
+  technicianPhone?: string;
   confirmationMessage: string;
   timestamp: string;
 }

@@ -18,6 +18,7 @@ function BookingConfirmationContent() {
     address: string;
     timestamp: string;
     handshakeOtp?: string;
+    technicianName?: string;
   } | null>(null);
 
   useEffect(() => {
@@ -96,7 +97,7 @@ function BookingConfirmationContent() {
             <span>Doorstep Handshake Code</span>
           </div>
           <p className="text-[11px] text-[#9A3412] leading-relaxed max-w-xs mx-auto">
-            Share this 4-digit security code with technician only after repair is completed to your satisfaction:
+            Share this 4-digit security code with {bookingData.technicianName ? <>technician <strong>{bookingData.technicianName}</strong></> : "your assigned technician"} only after repair is completed to your satisfaction:
           </p>
           <div className="flex justify-center items-center gap-2 pt-1">
             {bookingData.handshakeOtp.split("").map((digit, i) => (
@@ -139,6 +140,12 @@ function BookingConfirmationContent() {
                 <span className="font-semibold text-[#121212] text-right max-w-[200px] truncate">{bookingData.address}</span>
               </div>
             )}
+            <div className="flex justify-between py-1 border-b border-[#F7F7F8]">
+              <span className="text-[#767676]">Technician</span>
+              <span className="font-semibold text-[#121212]">
+                {bookingData.technicianName ? bookingData.technicianName : "Assigning from Manikonda Hub..."}
+              </span>
+            </div>
             <div className="flex justify-between py-1">
               <span className="text-[#767676]">First Visit Fee</span>
               <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-[6px] border border-emerald-200">
