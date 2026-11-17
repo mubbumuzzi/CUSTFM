@@ -1,8 +1,23 @@
-const getBaseUrl = (): string => {
+export const getBaseUrl = (): string => {
   if (typeof window !== "undefined") {
-    return process.env.NEXT_PUBLIC_API_URL || "/api";
+    // When running in local dev on localhost:3000 or 3001, connect directly to Spring Boot
+    const isLocalDev =
+      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") &&
+      (window.location.port === "3000" || window.location.port === "3001");
+    if (isLocalDev) {
+      return "http://127.0.0.1:8081/api";
+    }
+    // In production, Docker, or mobile browsing, ALWAYS use relative /api through Nginx reverse proxy
+    if (
+      process.env.NEXT_PUBLIC_API_URL &&
+      !process.env.NEXT_PUBLIC_API_URL.includes("127.0.0.1") &&
+      !process.env.NEXT_PUBLIC_API_URL.includes("localhost")
+    ) {
+      return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, "");
+    }
+    return "/api";
   }
-  return process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081/api";
+  return process.env.INTERNAL_API_URL || "http://127.0.0.1:8081/api";
 };
 
 export interface BookingPayload {

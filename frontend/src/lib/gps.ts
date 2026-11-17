@@ -1,4 +1,4 @@
-import { saveCustomerLocationApi } from "./api.ts";
+import { saveCustomerLocationApi, getBaseUrl } from "./api.ts";
 
 export const SHOP_LAT = 17.4058;
 export const SHOP_LNG = 78.3879;
@@ -28,12 +28,7 @@ export interface PlaceSuggestion {
   eta: string;
 }
 
-const getApiBaseUrl = (): string => {
-  if (typeof window !== "undefined") {
-    return process.env.NEXT_PUBLIC_API_URL || "/api";
-  }
-  return process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081/api";
-};
+const getApiBaseUrl = getBaseUrl;
 
 /**
  * Calculates Haversine distance in kilometers from Famous Mobiles Manikonda shop
