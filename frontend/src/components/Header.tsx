@@ -14,9 +14,15 @@ import {
   ExternalLink,
   ShieldCheck,
   Star,
+  Box,
+  PhoneCall,
+  XCircle,
 } from "lucide-react";
 import LocationModal from "./LocationModal";
 import { detectGpsLocation, getStoredLocation, getEtaForDistance, GpsLocationData } from "@/lib/gps";
+import { openTrackModal } from "./TrackOrderModal";
+import { openBookingDrawer } from "./InteractiveBookingModal";
+import { showFmToast } from "./ToastBanner";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -105,7 +111,7 @@ export default function Header({ onSearch }: HeaderProps) {
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
               <span className="text-[#E0E0E0]">
-                Express Doorstep Repair <span className="text-white/40">•</span> Open Daily 10:00 AM – 3:00 AM
+                Express Doorstep Repair <span className="text-white/40">•</span> Open Daily 10:00 AM – 1:00 AM
               </span>
             </div>
             <div className="flex items-center gap-5 text-[#B0B0B0]">
@@ -257,8 +263,12 @@ export default function Header({ onSearch }: HeaderProps) {
 
               {/* Location Pill Button */}
               <button
-                onClick={() => setIsLocationModalOpen(true)}
-                className="flex items-center gap-1 text-left min-w-0 bg-[#F7F7F8] hover:bg-[#EFEFEF] border border-[#EBEBEB] px-2 py-1 rounded-full text-[11px] transition"
+                type="button"
+                onClick={() => {
+                  setIsLocationModalOpen(true);
+                  showFmToast("Serving 6 km radius around Manikonda Hub, Hyderabad");
+                }}
+                className="flex items-center gap-1 text-left min-w-0 bg-[#F7F7F8] hover:bg-[#EFEFEF] border border-[#EBEBEB] px-2.5 py-1 rounded-full text-[11px] transition cursor-pointer"
               >
                 <div
                   className={`w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 ${
@@ -274,7 +284,7 @@ export default function Header({ onSearch }: HeaderProps) {
                   ) : isGps ? (
                     <Navigation className="w-3 h-3 fill-[#16A34A]" />
                   ) : (
-                    <MapPin className="w-3 h-3" />
+                    <MapPin className="w-3 h-3 text-slate-500" />
                   )}
                 </div>
                 <span className="truncate max-w-[100px] font-semibold text-[#121212]">
@@ -284,38 +294,63 @@ export default function Header({ onSearch }: HeaderProps) {
               </button>
             </div>
 
-            {/* Right: Quick Action Buttons */}
+            {/* Right: Quick Action Icons (Track & Call) */}
             <div className="flex items-center gap-1.5 shrink-0">
-              <Link
-                href="/track-booking"
-                className="w-8 h-8 rounded-full bg-[#F7F7F8] border border-[#EBEBEB] flex items-center justify-center text-[#121212] text-xs transition active:scale-95"
-                title="Track Booking"
+              <button
+                type="button"
+                onClick={openTrackModal}
+                className="w-8 h-8 rounded-full bg-[#F7F7F8] hover:bg-slate-200 border border-[#EBEBEB] flex items-center justify-center text-[#121212] text-xs transition active:scale-95 cursor-pointer"
+                title="Track Repair"
+                aria-label="Track Repair"
               >
-                <Package className="w-4 h-4 text-[#555555]" />
-              </Link>
+                <Box className="w-4 h-4 text-[#555555]" />
+              </button>
               <a
                 href="tel:+919063786751"
-                className="w-8 h-8 rounded-full bg-[#121212] text-white flex items-center justify-center text-xs transition active:scale-95 shadow-xs"
-                title="Call Shop Desk (+91 90637 86751)"
+                onClick={() => showFmToast("Calling Famous Mobiles Manikonda Dispatch (+91 90637 86751)...")}
+                className="w-8 h-8 rounded-full bg-slate-950 hover:bg-slate-800 text-white flex items-center justify-center text-xs transition active:scale-95 shadow-sm"
+                title="Call Manikonda Dispatch (+91 90637 86751)"
+                aria-label="Call Now"
               >
-                <Phone className="w-3.5 h-3.5 text-white" />
+                <PhoneCall className="w-3.5 h-3.5 text-white" />
               </a>
             </div>
           </div>
 
-          {/* Clean Urban Company Search Input */}
-          <div className="flex items-center gap-2 bg-[#F7F7F8] rounded-[10px] border border-[#EBEBEB] px-3 py-2 transition focus-within:border-[#121212] focus-within:bg-white">
+          {/* Clean Urban Company Interactive Search Input */}
+          <div className="relative flex items-center gap-2 bg-[#F7F7F8] rounded-[10px] border border-[#EBEBEB] px-3 py-2 transition focus-within:border-[#F97316] focus-within:bg-white">
             <Search className="w-3.5 h-3.5 text-[#767676] shrink-0" />
             <input
               type="text"
+              id="serviceSearch"
               value={searchVal}
               onChange={(e) => {
-                setSearchVal(e.target.value);
-                if (onSearch) onSearch(e.target.value);
+                const val = e.target.value;
+                setSearchVal(val);
+                if (onSearch) onSearch(val);
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("fm_search_query", { detail: val }));
+                }
               }}
               placeholder='Search "iPhone screen", "battery", "charging"...'
-              className="w-full bg-transparent text-xs font-normal text-[#121212] placeholder-[#767676] focus:outline-none"
+              className="w-full bg-transparent text-xs font-normal text-[#121212] placeholder-[#767676] focus:outline-none pr-5"
             />
+            {searchVal && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchVal("");
+                  if (onSearch) onSearch("");
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(new CustomEvent("fm_search_query", { detail: "" }));
+                  }
+                }}
+                className="absolute right-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                aria-label="Clear search"
+              >
+                <XCircle className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
       </header>

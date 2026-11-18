@@ -90,7 +90,7 @@ export default function NeighborhoodLandingTemplate({
           "Sunday",
         ],
         "opens": "10:00",
-        "closes": "03:00",
+        "closes": "01:00",
       },
     ],
   };
@@ -169,7 +169,7 @@ export default function NeighborhoodLandingTemplate({
                     <span>{config.distanceFromStore} from Hub • {config.eta} ETA</span>
                   </div>
                   <span className="bg-emerald-50 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full border border-emerald-200">
-                    Open Till 3:00 AM Daily
+                    Open Till 1:00 AM Daily
                   </span>
                 </div>
 
@@ -257,7 +257,7 @@ export default function NeighborhoodLandingTemplate({
                     </div>
                     <div className="flex justify-between items-center text-[#CCCCCC]">
                       <span>Operating Hours</span>
-                      <span className="font-semibold text-amber-300">10:00 AM – 3:00 AM Daily</span>
+                      <span className="font-semibold text-amber-300">10:00 AM – 1:00 AM Daily</span>
                     </div>
                     <div className="flex justify-between items-center text-[#CCCCCC]">
                       <span>First Home Visit</span>

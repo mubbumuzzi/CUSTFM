@@ -321,7 +321,7 @@ export default function GoogleReviewsModal({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px] font-bold text-slate-700">
               <div className="flex items-center gap-1.5 bg-white/80 p-2 rounded-xl border border-emerald-100">
                 <Clock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>10:00 AM – 3:00 AM Daily</span>
+                <span>10:00 AM – 1:00 AM Daily</span>
               </div>
               <div className="flex items-center gap-1.5 bg-white/80 p-2 rounded-xl border border-emerald-100">
                 <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />

@@ -20,7 +20,7 @@ export default function ContactPage() {
           Contact Famous Mobiles
         </h1>
         <p className="text-xs sm:text-sm text-[#767676] max-w-md mx-auto">
-          Need a quick quote or want to visit our physical workshop? Our repair technicians are available daily from 10:00 AM to 3:00 AM.
+          Need a quick quote or want to visit our physical workshop? Our repair technicians are available daily from 10:00 AM to 1:00 AM.
         </p>
       </div>
 
@@ -56,10 +56,10 @@ export default function ContactPage() {
           </div>
           <h2 className="text-base font-bold text-[#121212]">Operating Hours</h2>
           <p className="text-xs sm:text-sm text-[#767676] leading-relaxed">
-            Monday through Sunday: <strong className="text-[#121212]">10:00 AM – 3:00 AM</strong> (365 Days)
+            Monday through Sunday: <strong className="text-[#121212]">10:00 AM – 1:00 AM</strong> (365 Days)
           </p>
           <div className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-1.5 rounded-[8px] border border-emerald-200 inline-block">
-            ⚡ Doorstep Dispatches Active Everyday Until 3:00 AM
+            ⚡ Doorstep Dispatches Active Everyday Until 1:00 AM
           </div>
         </div>
 

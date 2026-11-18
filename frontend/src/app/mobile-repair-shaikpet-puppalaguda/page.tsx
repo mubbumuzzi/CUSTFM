@@ -5,24 +5,24 @@ import NeighborhoodLandingTemplate, {
 } from "@/components/NeighborhoodLandingTemplate";
 
 export const metadata: Metadata = {
-  title: "Mobile Repair in Shaikpet & Puppalaguda | Open Till 3 AM Hub",
+  title: "Mobile Repair in Shaikpet & Puppalaguda | Open Till 1 AM Hub",
   description:
-    "New Famous Mobile flagship store at Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda. 10–15 min doorstep & walk-in repair open 10 AM to 3 AM! Call +91 9063786751.",
+    "New Famous Mobile flagship store at Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda. 10–15 min doorstep & walk-in repair open 10 AM to 1 AM! Call +91 9063786751.",
   keywords: [
     "mobile repair Shaikpet",
     "phone repair Puppalaguda",
     "mobile repair Puppalaguda Main Road",
     "mobile repair OU Colony",
-    "mobile shop open till 3 AM Shaikpet",
+    "mobile shop open till 1 AM Shaikpet",
     "New Famous Mobile Shaikpet",
   ],
   alternates: {
     canonical: "https://famousmobiles.com/mobile-repair-shaikpet-puppalaguda",
   },
   openGraph: {
-    title: "Mobile Repair in Shaikpet & Puppalaguda | Open Till 3 AM Hub",
+    title: "Mobile Repair in Shaikpet & Puppalaguda | Open Till 1 AM Hub",
     description:
-      "Physical repair hub & express doorstep dispatch across Shaikpet, Puppalaguda, and OU Colony. Open 10 AM to 3 AM daily.",
+      "Physical repair hub & express doorstep dispatch across Shaikpet, Puppalaguda, and OU Colony. Open 10 AM to 1 AM daily.",
     url: "https://famousmobiles.com/mobile-repair-shaikpet-puppalaguda",
   },
 };
@@ -33,9 +33,9 @@ const SHAIKPET_PUPPALAGUDA_CONFIG: NeighborhoodConfig = {
   subTitle: "Store Headquarters & 10–15 Minute Immediate Dispatch Zone",
   distanceFromStore: "0.2 km",
   eta: "10-15 Mins",
-  heroHeadline: "Express Mobile Repair in Shaikpet & Puppalaguda (Open Till 3 AM)",
+  heroHeadline: "Express Mobile Repair in Shaikpet & Puppalaguda (Open Till 1 AM)",
   heroDescription:
-    "Located directly Opp Friends Colony Bus Stop on Shaikpet Main Road, Puppalaguda. Experience rapid 10–15 minute doorstep response or walk into our certified physical lab open daily until 3:00 AM past midnight.",
+    "Located directly Opp Friends Colony Bus Stop on Shaikpet Main Road, Puppalaguda. Experience rapid 10–15 minute doorstep response or walk into our certified physical lab open daily until 1:00 AM past midnight.",
   landmarks: [
     "Opp Friends Colony Bus Stop",
     "Shaikpet Main Road",
@@ -95,7 +95,7 @@ const SHAIKPET_PUPPALAGUDA_CONFIG: NeighborhoodConfig = {
     {
       question: "Can I bring my phone for repair at 1:00 AM or 2:30 AM?",
       answer:
-        "Yes! We are open every single night until 3:00 AM. You can walk in directly or call +91 9063786751 for doorstep technician arrival.",
+        "Yes! We are open every single night until 1:00 AM. You can walk in directly or call +91 9063786751 for doorstep technician arrival.",
     },
     {
       question: "Are parts covered by an authentic warranty?",

@@ -15,7 +15,7 @@ const FAQS = [
   },
   {
     q: "What are your store timings? Are you open late at night?",
-    a: "Yes. New Famous Mobile is open daily from 10:00 AM to 3:00 AM at Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda, allowing emergency late-night screen, battery, and charging repairs.",
+    a: "Yes. New Famous Mobile is open daily from 10:00 AM to 1:00 AM at Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda, allowing emergency late-night screen, battery, and charging repairs.",
   },
   {
     q: "How does the 'First Home Visit is FREE' offer work?",

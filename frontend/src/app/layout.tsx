@@ -4,17 +4,20 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import GoogleReviewsModal from "@/components/GoogleReviewsModal";
+import ToastBanner from "@/components/ToastBanner";
+import InteractiveBookingModal from "@/components/InteractiveBookingModal";
+import TrackOrderModal from "@/components/TrackOrderModal";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://famousmobiles.com"),
   title: {
-    default: "Mobile Repair Open Till 3 AM in Manikonda | Famous Mobiles",
+    default: "Mobile Repair Open Till 1 AM in Manikonda | Famous Mobiles",
     template: "%s | Famous Mobiles Manikonda",
   },
   description:
-    "Late-night mobile repair in Manikonda, Shaikpet & Gachibowli—open 10 AM to 3 AM! 60-min screen & battery repair + 6 km doorstep pickup. Call +91 9063786751.",
+    "Late-night mobile repair in Manikonda, Shaikpet & Gachibowli—open 10 AM to 1 AM! 60-min screen & battery repair + 6 km doorstep pickup. Call +91 9063786751.",
   keywords: [
-    "mobile repair open till 3 am Hyderabad",
+    "mobile repair open till 1 am Hyderabad",
     "late night phone repair Manikonda",
     "doorstep mobile repair Manikonda",
     "doorstep phone screen replacement Gachibowli",
@@ -34,9 +37,9 @@ export const metadata: Metadata = {
     address: true,
   },
   openGraph: {
-    title: "Mobile Repair Open Till 3 AM in Manikonda | Famous Mobiles",
+    title: "Mobile Repair Open Till 1 AM in Manikonda | Famous Mobiles",
     description:
-      "Late-night mobile repair in Manikonda, Shaikpet & Gachibowli—open 10 AM to 3 AM! 60-min screen & battery repair + 6 km doorstep pickup. Call +91 9063786751.",
+      "Late-night mobile repair in Manikonda, Shaikpet & Gachibowli—open 10 AM to 1 AM! 60-min screen & battery repair + 6 km doorstep pickup. Call +91 9063786751.",
     url: "https://famousmobiles.com",
     siteName: "New Famous Mobile",
     locale: "en_IN",
@@ -112,7 +115,7 @@ export default function RootLayout({
           "Sunday"
         ],
         "opens": "10:00",
-        "closes": "03:00"
+        "closes": "01:00"
       }
     ],
     "aggregateRating": {
@@ -139,13 +142,16 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className="font-sans bg-slate-50 text-navy-950 antialiased min-h-screen flex flex-col selection:bg-accent-500 selection:text-white"
+        className="font-sans bg-[#F8FAFC] text-slate-900 antialiased min-h-screen flex flex-col selection:bg-orange-500 selection:text-white"
       >
+        <ToastBanner />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
         <MobileBottomNav />
         <GoogleReviewsModal />
+        <InteractiveBookingModal />
+        <TrackOrderModal />
       </body>
     </html>
   );

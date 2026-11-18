@@ -74,7 +74,7 @@ export default function AboutPage() {
               <span>Store Operating Hours</span>
             </div>
             <p className="text-xs text-[#767676] leading-relaxed">
-              Monday through Sunday: <strong className="text-[#121212]">10:00 AM – 3:00 AM (365 Days)</strong>
+              Monday through Sunday: <strong className="text-[#121212]">10:00 AM – 1:00 AM (365 Days)</strong>
             </p>
             <p className="text-[11px] text-emerald-700 font-medium pt-1">
               ⚡ Late-night emergency repair dispatch available.

@@ -85,7 +85,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#F97316] shrink-0" />
-                <span>Open Daily: 10:00 AM – 3:00 AM (365 Days)</span>
+                <span>Open Daily: 10:00 AM – 1:00 AM (365 Days)</span>
               </div>
               <div className="text-[11px] text-[#A3E635] bg-[#1E291B] p-2.5 rounded-[10px] border border-[#2D3E28]">
                 🚲 6 km Doorstep Radius: Manikonda, Shaikpet, Puppalaguda, Lanco Hills, Alkapur, Tolichowki, Gachibowli, Narsingi, Kokapet.

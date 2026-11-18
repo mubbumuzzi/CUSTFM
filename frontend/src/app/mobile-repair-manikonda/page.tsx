@@ -5,9 +5,9 @@ import NeighborhoodLandingTemplate, {
 } from "@/components/NeighborhoodLandingTemplate";
 
 export const metadata: Metadata = {
-  title: "Mobile Repair in Manikonda | 60-Min Doorstep (Open Till 3 AM)",
+  title: "Mobile Repair in Manikonda | 60-Min Doorstep (Open Till 1 AM)",
   description:
-    "Fast 60-min doorstep mobile repair in Manikonda, Lanco Hills & Secretariat Colony. Open 10 AM to 3 AM daily! Screen, battery & charging fix. Call +91 9063786751.",
+    "Fast 60-min doorstep mobile repair in Manikonda, Lanco Hills & Secretariat Colony. Open 10 AM to 1 AM daily! Screen, battery & charging fix. Call +91 9063786751.",
   keywords: [
     "mobile repair in Manikonda",
     "iPhone repair Manikonda",
@@ -20,9 +20,9 @@ export const metadata: Metadata = {
     canonical: "https://famousmobiles.com/mobile-repair-manikonda",
   },
   openGraph: {
-    title: "Mobile Repair in Manikonda | 60-Min Doorstep (Open Till 3 AM)",
+    title: "Mobile Repair in Manikonda | 60-Min Doorstep (Open Till 1 AM)",
     description:
-      "Doorstep mobile repair across Manikonda, Lanco Hills, and Secretariat Colony. 10 AM to 3 AM emergency service with up to 8 months warranty.",
+      "Doorstep mobile repair across Manikonda, Lanco Hills, and Secretariat Colony. 10 AM to 1 AM emergency service with up to 8 months warranty.",
     url: "https://famousmobiles.com/mobile-repair-manikonda",
   },
 };
@@ -33,7 +33,7 @@ const MANIKONDA_CONFIG: NeighborhoodConfig = {
   subTitle: "Doorstep Smartphone Repair across Manikonda, Lanco Hills & Secretariat Colony",
   distanceFromStore: "1.4 km",
   eta: "15-25 Mins",
-  heroHeadline: "Fast Doorstep Mobile Repair in Manikonda (Open Till 3 AM)",
+  heroHeadline: "Fast Doorstep Mobile Repair in Manikonda (Open Till 1 AM)",
   heroDescription:
     "Cracked your screen or battery draining fast in Manikonda? Our certified technicians reach your apartment in Lanco Hills, Secretariat Colony, or Panchavati within 15–25 minutes. All repairs completed right before you with 100% data privacy.",
   landmarks: [
@@ -89,7 +89,7 @@ const MANIKONDA_CONFIG: NeighborhoodConfig = {
     {
       question: "Are you open for late-night emergency mobile repairs in Manikonda?",
       answer:
-        "Yes! New Famous Mobile operates daily from 10:00 AM to 3:00 AM past midnight. Whether you have an urgent presentation tomorrow morning or dropped your phone late, call +91 9063786751 for doorstep service.",
+        "Yes! New Famous Mobile operates daily from 10:00 AM to 1:00 AM past midnight. Whether you have an urgent presentation tomorrow morning or dropped your phone late, call +91 9063786751 for doorstep service.",
     },
     {
       question: "Can I walk into your physical store instead of doorstep service?",

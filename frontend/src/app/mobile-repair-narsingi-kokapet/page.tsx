@@ -5,9 +5,9 @@ import NeighborhoodLandingTemplate, {
 } from "@/components/NeighborhoodLandingTemplate";
 
 export const metadata: Metadata = {
-  title: "Mobile Repair in Narsingi & Kokapet | Doorstep Pickup (Till 3 AM)",
+  title: "Mobile Repair in Narsingi & Kokapet | Doorstep Pickup (Till 1 AM)",
   description:
-    "Express doorstep phone repair in Narsingi, Kokapet & My Home Avatar. Open 10 AM to 3 AM daily! 60-min screen, battery & camera fix. Call +91 9063786751.",
+    "Express doorstep phone repair in Narsingi, Kokapet & My Home Avatar. Open 10 AM to 1 AM daily! 60-min screen, battery & camera fix. Call +91 9063786751.",
   keywords: [
     "mobile repair Narsingi",
     "doorstep mobile repair Kokapet",
@@ -20,9 +20,9 @@ export const metadata: Metadata = {
     canonical: "https://famousmobiles.com/mobile-repair-narsingi-kokapet",
   },
   openGraph: {
-    title: "Mobile Repair in Narsingi & Kokapet | Doorstep Pickup (Till 3 AM)",
+    title: "Mobile Repair in Narsingi & Kokapet | Doorstep Pickup (Till 1 AM)",
     description:
-      "Rapid doorstep smartphone repair across Narsingi, Kokapet, and high-rise communities like My Home Avatar. Open 10 AM to 3 AM.",
+      "Rapid doorstep smartphone repair across Narsingi, Kokapet, and high-rise communities like My Home Avatar. Open 10 AM to 1 AM.",
     url: "https://famousmobiles.com/mobile-repair-narsingi-kokapet",
   },
 };
@@ -33,7 +33,7 @@ const NARSINGI_KOKAPET_CONFIG: NeighborhoodConfig = {
   subTitle: "Doorstep Smartphone Repair for High-Rise Communities & Tech Parks",
   distanceFromStore: "3.7 km",
   eta: "30-40 Mins",
-  heroHeadline: "Doorstep Mobile Repair in Narsingi & Kokapet (Open Till 3 AM)",
+  heroHeadline: "Doorstep Mobile Repair in Narsingi & Kokapet (Open Till 1 AM)",
   heroDescription:
     "Living in My Home Avatar, Kokapet Golden Mile, or Narsingi Junction? Avoid congested traffic trips. Our certified mobile technician travels to your gate or home within 30–40 minutes with genuine OEM parts and precision toolkits.",
   landmarks: [
@@ -96,7 +96,7 @@ const NARSINGI_KOKAPET_CONFIG: NeighborhoodConfig = {
     {
       question: "What are your operating hours in Narsingi & Kokapet?",
       answer:
-        "We operate daily from 10:00 AM to 3:00 AM past midnight, 7 days a week. Midnight emergency requests are accepted via phone or WhatsApp at +91 9063786751.",
+        "We operate daily from 10:00 AM to 1:00 AM past midnight, 7 days a week. Midnight emergency requests are accepted via phone or WhatsApp at +91 9063786751.",
     },
     {
       question: "Is there a doorstep fee for Narsingi residents?",

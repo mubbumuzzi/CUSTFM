@@ -5,9 +5,9 @@ import NeighborhoodLandingTemplate, {
 } from "@/components/NeighborhoodLandingTemplate";
 
 export const metadata: Metadata = {
-  title: "Doorstep Mobile Repair in Gachibowli | Open Till 3 AM Tech Care",
+  title: "Doorstep Mobile Repair in Gachibowli | Open Till 1 AM Tech Care",
   description:
-    "Fast doorstep mobile repair in Gachibowli, Telecom Nagar, DLF & Raidurg within 6 km. Open 10 AM to 3 AM! 60-min screen & battery replacement. Call +91 9063786751.",
+    "Fast doorstep mobile repair in Gachibowli, Telecom Nagar, DLF & Raidurg within 6 km. Open 10 AM to 1 AM! 60-min screen & battery replacement. Call +91 9063786751.",
   keywords: [
     "doorstep mobile repair Gachibowli",
     "midnight iPhone screen repair Gachibowli",
@@ -20,9 +20,9 @@ export const metadata: Metadata = {
     canonical: "https://famousmobiles.com/doorstep-mobile-repair-gachibowli",
   },
   openGraph: {
-    title: "Doorstep Mobile Repair in Gachibowli | Open Till 3 AM Tech Care",
+    title: "Doorstep Mobile Repair in Gachibowli | Open Till 1 AM Tech Care",
     description:
-      "On-demand doorstep smartphone repair for IT corridors across Gachibowli, Telecom Nagar, and DLF Cybercity. Open daily until 3:00 AM.",
+      "On-demand doorstep smartphone repair for IT corridors across Gachibowli, Telecom Nagar, and DLF Cybercity. Open daily until 1:00 AM.",
     url: "https://famousmobiles.com/doorstep-mobile-repair-gachibowli",
   },
 };
@@ -33,9 +33,9 @@ const GACHIBOWLI_CONFIG: NeighborhoodConfig = {
   subTitle: "Express Doorstep Mobile Repair for IT Professionals & Residents",
   distanceFromStore: "4.8 km",
   eta: "35-45 Mins",
-  heroHeadline: "Doorstep Mobile Repair in Gachibowli (Open Till 3 AM)",
+  heroHeadline: "Doorstep Mobile Repair in Gachibowli (Open Till 1 AM)",
   heroDescription:
-    "Working late in Gachibowli, Telecom Nagar, or DLF Cybercity? Get your iPhone, Samsung Galaxy, or OnePlus repaired at your desk or home flat. Open 10:00 AM to 3:00 AM past midnight with zero data access required.",
+    "Working late in Gachibowli, Telecom Nagar, or DLF Cybercity? Get your iPhone, Samsung Galaxy, or OnePlus repaired at your desk or home flat. Open 10:00 AM to 1:00 AM past midnight with zero data access required.",
   landmarks: [
     "Bio-Diversity Park",
     "Telecom Nagar",
@@ -96,7 +96,7 @@ const GACHIBOWLI_CONFIG: NeighborhoodConfig = {
     {
       question: "Do you operate during late night shifts in Gachibowli?",
       answer:
-        "Yes, New Famous Mobile is open until 3:00 AM every night. Whether you work US or UK shifts or have an emergency at 1:30 AM, our dispatch desk (+91 9063786751) is active.",
+        "Yes, New Famous Mobile is open until 1:00 AM every night. Whether you work US or UK shifts or have an emergency at 1:30 AM, our dispatch desk (+91 9063786751) is active.",
     },
     {
       question: "How does gate security clearance work for apartments like My Home Bhooja or Prestige?",

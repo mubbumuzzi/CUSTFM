@@ -5,9 +5,9 @@ import NeighborhoodLandingTemplate, {
 } from "@/components/NeighborhoodLandingTemplate";
 
 export const metadata: Metadata = {
-  title: "Mobile Repair in Tolichowki | 60-Min Doorstep (Open Till 3 AM)",
+  title: "Mobile Repair in Tolichowki | 60-Min Doorstep (Open Till 1 AM)",
   description:
-    "Fast doorstep mobile repair in Tolichowki, Paramount Hills & Seven Tombs area within 6 km. Open 10 AM to 3 AM daily! Genuine screens & batteries. Call +91 9063786751.",
+    "Fast doorstep mobile repair in Tolichowki, Paramount Hills & Seven Tombs area within 6 km. Open 10 AM to 1 AM daily! Genuine screens & batteries. Call +91 9063786751.",
   keywords: [
     "doorstep iPhone repair Tolichowki",
     "mobile repair Tolichowki",
@@ -20,9 +20,9 @@ export const metadata: Metadata = {
     canonical: "https://famousmobiles.com/mobile-repair-tolichowki",
   },
   openGraph: {
-    title: "Mobile Repair in Tolichowki | 60-Min Doorstep (Open Till 3 AM)",
+    title: "Mobile Repair in Tolichowki | 60-Min Doorstep (Open Till 1 AM)",
     description:
-      "Certified doorstep mobile repair across Tolichowki and Paramount Hills. Open daily until 3:00 AM past midnight.",
+      "Certified doorstep mobile repair across Tolichowki and Paramount Hills. Open daily until 1:00 AM past midnight.",
     url: "https://famousmobiles.com/mobile-repair-tolichowki",
   },
 };
@@ -33,7 +33,7 @@ const TOLICHOWKI_CONFIG: NeighborhoodConfig = {
   subTitle: "Fast Doorstep Smartphone Care for Tolichowki & Paramount Hills",
   distanceFromStore: "2.5 km",
   eta: "20-30 Mins",
-  heroHeadline: "Fast Doorstep Mobile Repair in Tolichowki (Open Till 3 AM)",
+  heroHeadline: "Fast Doorstep Mobile Repair in Tolichowki (Open Till 1 AM)",
   heroDescription:
     "Located just down the road on Shaikpet Main Road, our expert technicians reach Tolichowki, Paramount Hills, and Galaxy Junction within 20–30 minutes. 100% transparent pricing with OEM and certified compatible parts.",
   landmarks: [
@@ -95,7 +95,7 @@ const TOLICHOWKI_CONFIG: NeighborhoodConfig = {
     {
       question: "Can I get my phone repaired after midnight in Tolichowki?",
       answer:
-        "Yes! New Famous Mobile is open every day until 3:00 AM. You can book doorstep service or drive over to our Shaikpet store for immediate late-night service.",
+        "Yes! New Famous Mobile is open every day until 1:00 AM. You can book doorstep service or drive over to our Shaikpet store for immediate late-night service.",
     },
     {
       question: "What if I choose not to get the repair done?",
