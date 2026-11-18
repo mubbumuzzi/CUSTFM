@@ -1,181 +1,170 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import React, { useState, useEffect, Suspense, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
-  Lock,
+  Search,
   ShieldCheck,
   CheckCircle2,
   Clock,
   Phone,
   Check,
-  Sparkles,
   MapPin,
   RefreshCw,
   AlertCircle,
   Smartphone,
+  ArrowRight,
+  Package,
+  Sparkles,
 } from "lucide-react";
-import { fetchBookingStatus, approveBookingQuote, sendOtpApi, verifyOtpApi, BookingStatusData } from "@/lib/api";
-import { OtpInput } from "@/components/ui/OtpInput";
+import {
+  fetchBookingStatus,
+  fetchMyBookings,
+  approveBookingQuote,
+  BookingStatusData,
+} from "@/lib/api";
+import { showFmToast } from "@/components/ToastBanner";
 
 function TrackBookingContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
-  const [bookingId, setBookingId] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [otpCode, setOtpCode] = useState("");
-  const [otpSentMsg, setOtpSentMsg] = useState("");
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [otpError, setOtpError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [statusData, setStatusData] = useState<BookingStatusData | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [customerBookings, setCustomerBookings] = useState<BookingStatusData[]>([]);
+  const [selectedBookingId, setSelectedBookingId] = useState<string>("");
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [quoteApproving, setQuoteApproving] = useState(false);
-  const [savedHandshakeOtp, setSavedHandshakeOtp] = useState<string | null>(null);
 
-  useEffect(() => {
-    let id = searchParams.get("id");
-    if (!id && typeof window !== "undefined") {
-      id = localStorage.getItem("fm_latest_booking_id");
-    }
-    if (id) {
-      setBookingId(id.toUpperCase());
-      if (typeof window !== "undefined") {
-        const stored = localStorage.getItem(`fm_booking_${id.toUpperCase()}`);
-        if (stored) {
-          try {
-            const parsed = JSON.parse(stored);
-            if (parsed.handshakeOtp) {
-              setSavedHandshakeOtp(parsed.handshakeOtp);
-            }
-          } catch (e) {
-            console.error(e);
-          }
-        }
-      }
-    }
-
-    if (typeof window !== "undefined") {
-      const savedMobile = localStorage.getItem("fm_latest_mobile");
-      if (savedMobile) {
-        setMobileNumber(savedMobile);
-      }
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (resendCooldown <= 0) return;
-    const interval = setInterval(() => {
-      setResendCooldown((prev) => Math.max(0, prev - 1));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [resendCooldown]);
-
-  const handleSendOtp = async () => {
-    const cleanMobile = mobileNumber.trim();
-    if (!/^[6-9]\d{9}$/.test(cleanMobile)) {
-      setOtpError("Please enter a valid 10-digit mobile number.");
-      return;
-    }
-    setOtpError("");
-    setIsSendingOtp(true);
-
-    try {
-      const res = await sendOtpApi(cleanMobile);
-      if (res.success) {
-        const cd = res.cooldownSeconds || 30;
-        setResendCooldown(cd);
-        if (res.demoOtp) {
-          setOtpSentMsg(`OTP sent via SMS to +91 ${cleanMobile} (Code: ${res.demoOtp})`);
-        } else {
-          setOtpSentMsg(`OTP sent via SMS to +91 ${cleanMobile}`);
-        }
-      } else {
-        const cd = res.retryAfterSeconds || 30;
-        setResendCooldown(cd);
-        setOtpError(res.message || `Please wait ${cd}s before requesting a new OTP.`);
-      }
-    } catch {
-      setResendCooldown(30);
-      setOtpSentMsg(`OTP sent via SMS to +91 ${cleanMobile} (Code: 1234)`);
-    } finally {
-      setIsSendingOtp(false);
-    }
-  };
-
-  const handleVerifyOtp = async (overrideOtp?: string) => {
+  // Load a booking by ID directly without OTP
+  const loadBookingById = useCallback(async (bookingId: string) => {
     const cleanId = bookingId.trim().toUpperCase();
-    const cleanMobile = mobileNumber.trim();
-    const cleanOtp = (overrideOtp !== undefined ? overrideOtp : otpCode).trim();
+    if (!cleanId) return;
 
-    if (!cleanId) {
-      setOtpError("Please enter your Booking ID (e.g. FMO-2026-XXXX).");
-      return;
-    }
-
-    if (!cleanMobile) {
-      setOtpError("Please enter your registered mobile number.");
-      return;
-    }
-
-    if (!cleanOtp || cleanOtp.length < 4) {
-      setOtpError("Please enter the complete 4-digit verification code.");
-      return;
-    }
-
-    setOtpError("");
-    setIsRefreshing(true);
+    setIsLoading(true);
+    setErrorMessage("");
 
     try {
-      const data = await fetchBookingStatus(cleanId, cleanMobile, cleanOtp);
+      const data = await fetchBookingStatus(cleanId);
       if (data && data.bookingId) {
         setStatusData(data);
-        setIsUnlocked(true);
-        return;
-      }
-
-      const verifyRes = await verifyOtpApi(cleanMobile, cleanOtp);
-      if (verifyRes.success || cleanOtp === "1234") {
-        const directData = await fetchBookingStatus(cleanId, cleanMobile);
-        if (directData && directData.bookingId) {
-          setStatusData(directData);
-          setIsUnlocked(true);
-          return;
-        }
-      }
-
-      setOtpError("Invalid OTP code. Please enter the 4-digit code from your confirmation or use demo 1234.");
-    } catch (err) {
-      console.error(err);
-      setOtpError("Unable to retrieve booking status. Please try again.");
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
-
-  const handleRefreshStatus = async () => {
-    if (!bookingId) return;
-    setIsRefreshing(true);
-    try {
-      const data = await fetchBookingStatus(bookingId, mobileNumber);
-      if (data) {
-        setStatusData(data);
+        setSelectedBookingId(data.bookingId);
+        setCustomerBookings([data]);
+      } else {
+        setErrorMessage(`No booking found matching "${cleanId}". Please check your ID.`);
+        setStatusData(null);
       }
     } catch (e) {
       console.error(e);
+      setErrorMessage("Unable to retrieve booking. Please try again.");
+      setStatusData(null);
     } finally {
-      setIsRefreshing(false);
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Load bookings by mobile number directly without OTP
+  const loadBookingsByMobile = useCallback(async (mobile: string) => {
+    const cleanMobile = mobile.trim().replace(/\D/g, "");
+    if (!/^[6-9]\d{9}$/.test(cleanMobile)) {
+      setErrorMessage("Please enter a valid 10-digit Indian mobile number.");
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage("");
+
+    try {
+      const bookings = await fetchMyBookings(cleanMobile);
+      if (bookings && bookings.length > 0) {
+        setCustomerBookings(bookings);
+        setSelectedBookingId(bookings[0].bookingId);
+        setStatusData(bookings[0]);
+      } else {
+        setErrorMessage(`No repairs found registered under +91 ${cleanMobile}.`);
+        setStatusData(null);
+      }
+    } catch (e) {
+      console.error(e);
+      setErrorMessage("Unable to load repairs. Please try again.");
+      setStatusData(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Handle direct tracking form submit
+  const handleTrackSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = searchQuery.trim();
+    if (!query) return;
+
+    // Check if user entered a 10-digit mobile or a booking ID
+    const digitsOnly = query.replace(/\D/g, "");
+    if (digitsOnly.length === 10 && /^[6-9]\d{9}$/.test(digitsOnly)) {
+      loadBookingsByMobile(digitsOnly);
+    } else {
+      loadBookingById(query);
     }
   };
 
+  // Check URL query parameters or localStorage on mount
+  useEffect(() => {
+    const idParam = searchParams.get("id");
+    const mobileParam = searchParams.get("mobile");
+
+    if (idParam) {
+      setSearchQuery(idParam.toUpperCase());
+      loadBookingById(idParam);
+      return;
+    }
+
+    if (mobileParam) {
+      setSearchQuery(mobileParam);
+      loadBookingsByMobile(mobileParam);
+      return;
+    }
+
+    // Auto-load latest booking from browser cache if available
+    if (typeof window !== "undefined") {
+      const latestId = localStorage.getItem("fm_latest_booking_id");
+      const latestMobile = localStorage.getItem("fm_latest_mobile");
+
+      if (latestId) {
+        setSearchQuery(latestId);
+        loadBookingById(latestId);
+      } else if (latestMobile) {
+        setSearchQuery(latestMobile);
+        loadBookingsByMobile(latestMobile);
+      }
+    }
+  }, [searchParams, loadBookingById, loadBookingsByMobile]);
+
+  // Refresh status
+  const handleRefresh = async () => {
+    if (!selectedBookingId) return;
+    setIsLoading(true);
+    try {
+      const refreshed = await fetchBookingStatus(selectedBookingId);
+      if (refreshed) {
+        setStatusData(refreshed);
+        showFmToast("Status refreshed with live hub updates.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Quote approval
   const handleQuoteApproval = async () => {
-    if (!bookingId) return;
+    if (!selectedBookingId) return;
     setQuoteApproving(true);
     try {
-      const ok = await approveBookingQuote(bookingId);
+      const ok = await approveBookingQuote(selectedBookingId);
       if (ok) {
-        handleRefreshStatus();
+        handleRefresh();
       }
     } catch (e) {
       console.error(e);
@@ -217,151 +206,103 @@ function TrackBookingContent() {
     <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-6">
       {/* Header */}
       <div className="text-center space-y-1.5">
-        <div className="inline-flex items-center gap-1.5 bg-[#F7F7F8] border border-[#EBEBEB] text-[#121212] text-xs font-semibold px-3 py-1 rounded-full">
-          <Lock className="w-3.5 h-3.5 text-[#121212]" />
-          <span>Secure Order Tracking</span>
+        <div className="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-100 text-[#F97316] text-xs font-bold px-3 py-1 rounded-full">
+          <Package className="w-3.5 h-3.5" />
+          <span>Direct Live Tracking</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#121212]">
           Track Repair Live
         </h1>
         <p className="text-xs sm:text-sm text-[#767676] max-w-sm mx-auto">
-          Real-time technician updates and doorstep dispatch are protected by OTP verification.
+          Enter your Booking ID or registered mobile number to track technician ETA and repair stages in real-time.
         </p>
       </div>
 
-      {/* ================================================================= */}
-      {/* GATE 1: OTP LOCK SCREEN                                           */}
-      {/* ================================================================= */}
-      {!isUnlocked && (
-        <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 sm:p-8 space-y-4 shadow-card">
-          <div className="space-y-3.5">
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-[#767676] mb-1">
-                Booking ID
-              </label>
+      {/* Direct Search Bar (No OTP gate!) */}
+      <div className="bg-white rounded-3xl border border-slate-200 p-4 sm:p-5 shadow-lg">
+        <form onSubmit={handleTrackSubmit} className="space-y-3">
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="relative flex-1">
               <input
                 type="text"
-                value={bookingId}
-                onChange={(e) => setBookingId(e.target.value.toUpperCase())}
-                placeholder="e.g., FMO-2026-1052"
-                className="w-full px-3.5 py-2.5 rounded-[10px] border border-[#EBEBEB] font-bold text-[#121212] text-sm uppercase focus:outline-none focus:border-[#121212]"
+                required
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setErrorMessage("");
+                }}
+                placeholder="e.g. FMO-2026-1955 or 98480 12345"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 font-bold text-sm text-slate-900 focus:outline-none focus:border-[#F97316] focus:bg-white transition uppercase placeholder:normal-case placeholder:font-normal placeholder:text-slate-400"
               />
             </div>
-
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-[#767676] mb-1">
-                Registered Mobile Number
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="tel"
-                  maxLength={10}
-                  value={mobileNumber}
-                  onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ""))}
-                  placeholder="10-digit mobile number"
-                  className="flex-1 px-3.5 py-2.5 rounded-[10px] border border-[#EBEBEB] font-semibold text-[#121212] text-sm focus:outline-none focus:border-[#121212]"
-                />
-                <button
-                  type="button"
-                  onClick={handleSendOtp}
-                  disabled={isSendingOtp || resendCooldown > 0}
-                  className="bg-[#121212] hover:bg-[#2A2A2A] disabled:bg-[#EBEBEB] disabled:text-[#767676] text-white text-xs font-bold px-4 py-2.5 rounded-[10px] shrink-0 transition cursor-pointer"
-                >
-                  {isSendingOtp
-                    ? "Sending..."
-                    : resendCooldown > 0
-                    ? `Resend (${resendCooldown}s)`
-                    : otpSentMsg
-                    ? "Resend OTP"
-                    : "Send OTP"}
-                </button>
-              </div>
-              {otpSentMsg && (
-                <p className="text-[11px] text-emerald-700 font-semibold mt-1.5 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>{otpSentMsg}</span>
-                </p>
+            <button
+              type="submit"
+              disabled={isLoading || !searchQuery.trim()}
+              className="bg-[#F97316] hover:bg-[#EA580C] disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-md transition active:scale-[0.99] flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+            >
+              {isLoading ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Tracking...</span>
+                </>
+              ) : (
+                <>
+                  <span>Track Status</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
               )}
-            </div>
-
-            {/* 4-Digit OTP Entry Box */}
-            <div className="bg-[#F8F9FA] rounded-[12px] p-4 sm:p-5 border border-[#EBEBEB] space-y-3">
-              <div className="flex justify-between items-center text-xs">
-                <span className="font-bold text-[#121212]">Enter 4-Digit OTP</span>
-                <span className="text-[11px] text-[#767676]">Verification Code</span>
-              </div>
-
-              <div className="py-2 flex justify-center">
-                <OtpInput
-                  length={4}
-                  value={otpCode}
-                  onChange={(val) => {
-                    setOtpCode(val);
-                    setOtpError("");
-                  }}
-                  onComplete={(val) => {
-                    setOtpCode(val);
-                    handleVerifyOtp(val);
-                  }}
-                  error={Boolean(otpError)}
-                />
-              </div>
-
-              {/* Quick Fill & Verify Action */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-2 border-t border-[#EBEBEB]">
-                {savedHandshakeOtp ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOtpCode(savedHandshakeOtp);
-                      setOtpError("");
-                      handleVerifyOtp(savedHandshakeOtp);
-                    }}
-                    className="text-[11px] font-semibold text-[#F97316] hover:underline cursor-pointer"
-                  >
-                    ⚡ Auto-fill Booking Code ({savedHandshakeOtp})
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOtpCode("1234");
-                      setOtpError("");
-                      handleVerifyOtp("1234");
-                    }}
-                    className="text-[11px] font-semibold text-[#F97316] hover:underline cursor-pointer"
-                  >
-                    ⚡ Auto-fill Demo (1234)
-                  </button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => handleVerifyOtp()}
-                  disabled={isRefreshing || otpCode.length < 4}
-                  className="w-full sm:w-auto bg-[#F97316] hover:bg-[#EA580C] disabled:bg-[#EBEBEB] disabled:text-[#767676] text-white font-bold text-xs sm:text-sm px-6 py-2.5 rounded-[10px] shadow-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  {isRefreshing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <span>Verify & Track</span>}
-                </button>
-              </div>
-
-              {otpError && (
-                <p className="text-xs text-red-600 font-semibold pt-1 flex items-center justify-center gap-1">
-                  <AlertCircle className="w-3.5 h-3.5" />
-                  <span>{otpError}</span>
-                </p>
-              )}
-            </div>
+            </button>
           </div>
-        </div>
-      )}
+
+          {errorMessage && (
+            <p className="text-xs text-rose-600 font-semibold flex items-center gap-1.5 pt-1">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{errorMessage}</span>
+            </p>
+          )}
+        </form>
+      </div>
 
       {/* ================================================================= */}
-      {/* GATE 2: UNLOCKED LIVE TRACKER                                     */}
+      {/* LIVE TRACKING TIMELINE DISPLAY                                    */}
       {/* ================================================================= */}
-      {isUnlocked && statusData && (
-        <div className="space-y-5">
-          {/* Handshake Completion OTP Card */}
+      {statusData && (
+        <div className="space-y-5 animate-in fade-in duration-300">
+          {/* Multi-Booking Tabs Switcher (if customer has multiple repairs) */}
+          {customerBookings.length > 1 && (
+            <div className="space-y-1.5">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 px-1">
+                Found Repairs ({customerBookings.length})
+              </p>
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+                {customerBookings.map((b) => {
+                  const isSelected = b.bookingId === selectedBookingId;
+                  return (
+                    <button
+                      key={b.bookingId}
+                      type="button"
+                      onClick={() => {
+                        setSelectedBookingId(b.bookingId);
+                        setStatusData(b);
+                      }}
+                      className={`px-3 py-2 rounded-xl text-xs font-bold shrink-0 transition flex items-center gap-1.5 cursor-pointer border ${
+                        isSelected
+                          ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                          : "bg-white text-slate-700 border-slate-200 hover:border-slate-400"
+                      }`}
+                    >
+                      <span>{b.brandModel || "Device"}</span>
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${isSelected ? "bg-orange-500 text-white" : "bg-slate-100 text-slate-600"}`}>
+                        {b.statusLabel}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Doorstep Handshake Code Card */}
           {statusData.currentStageIndex === 10 ? (
             <div className="bg-[#F0FDF4] border border-[#DCFCE7] rounded-2xl p-5 shadow-card flex items-center gap-3.5">
               <div className="w-10 h-10 rounded-[10px] bg-emerald-600 text-white flex items-center justify-center shrink-0">
@@ -382,7 +323,7 @@ function TrackBookingContent() {
                   <span>Doorstep Handshake Code</span>
                 </div>
                 <p className="text-xs text-[#9A3412] max-w-sm">
-                  Share this 4-digit code with {statusData.technicianName ? <>technician <strong>{statusData.technicianName}</strong></> : "your assigned technician"} only upon repair completion to authorize job closure:
+                  Share this 4-digit code with {statusData.technicianName ? <>technician <strong>{statusData.technicianName}</strong></> : "your assigned technician"} only upon repair completion:
                 </p>
               </div>
 
@@ -418,18 +359,12 @@ function TrackBookingContent() {
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={handleRefreshStatus}
-                    disabled={isRefreshing}
+                    onClick={handleRefresh}
+                    disabled={isLoading}
                     className="p-2 rounded-[8px] bg-white/10 hover:bg-white/20 text-white text-xs transition cursor-pointer"
                     title="Refresh Live Status"
                   >
-                    <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
-                  </button>
-                  <button
-                    onClick={() => setIsUnlocked(false)}
-                    className="text-xs text-[#A0A0A0] hover:text-white underline px-2 py-1 cursor-pointer"
-                  >
-                    Lock
+                    <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
                   </button>
                 </div>
               </div>

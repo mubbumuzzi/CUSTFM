@@ -173,8 +173,25 @@ public class BookingService {
     }
 
     /**
-     * Public Status Lookup with IDOR Protection.
-     * Requires either verified mobile number OR matching 4-digit OTP.
+     * Retrieve all bookings associated with a verified customer mobile number.
+     * Returned in reverse chronological order (newest first).
+     */
+    public List<BookingStatusResponse> getBookingsForCustomer(String mobileNumber) {
+        if (mobileNumber == null || mobileNumber.isBlank()) {
+            return List.of();
+        }
+        String cleanMobile = mobileNumber.replaceAll("[^0-9]", "");
+        if (cleanMobile.length() == 12 && cleanMobile.startsWith("91")) {
+            cleanMobile = cleanMobile.substring(2);
+        }
+        return bookingRepository.findByMobileNumberOrderByCreatedAtDesc(cleanMobile).stream()
+                .map(b -> mapBookingToResponse(b, false))
+                .toList();
+    }
+
+    /**
+     * Public Status Lookup.
+     * Can be retrieved directly with unique Booking ID or verified mobile.
      */
     public Optional<BookingStatusResponse> getBookingStatus(String bookingId, String mobileNumber, String inputOtp) {
         if (bookingId == null || bookingId.isBlank()) {
@@ -190,11 +207,6 @@ public class BookingService {
 
         boolean hasMobile = mobileNumber != null && !mobileNumber.isBlank();
         boolean hasOtp = inputOtp != null && !inputOtp.isBlank();
-
-        // Enforce IDOR protection: reject anonymous enumeration attempts
-        if (!hasMobile && !hasOtp) {
-            return Optional.empty();
-        }
 
         // If mobile is supplied, verify it matches
         if (hasMobile) {

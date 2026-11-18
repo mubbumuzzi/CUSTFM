@@ -110,9 +110,9 @@ export function OtpInput({
             onFocus={(e) => e.target.select()}
             className={cn(
               "w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-black rounded-2xl border-2 transition-all duration-150 outline-none select-none",
-              isFilled ? "text-navy-900 border-navy-900 bg-white" : "text-slate-700 border-slate-300 bg-slate-50/80",
-              "focus:border-navy-900 focus:bg-white focus:ring-4 focus:ring-navy-900/10",
-              error && "border-red-500 bg-red-50/40 text-red-600 focus:border-red-600 focus:ring-red-500/20",
+              isFilled ? "text-[#121212] border-[#121212] bg-white shadow-xs" : "text-slate-800 border-slate-200 bg-slate-50/80",
+              "focus:border-[#F97316] focus:bg-white focus:ring-4 focus:ring-[#F97316]/15",
+              error && "border-red-500 bg-red-50/50 text-red-600 focus:border-red-600 focus:ring-red-500/20",
               disabled && "opacity-50 cursor-not-allowed bg-slate-100"
             )}
             placeholder="•"

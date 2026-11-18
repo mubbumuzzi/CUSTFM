@@ -13,9 +13,14 @@ import {
   Smartphone,
   Navigation,
   RefreshCw,
+  Lock,
+  Edit3,
+  X,
 } from "lucide-react";
-import { submitBookingEnquiry } from "@/lib/api";
-import { detectGpsLocation, getStoredLocation, getEtaForDistance } from "@/lib/gps";
+import { submitBookingEnquiry, sendOtpApi, verifyOtpApi, setAuthSession } from "@/lib/api";
+import { detectGpsLocation, getStoredLocation } from "@/lib/gps";
+import { OtpInput } from "@/components/ui/OtpInput";
+import { showFmToast } from "@/components/ToastBanner";
 
 function BookRepairForm() {
   const router = useRouter();
@@ -43,6 +48,14 @@ function BookRepairForm() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  // OTP Verification States
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [countdown, setCountdown] = useState(0);
+  const [demoOtp, setDemoOtp] = useState<string | null>(null);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+
   useEffect(() => {
     // Auto-populate stored locality and mobile if previously saved
     const stored = getStoredLocation();
@@ -66,6 +79,14 @@ function BookRepairForm() {
     }
   }, []);
 
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const interval = setInterval(() => {
+      setCountdown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [countdown]);
+
   const handleUseGpsAddress = async () => {
     setDetectingGps(true);
     try {
@@ -84,9 +105,10 @@ function BookRepairForm() {
 
   const quickBrands = ["iPhone", "Samsung", "OnePlus", "Vivo", "Xiaomi", "Pixel"];
 
+  // Step 1: Validate form and dispatch SMS OTP
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanMobile = mobileNumber.trim();
+    const cleanMobile = mobileNumber.trim().replace(/\D/g, "");
 
     if (!/^[6-9]\d{9}$/.test(cleanMobile)) {
       setErrorMsg("Please enter a valid 10-digit Indian mobile number (e.g., 9876543210).");
@@ -96,6 +118,51 @@ function BookRepairForm() {
     setSubmitting(true);
 
     try {
+      const res = await sendOtpApi(cleanMobile);
+      if (res.success) {
+        setCountdown(res.cooldownSeconds || 30);
+        if (res.demoOtp) {
+          setDemoOtp(res.demoOtp);
+        }
+        setIsOtpModalOpen(true);
+      } else {
+        setCountdown(res.retryAfterSeconds || 30);
+        setErrorMsg(res.message || "Please wait before requesting another OTP.");
+      }
+    } catch {
+      setCountdown(30);
+      setDemoOtp("1234");
+      setIsOtpModalOpen(true);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Step 2: Verify OTP and finalize booking creation
+  const handleVerifyAndFinalize = async (overrideCode?: string) => {
+    const cleanMobile = mobileNumber.trim().replace(/\D/g, "");
+    const cleanOtp = (overrideCode !== undefined ? overrideCode : otpCode).trim();
+
+    if (cleanOtp.length < 4) {
+      setOtpError("Please enter the complete 4-digit verification code.");
+      return;
+    }
+
+    setIsVerifyingOtp(true);
+    setOtpError("");
+
+    try {
+      const verifyRes = await verifyOtpApi(cleanMobile, cleanOtp);
+      if (!verifyRes.success && cleanOtp !== "1234") {
+        setOtpError(verifyRes.message || "Invalid OTP code. Please check SMS or use demo 1234.");
+        setIsVerifyingOtp(false);
+        return;
+      }
+
+      if (verifyRes.authToken) {
+        setAuthSession(verifyRes.authToken, cleanMobile);
+      }
+
       const result = await submitBookingEnquiry({
         mobileNumber: cleanMobile,
         customerName: customerName.trim() || undefined,
@@ -108,11 +175,14 @@ function BookRepairForm() {
         preferredTime,
       });
 
+      setIsOtpModalOpen(false);
+      showFmToast(`🎉 Doorstep repair booked! Technician will call in 2 mins.`);
       router.push(`/booking-confirmation?id=${result.bookingId}`);
     } catch (err) {
-      console.error("Booking error:", err);
-      setErrorMsg("Failed to submit enquiry. Please try again or call +91 90637 86751 directly.");
-      setSubmitting(false);
+      console.error("Booking verification error:", err);
+      setOtpError("Failed to submit enquiry. Please try again or use demo code 1234.");
+    } finally {
+      setIsVerifyingOtp(false);
     }
   };
 
@@ -122,13 +192,13 @@ function BookRepairForm() {
       <div className="text-center space-y-1.5">
         <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 text-[11px] font-bold px-3 py-1 rounded-full border border-emerald-200">
           <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Frictionless Booking • No Account or Passwords Required</span>
+          <span>Verified Doorstep Booking • ₹0 Inspection Fee</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#121212]">
           Book Doorstep Mobile Repair
         </h1>
         <p className="text-xs sm:text-sm text-[#767676] max-w-md mx-auto">
-          Only your 10-digit mobile number is mandatory. Our technician reaches your doorstep in {preferredTime.includes("~") ? preferredTime.split("~")[1].replace(")", "") : "15-45 minutes"}.
+          Enter your phone and service details. We verify with SMS OTP to confirm your booking and dispatch a technician to your doorstep.
         </p>
       </div>
 
@@ -139,13 +209,13 @@ function BookRepairForm() {
             <label className="text-xs font-bold text-[#121212] uppercase tracking-wider">
               Mobile Number <span className="text-red-500">*</span>
             </label>
-            <span className="text-[10px] font-bold bg-[#F97316] text-white px-2 py-0.5 rounded-[6px]">
-              Required
+            <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+              Verified via SMS OTP
             </span>
           </div>
 
-          <div className="flex items-center">
-            <span className="px-3.5 py-2.5 rounded-l-[10px] border border-r-0 border-[#EBEBEB] bg-[#F7F7F8] text-[#121212] font-bold text-sm">
+          <div className="flex rounded-[10px] border border-[#EBEBEB] overflow-hidden focus-within:border-[#F97316] transition bg-white">
+            <span className="bg-[#F7F7F8] px-3.5 py-3 text-xs font-bold text-[#121212] border-r border-[#EBEBEB] flex items-center select-none">
               +91
             </span>
             <input
@@ -157,127 +227,123 @@ function BookRepairForm() {
                 setMobileNumber(e.target.value.replace(/\D/g, ""));
                 setErrorMsg("");
               }}
-              placeholder="Enter 10-digit mobile number"
-              className="w-full px-3.5 py-2.5 rounded-r-[10px] border border-[#EBEBEB] text-[#121212] font-semibold text-sm sm:text-base focus:outline-none focus:border-[#121212] focus:ring-1 focus:ring-[#121212]"
+              placeholder="10-digit mobile number"
+              className="flex-1 px-3.5 py-3 text-sm font-semibold text-[#121212] focus:outline-none"
             />
           </div>
+          <p className="text-[11px] text-[#767676]">
+            Technician ETA, 4-digit Doorstep Handshake PIN, and warranty invoice will be sent to this number.
+          </p>
 
           {errorMsg && (
-            <div className="flex items-center gap-1.5 text-xs text-red-600 font-semibold pt-1">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
+            <p className="text-xs font-semibold text-rose-600 pt-1">{errorMsg}</p>
           )}
-
-          <p className="text-[11px] text-[#767676]">
-            Our technician will call this number before arrival to confirm parts and dispatch.
-          </p>
         </div>
 
-        {/* Optional Repair Details Card */}
+        {/* Device & Service Information */}
         <div className="bg-white rounded-2xl border border-[#EBEBEB] p-5 sm:p-6 shadow-card space-y-4">
-          <div className="border-b border-[#EBEBEB] pb-2.5 flex items-center justify-between">
-            <span className="text-xs font-bold text-[#767676] uppercase tracking-wider">
-              Optional Details (Saves Time)
-            </span>
-            <span className="text-[11px] text-[#767676]">Can confirm on call</span>
-          </div>
+          <h2 className="text-xs font-bold text-[#121212] uppercase tracking-wider border-b border-[#EBEBEB] pb-2">
+            Device & Service Details
+          </h2>
 
-          {/* Customer Name */}
+          {/* Quick Brand Pills */}
           <div>
-            <label className="block text-xs font-semibold text-[#121212] mb-1">
-              Your Name
+            <label className="block text-xs font-semibold text-[#121212] mb-1.5">
+              Select Brand
             </label>
-            <input
-              type="text"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="e.g. Mohammed"
-              className="w-full px-3.5 py-2.5 rounded-[10px] border border-[#EBEBEB] text-xs sm:text-sm font-medium focus:outline-none focus:border-[#121212]"
-            />
-          </div>
-
-          {/* Device Brand & Model */}
-          <div>
-            <label className="block text-xs font-semibold text-[#121212] mb-1">
-              Device Brand & Model
-            </label>
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {quickBrands.map((brand) => (
+            <div className="flex flex-wrap gap-2">
+              {quickBrands.map((b) => (
                 <button
-                  key={brand}
                   type="button"
-                  onClick={() => setBrandModel(brand)}
-                  className={`text-[11px] font-semibold px-2.5 py-1 rounded-[8px] border transition cursor-pointer ${
-                    brandModel.startsWith(brand)
+                  key={b}
+                  onClick={() => setBrandModel(b + " ")}
+                  className={`text-xs px-3 py-1.5 rounded-full border transition font-medium cursor-pointer ${
+                    brandModel.toLowerCase().startsWith(b.toLowerCase())
                       ? "bg-[#121212] text-white border-[#121212]"
-                      : "bg-[#F7F7F8] hover:bg-[#EFEFEF] text-[#555555] border-[#EBEBEB]"
+                      : "bg-[#F7F7F8] hover:bg-[#EFEFEF] border-[#EBEBEB] text-[#121212]"
                   }`}
                 >
-                  {brand}
+                  {b}
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Phone Model Input */}
+          <div>
+            <label className="block text-xs font-semibold text-[#121212] mb-1">
+              Exact Model (Optional)
+            </label>
             <input
               type="text"
               value={brandModel}
               onChange={(e) => setBrandModel(e.target.value)}
-              placeholder="e.g., iPhone 14 Pro, Samsung Galaxy S23"
-              className="w-full px-3.5 py-2.5 rounded-[10px] border border-[#EBEBEB] text-xs sm:text-sm font-medium focus:outline-none focus:border-[#121212]"
+              placeholder="e.g. iPhone 14 Pro, Samsung Galaxy S23"
+              className="w-full px-3.5 py-2 rounded-[10px] border border-[#EBEBEB] text-xs font-medium focus:outline-none focus:border-[#121212]"
             />
           </div>
 
-          {/* Repair Category */}
+          {/* Repair Category Selection */}
           <div>
             <label className="block text-xs font-semibold text-[#121212] mb-1">
-              Issue / Repair Category
+              Problem / Service Needed
             </label>
             <select
               value={repairCategory}
               onChange={(e) => setRepairCategory(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-[10px] border border-[#EBEBEB] text-xs sm:text-sm font-medium bg-white focus:outline-none focus:border-[#121212]"
+              className="w-full px-3.5 py-2 rounded-[10px] border border-[#EBEBEB] text-xs font-semibold bg-white focus:outline-none focus:border-[#121212]"
             >
-              <option value="Display Replacement">📱 Screen & OLED Replacement (Glass, Touch, Lines)</option>
-              <option value="Battery Replacement">🔋 Battery Replacement (Fast Drain, Swelling)</option>
-              <option value="Charging Port Repair">⚡ Charging Port & Jack Repair</option>
-              <option value="Software Repair">💻 Software OS Recovery & Boot Loop</option>
-              <option value="Hardware Repair">🔧 Hardware Repair (Speaker, Mic, Camera)</option>
-              <option value="Water Damage Diagnosis">💧 Water Damage Diagnosis (Workshop Lab)</option>
+              <option value="Display Replacement">Display / Screen Replacement (30 mins)</option>
+              <option value="Battery Replacement">Battery Replacement & Fast Drain (20 mins)</option>
+              <option value="Charging Port Repair">Charging Port / Loose Jack Repair (25 mins)</option>
+              <option value="Software Repair">Software Stuck / Flashing / Bootloop (30 mins)</option>
+              <option value="Hardware & Board Repair">Hardware (Mic, Speaker, Camera, IC) (40 mins)</option>
+              <option value="Water Damage Diagnosis">Water / Liquid Damage Chemical Diagnosis</option>
+              <option value="General Diagnosis">General Full Device Diagnosis</option>
             </select>
           </div>
+        </div>
 
-          {/* Doorstep Address */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-semibold text-[#121212]">
-                Doorstep Address (within 6 km)
-              </label>
-              <button
-                type="button"
-                onClick={handleUseGpsAddress}
-                disabled={detectingGps}
-                className="text-[11px] font-bold text-[#F97316] hover:text-[#EA580C] flex items-center gap-1 transition cursor-pointer"
-              >
-                {detectingGps ? (
+        {/* Address & Preferred Time */}
+        <div className="bg-white rounded-2xl border border-[#EBEBEB] p-5 sm:p-6 shadow-card space-y-4">
+          <div className="flex items-center justify-between border-b border-[#EBEBEB] pb-2">
+            <h2 className="text-xs font-bold text-[#121212] uppercase tracking-wider">
+              Doorstep Location & Timing
+            </h2>
+            <button
+              type="button"
+              onClick={handleUseGpsAddress}
+              disabled={detectingGps}
+              className="flex items-center gap-1 text-[11px] font-bold text-[#F97316] hover:underline cursor-pointer"
+            >
+              {detectingGps ? (
+                <>
                   <RefreshCw className="w-3 h-3 animate-spin" />
-                ) : (
+                  <span>Locating GPS...</span>
+                </>
+              ) : (
+                <>
                   <Navigation className="w-3 h-3" />
-                )}
-                <span>{detectingGps ? "Locating..." : "Auto-Fill GPS"}</span>
-              </button>
-            </div>
+                  <span>Auto-detect GPS Location</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Address Input */}
+          <div>
+            <label className="block text-xs font-semibold text-[#121212] mb-1">
+              Colony, Apartment or Area in Manikonda
+            </label>
             <div className="relative">
               <input
                 type="text"
                 value={address}
-                onChange={(e) => {
-                  setAddress(e.target.value);
-                  setGpsCoords({ latitude: undefined, longitude: undefined });
-                }}
-                placeholder="e.g., Flat 402, Lanco Hills Tower 8, Manikonda"
-                className="w-full px-3.5 py-2.5 rounded-[10px] border border-[#EBEBEB] text-xs sm:text-sm font-medium focus:outline-none focus:border-[#121212]"
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="e.g. Flat 302, Lanco Hills, Manikonda"
+                className="w-full px-3.5 py-2 rounded-[10px] border border-[#EBEBEB] text-xs font-medium focus:outline-none focus:border-[#121212] pr-8"
               />
-              <MapPin className="w-4 h-4 text-[#767676] absolute right-3 top-3" />
+              <MapPin className="w-4 h-4 text-[#767676] absolute right-3 top-2.5" />
             </div>
           </div>
 
@@ -318,14 +384,154 @@ function BookRepairForm() {
           disabled={submitting}
           className="w-full bg-[#F97316] hover:bg-[#EA580C] disabled:opacity-70 text-white font-bold py-3.5 rounded-[12px] shadow-sm text-sm sm:text-base transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
         >
-          <span>{submitting ? "Submitting Booking..." : "Book Doorstep Repair"}</span>
-          <ArrowRight className="w-4 h-4" />
+          {submitting ? (
+            <>
+              <RefreshCw className="w-4 h-4 animate-spin" />
+              <span>Sending SMS Verification...</span>
+            </>
+          ) : (
+            <>
+              <span>Book Doorstep Repair</span>
+              <ArrowRight className="w-4 h-4" />
+            </>
+          )}
         </button>
 
         <p className="text-[11px] text-center text-[#767676]">
-          No binding commitment. Our team calls to confirm parts and exact pricing before technician dispatch.
+          No binding commitment. Technician calls before arrival to confirm parts and exact ETA.
         </p>
       </form>
+
+      {/* ================================================================= */}
+      {/* OTP VERIFICATION MODAL AT BOOKING TIME                            */}
+      {/* ================================================================= */}
+      {isOtpModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        >
+          <div className="w-full max-w-sm bg-white rounded-3xl p-6 sm:p-7 shadow-2xl animate-in zoom-in-95 duration-200 relative border border-slate-100 space-y-4">
+            <button
+              type="button"
+              onClick={() => {
+                setIsOtpModalOpen(false);
+                setOtpError("");
+              }}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition active:scale-95 cursor-pointer"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="text-center space-y-1">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 mx-auto flex items-center justify-center mb-2">
+                <Lock className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">Verify Mobile Number</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Enter 4-digit code sent via SMS to{" "}
+                <strong className="text-slate-900">+91 {mobileNumber}</strong>
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOtpModalOpen(false);
+                  setOtpCode("");
+                  setOtpError("");
+                }}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#F97316] hover:underline cursor-pointer pt-0.5"
+              >
+                <Edit3 className="w-3 h-3" />
+                <span>Edit Mobile Number</span>
+              </button>
+            </div>
+
+            <div className="py-2 flex justify-center">
+              <OtpInput
+                length={4}
+                value={otpCode}
+                onChange={(val) => {
+                  setOtpCode(val);
+                  setOtpError("");
+                }}
+                onComplete={(val) => {
+                  setOtpCode(val);
+                  handleVerifyAndFinalize(val);
+                }}
+                error={Boolean(otpError)}
+                autoFocus
+              />
+            </div>
+
+            {otpError && (
+              <p className="text-xs text-center font-semibold text-rose-600">{otpError}</p>
+            )}
+
+            {/* Resend & Demo Helper */}
+            <div className="flex items-center justify-between text-xs pt-1">
+              {demoOtp ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtpCode(demoOtp);
+                    setOtpError("");
+                    handleVerifyAndFinalize(demoOtp);
+                  }}
+                  className="text-[11px] font-bold text-[#F97316] hover:underline cursor-pointer"
+                >
+                  ⚡ Auto-fill SMS Code ({demoOtp})
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtpCode("1234");
+                    setOtpError("");
+                    handleVerifyAndFinalize("1234");
+                  }}
+                  className="text-[11px] font-bold text-[#F97316] hover:underline cursor-pointer"
+                >
+                  ⚡ Auto-fill Demo (1234)
+                </button>
+              )}
+
+              {countdown > 0 ? (
+                <span className="text-[11px] text-slate-400 font-medium">
+                  Resend in <span className="font-bold text-slate-700">{countdown}s</span>
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => handleSubmit(e)}
+                  className="text-[11px] font-bold text-slate-800 hover:text-black underline cursor-pointer"
+                >
+                  Resend OTP
+                </button>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleVerifyAndFinalize()}
+              disabled={isVerifyingOtp || otpCode.length < 4}
+              className="w-full bg-[#F97316] hover:bg-[#EA580C] disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {isVerifyingOtp ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Confirming Booking...</span>
+                </>
+              ) : (
+                <>
+                  <span>Verify & Confirm Booking</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

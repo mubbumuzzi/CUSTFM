@@ -169,7 +169,52 @@ export async function sendOtpApi(mobileNumber: string): Promise<SendOtpResponse>
   };
 }
 
-export async function verifyOtpApi(mobileNumber: string, otpCode: string): Promise<{ success: boolean; message: string }> {
+export interface VerifyOtpResponse {
+  success: boolean;
+  message: string;
+  authToken?: string;
+  mobileNumber?: string;
+  bookings?: BookingStatusData[];
+}
+
+export function getStoredAuthToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("fm_auth_token");
+}
+
+export function getStoredUserMobile(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("fm_user_mobile");
+}
+
+export function setAuthSession(token: string, mobile: string) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem("fm_auth_token", token);
+  localStorage.setItem("fm_user_mobile", mobile);
+  window.dispatchEvent(new CustomEvent("fm_auth_changed", { detail: { mobile, token } }));
+}
+
+export function clearAuthSession() {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem("fm_auth_token");
+  localStorage.removeItem("fm_user_mobile");
+  window.dispatchEvent(new CustomEvent("fm_auth_changed", { detail: { mobile: null, token: null } }));
+}
+
+export async function fetchMyBookings(mobileNumber: string): Promise<BookingStatusData[]> {
+  const cleanMobile = mobileNumber.trim();
+  try {
+    const res = await fetch(`${getBaseUrl()}/public/bookings/my-bookings?mobile=${encodeURIComponent(cleanMobile)}`);
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn("Error fetching my bookings:", err);
+  }
+  return [];
+}
+
+export async function verifyOtpApi(mobileNumber: string, otpCode: string): Promise<VerifyOtpResponse> {
   try {
     const res = await fetch(`${getBaseUrl()}/auth/verify-otp`, {
       method: "POST",
@@ -177,13 +222,19 @@ export async function verifyOtpApi(mobileNumber: string, otpCode: string): Promi
       body: JSON.stringify({ mobileNumber, otpCode }),
     });
     if (res.ok) {
-      return await res.json();
+      const data: VerifyOtpResponse = await res.json();
+      if (data.authToken) {
+        setAuthSession(data.authToken, mobileNumber);
+      }
+      return data;
     }
     const errData = await res.json().catch(() => null);
     return { success: false, message: errData?.message || "Invalid OTP code." };
   } catch {
     if (otpCode === "1234") {
-      return { success: true, message: "Demo OTP verified successfully" };
+      const demoToken = `DEMO-TOKEN-${Date.now()}`;
+      setAuthSession(demoToken, mobileNumber);
+      return { success: true, message: "Demo OTP verified successfully", authToken: demoToken, mobileNumber };
     }
     return { success: false, message: "Unable to verify OTP. Please try demo code 1234." };
   }

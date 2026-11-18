@@ -3,6 +3,7 @@ package com.famousmobiles.controller;
 import com.famousmobiles.dto.OtpSendResult;
 import com.famousmobiles.dto.SendOtpRequest;
 import com.famousmobiles.dto.VerifyOtpRequest;
+import com.famousmobiles.service.BookingService;
 import com.famousmobiles.service.OtpService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,6 +32,9 @@ class AuthControllerTest {
 
     @MockBean
     private OtpService otpService;
+
+    @MockBean
+    private BookingService bookingService;
 
     @Test
     @DisplayName("POST /api/auth/send-otp - Valid mobile sends OTP (200 OK)")
@@ -75,13 +81,15 @@ class AuthControllerTest {
         request.setOtpCode("1234");
 
         when(otpService.verifyOtp("9876543210", "1234")).thenReturn(true);
+        when(bookingService.getBookingsForCustomer("9876543210")).thenReturn(List.of());
 
         mockMvc.perform(post("/api/auth/verify-otp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.authToken").exists());
+                .andExpect(jsonPath("$.authToken").exists())
+                .andExpect(jsonPath("$.bookings").isArray());
     }
 
     @Test

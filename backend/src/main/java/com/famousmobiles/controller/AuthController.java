@@ -1,14 +1,17 @@
 package com.famousmobiles.controller;
 
+import com.famousmobiles.dto.BookingStatusResponse;
 import com.famousmobiles.dto.OtpSendResult;
 import com.famousmobiles.dto.SendOtpRequest;
 import com.famousmobiles.dto.VerifyOtpRequest;
+import com.famousmobiles.service.BookingService;
 import com.famousmobiles.service.OtpService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -16,9 +19,11 @@ import java.util.Map;
 public class AuthController {
 
     private final OtpService otpService;
+    private final BookingService bookingService;
 
-    public AuthController(OtpService otpService) {
+    public AuthController(OtpService otpService, BookingService bookingService) {
         this.otpService = otpService;
+        this.bookingService = bookingService;
     }
 
     @PostMapping("/send-otp")
@@ -45,10 +50,14 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
         boolean valid = otpService.verifyOtp(request.getMobileNumber(), request.getOtpCode());
         if (valid) {
+            String cleanMobile = request.getMobileNumber().trim();
+            List<BookingStatusResponse> bookings = bookingService.getBookingsForCustomer(cleanMobile);
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "OTP verified successfully",
-                    "authToken", "DEMO-JWT-" + System.currentTimeMillis()
+                    "authToken", "FM-TOKEN-" + System.currentTimeMillis(),
+                    "mobileNumber", cleanMobile,
+                    "bookings", bookings
             ));
         } else {
             return ResponseEntity.badRequest().body(Map.of(

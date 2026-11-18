@@ -36,7 +36,7 @@ export default function MobileBottomNav() {
 
   const handleTrackClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    openTrackModal();
+    router.push("/track-booking");
   };
 
   const handleContactClick = (e: React.MouseEvent) => {

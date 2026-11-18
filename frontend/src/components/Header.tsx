@@ -17,8 +17,11 @@ import {
   Box,
   PhoneCall,
   XCircle,
+  LogOut,
 } from "lucide-react";
 import LocationModal from "./LocationModal";
+import AuthModal, { openAuthModal } from "./AuthModal";
+import { getStoredUserMobile, clearAuthSession } from "@/lib/api";
 import { detectGpsLocation, getStoredLocation, getEtaForDistance, GpsLocationData } from "@/lib/gps";
 import { openTrackModal } from "./TrackOrderModal";
 import { openBookingDrawer } from "./InteractiveBookingModal";
@@ -36,6 +39,8 @@ export default function Header({ onSearch }: HeaderProps) {
   const [isGps, setIsGps] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [searchVal, setSearchVal] = useState("");
+  const [loggedInMobile, setLoggedInMobile] = useState<string | null>(null);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
 
   const applyGpsData = useCallback((data: GpsLocationData) => {
     setLocality(data.locality);
@@ -84,6 +89,18 @@ export default function Header({ onSearch }: HeaderProps) {
     window.addEventListener("fm_location_updated", handleLocationChange);
     return () => window.removeEventListener("fm_location_updated", handleLocationChange);
   }, [triggerGpsDetection, applyGpsData]);
+
+  useEffect(() => {
+    setLoggedInMobile(getStoredUserMobile());
+
+    const handleAuthChange = (e: Event) => {
+      const detail = (e as CustomEvent<{ mobile: string | null }>).detail;
+      setLoggedInMobile(detail?.mobile || null);
+    };
+
+    window.addEventListener("fm_auth_changed", handleAuthChange);
+    return () => window.removeEventListener("fm_auth_changed", handleAuthChange);
+  }, []);
 
   const handleLocSelect = (name: string, km: number) => {
     setLocality(name);
@@ -234,13 +251,64 @@ export default function Header({ onSearch }: HeaderProps) {
 
           {/* Right Action CTAs */}
           <div className="flex items-center gap-2.5">
-            <Link
-              href="/track-booking"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-[10px] text-[12px] font-medium text-[#121212] hover:bg-[#F7F7F8] border border-[#EBEBEB] transition"
-            >
-              <Package className="w-3.5 h-3.5 text-[#767676]" />
-              <span>Track Order</span>
-            </Link>
+            {loggedInMobile ? (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-[10px] text-[12px] font-bold text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition cursor-pointer"
+                >
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <Package className="w-3.5 h-3.5 text-slate-700" />
+                  <span>My Orders</span>
+                  <ChevronDown className="w-3 h-3 text-slate-500" />
+                </button>
+
+                {isAccountMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="px-3 py-2 border-b border-slate-100">
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Signed In Customer</p>
+                      <p className="text-xs font-bold text-slate-900 mt-0.5">+91 {loggedInMobile}</p>
+                    </div>
+
+                    <div className="py-1">
+                      <Link
+                        href="/track-booking"
+                        onClick={() => setIsAccountMenuOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-slate-100 transition"
+                      >
+                        <Package className="w-4 h-4 text-[#F97316]" />
+                        <span>Active & Past Repairs</span>
+                      </Link>
+                    </div>
+
+                    <div className="pt-1 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          clearAuthSession();
+                          setIsAccountMenuOpen(false);
+                          showFmToast("Logged out successfully");
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Log out</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/track-booking"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-[10px] text-[12px] font-medium text-[#121212] hover:bg-[#F7F7F8] border border-[#EBEBEB] transition cursor-pointer"
+              >
+                <Package className="w-3.5 h-3.5 text-[#767676]" />
+                <span>Track Order</span>
+              </Link>
+            )}
+
             <Link
               href="/book-repair"
               className="flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[12px] font-bold bg-[#F97316] hover:bg-[#EA580C] text-white shadow-xs transition active:scale-95"
@@ -362,6 +430,9 @@ export default function Header({ onSearch }: HeaderProps) {
         currentLocality={locality}
         onSelectLocality={handleLocSelect}
       />
+
+      {/* Reusable Global Auth Modal */}
+      <AuthModal />
     </>
   );
 }

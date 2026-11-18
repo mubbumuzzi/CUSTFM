@@ -34,8 +34,9 @@ public class Fast2SmsServiceImpl implements SmsService {
         }
 
         String cleanNumber = normalizeIndianNumber(mobileNumber);
-        String jsonPayload = String.format("{\"route\":\"otp\",\"variables_values\":\"%s\",\"numbers\":\"%s\"}",
-                escapeJson(otpCode), cleanNumber);
+        String message = String.format("Famous Mobiles: Your verification code is %s. Valid for 5 minutes. Please do not share this OTP.", otpCode);
+        String jsonPayload = String.format("{\"route\":\"q\",\"message\":\"%s\",\"language\":\"english\",\"numbers\":\"%s\"}",
+                escapeJson(message), cleanNumber);
 
         return executeRequest(jsonPayload, "OTP");
     }

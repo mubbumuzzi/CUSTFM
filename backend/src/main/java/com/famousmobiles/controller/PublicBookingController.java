@@ -80,6 +80,20 @@ public class PublicBookingController {
     }
 
     /**
+     * Customer Booking History / Active Orders lookup by mobile number.
+     */
+    @GetMapping("/my-bookings")
+    public ResponseEntity<?> getMyBookings(@RequestParam String mobile) {
+        if (mobile == null || mobile.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Bad Request",
+                    "message", "Mobile number is required."
+            ));
+        }
+        return ResponseEntity.ok(bookingService.getBookingsForCustomer(mobile));
+    }
+
+    /**
      * Secure status lookup. Requires booking ID and matching mobile or OTP (IDOR Protected).
      */
     @GetMapping("/{bookingId}/status")
@@ -93,7 +107,7 @@ public class PublicBookingController {
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                 "error", "Not Found",
-                "message", "No booking found matching this ID, mobile number, and OTP."
+                "message", "No booking found matching this Booking ID."
         ));
     }
 
