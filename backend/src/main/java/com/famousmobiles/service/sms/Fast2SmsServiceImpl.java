@@ -35,7 +35,7 @@ public class Fast2SmsServiceImpl implements SmsService {
 
         String cleanNumber = normalizeIndianNumber(mobileNumber);
         String message = String.format("Famous Mobiles: Your verification code is %s. Valid for 5 minutes. Please do not share this OTP.", otpCode);
-        String jsonPayload = String.format("{\"route\":\"q\",\"message\":\"%s\",\"language\":\"english\",\"numbers\":\"%s\"}",
+        String jsonPayload = String.format("{\"route\":\"q\",\"message\":\"%s\",\"numbers\":\"%s\"}",
                 escapeJson(message), cleanNumber);
 
         return executeRequest(jsonPayload, "OTP");
@@ -64,6 +64,7 @@ public class Fast2SmsServiceImpl implements SmsService {
                     .timeout(Duration.ofSeconds(8))
                     .header("authorization", this.apiKey)
                     .header("Content-Type", "application/json")
+                    .header("accept", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 

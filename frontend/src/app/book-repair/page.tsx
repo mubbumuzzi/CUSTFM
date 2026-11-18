@@ -13,13 +13,10 @@ import {
   Smartphone,
   Navigation,
   RefreshCw,
-  Lock,
-  Edit3,
   X,
 } from "lucide-react";
-import { submitBookingEnquiry, sendOtpApi, verifyOtpApi, setAuthSession } from "@/lib/api";
+import { submitBookingEnquiry, setAuthSession } from "@/lib/api";
 import { detectGpsLocation, getStoredLocation } from "@/lib/gps";
-import { OtpInput } from "@/components/ui/OtpInput";
 import { showFmToast } from "@/components/ToastBanner";
 
 function BookRepairForm() {
@@ -48,14 +45,6 @@ function BookRepairForm() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // OTP Verification States
-  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
-  const [otpError, setOtpError] = useState("");
-  const [countdown, setCountdown] = useState(0);
-  const [demoOtp, setDemoOtp] = useState<string | null>(null);
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-
   useEffect(() => {
     // Auto-populate stored locality and mobile if previously saved
     const stored = getStoredLocation();
@@ -79,14 +68,6 @@ function BookRepairForm() {
     }
   }, []);
 
-  useEffect(() => {
-    if (countdown <= 0) return;
-    const interval = setInterval(() => {
-      setCountdown((prev) => Math.max(0, prev - 1));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [countdown]);
-
   const handleUseGpsAddress = async () => {
     setDetectingGps(true);
     try {
@@ -105,7 +86,7 @@ function BookRepairForm() {
 
   const quickBrands = ["iPhone", "Samsung", "OnePlus", "Vivo", "Xiaomi", "Pixel"];
 
-  // Step 1: Validate form and dispatch SMS OTP
+  // Direct 1-Step Booking Submission (OTP paused)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanMobile = mobileNumber.trim().replace(/\D/g, "");
@@ -118,50 +99,7 @@ function BookRepairForm() {
     setSubmitting(true);
 
     try {
-      const res = await sendOtpApi(cleanMobile);
-      if (res.success) {
-        setCountdown(res.cooldownSeconds || 30);
-        if (res.demoOtp) {
-          setDemoOtp(res.demoOtp);
-        }
-        setIsOtpModalOpen(true);
-      } else {
-        setCountdown(res.retryAfterSeconds || 30);
-        setErrorMsg(res.message || "Please wait before requesting another OTP.");
-      }
-    } catch {
-      setCountdown(30);
-      setDemoOtp("1234");
-      setIsOtpModalOpen(true);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // Step 2: Verify OTP and finalize booking creation
-  const handleVerifyAndFinalize = async (overrideCode?: string) => {
-    const cleanMobile = mobileNumber.trim().replace(/\D/g, "");
-    const cleanOtp = (overrideCode !== undefined ? overrideCode : otpCode).trim();
-
-    if (cleanOtp.length < 4) {
-      setOtpError("Please enter the complete 4-digit verification code.");
-      return;
-    }
-
-    setIsVerifyingOtp(true);
-    setOtpError("");
-
-    try {
-      const verifyRes = await verifyOtpApi(cleanMobile, cleanOtp);
-      if (!verifyRes.success && cleanOtp !== "1234") {
-        setOtpError(verifyRes.message || "Invalid OTP code. Please check SMS or use demo 1234.");
-        setIsVerifyingOtp(false);
-        return;
-      }
-
-      if (verifyRes.authToken) {
-        setAuthSession(verifyRes.authToken, cleanMobile);
-      }
+      setAuthSession(`FM-SESSION-${cleanMobile}`, cleanMobile);
 
       const result = await submitBookingEnquiry({
         mobileNumber: cleanMobile,
@@ -175,14 +113,13 @@ function BookRepairForm() {
         preferredTime,
       });
 
-      setIsOtpModalOpen(false);
       showFmToast(`🎉 Doorstep repair booked! Technician will call in 2 mins.`);
       router.push(`/booking-confirmation?id=${result.bookingId}`);
     } catch (err) {
-      console.error("Booking verification error:", err);
-      setOtpError("Failed to submit enquiry. Please try again or use demo code 1234.");
+      console.error("Booking submission error:", err);
+      setErrorMsg("Failed to submit enquiry. Please try again.");
     } finally {
-      setIsVerifyingOtp(false);
+      setSubmitting(false);
     }
   };
 
@@ -210,7 +147,7 @@ function BookRepairForm() {
               Mobile Number <span className="text-red-500">*</span>
             </label>
             <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-              Verified via SMS OTP
+              Technician Calls to Confirm
             </span>
           </div>
 
@@ -387,7 +324,7 @@ function BookRepairForm() {
           {submitting ? (
             <>
               <RefreshCw className="w-4 h-4 animate-spin" />
-              <span>Sending SMS Verification...</span>
+              <span>Confirming Doorstep Visit...</span>
             </>
           ) : (
             <>
@@ -401,129 +338,6 @@ function BookRepairForm() {
           No binding commitment. Technician calls before arrival to confirm parts and exact ETA.
         </p>
       </form>
-
-      {/* ================================================================= */}
-      {/* OTP VERIFICATION MODAL AT BOOKING TIME                            */}
-      {/* ================================================================= */}
-      {isOtpModalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
-        >
-          <div className="w-full max-w-sm bg-white rounded-3xl p-6 sm:p-7 shadow-2xl animate-in zoom-in-95 duration-200 relative border border-slate-100 space-y-4">
-            <button
-              type="button"
-              onClick={() => {
-                setIsOtpModalOpen(false);
-                setOtpError("");
-              }}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition active:scale-95 cursor-pointer"
-              aria-label="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="text-center space-y-1">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 mx-auto flex items-center justify-center mb-2">
-                <Lock className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">Verify Mobile Number</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Enter 4-digit code sent via SMS to{" "}
-                <strong className="text-slate-900">+91 {mobileNumber}</strong>
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsOtpModalOpen(false);
-                  setOtpCode("");
-                  setOtpError("");
-                }}
-                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#F97316] hover:underline cursor-pointer pt-0.5"
-              >
-                <Edit3 className="w-3 h-3" />
-                <span>Edit Mobile Number</span>
-              </button>
-            </div>
-
-            <div className="py-2 flex justify-center">
-              <OtpInput
-                length={4}
-                value={otpCode}
-                onChange={(val) => {
-                  setOtpCode(val);
-                  setOtpError("");
-                }}
-                onComplete={(val) => {
-                  setOtpCode(val);
-                  handleVerifyAndFinalize(val);
-                }}
-                error={Boolean(otpError)}
-                autoFocus
-              />
-            </div>
-
-            {otpError && (
-              <p className="text-xs text-center font-semibold text-rose-600">{otpError}</p>
-            )}
-
-            {/* Resend & Demo Helper (Demo helper strictly limited to dev environment) */}
-            <div className="flex items-center justify-between text-xs pt-1">
-              {(process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_SHOW_DEMO_OTP === "true") && demoOtp ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOtpCode(demoOtp);
-                    setOtpError("");
-                    handleVerifyAndFinalize(demoOtp);
-                  }}
-                  className="text-[11px] font-bold text-[#F97316] hover:underline cursor-pointer"
-                >
-                  ⚡ Auto-fill SMS Code ({demoOtp})
-                </button>
-              ) : (
-                <span className="text-[11px] text-slate-400 font-medium flex items-center gap-1 select-none">
-                  🔒 Code sent to your mobile
-                </span>
-              )}
-
-              {countdown > 0 ? (
-                <span className="text-[11px] text-slate-400 font-medium">
-                  Resend in <span className="font-bold text-slate-700">{countdown}s</span>
-                </span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={(e) => handleSubmit(e)}
-                  className="text-[11px] font-bold text-slate-800 hover:text-black underline cursor-pointer"
-                >
-                  Resend OTP
-                </button>
-              )}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => handleVerifyAndFinalize()}
-              disabled={isVerifyingOtp || otpCode.length < 4}
-              className="w-full bg-[#F97316] hover:bg-[#EA580C] disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
-            >
-              {isVerifyingOtp ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Confirming Booking...</span>
-                </>
-              ) : (
-                <>
-                  <span>Verify & Confirm Booking</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

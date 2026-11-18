@@ -137,17 +137,10 @@ public class BookingService {
         }
         customerRepository.save(customer);
 
-        // Dispatch Booking Confirmation SMS
-        try {
-            smsDispatcherService.sendBookingConfirmation(
-                    cleanMobile,
-                    bookingId,
-                    handshakeOtp,
-                    etaMinutes
-            );
-        } catch (Exception e) {
-            log.error("Failed to dispatch booking confirmation SMS for #{}: {}", bookingId, e.getMessage());
-        }
+        // Handshake PIN is displayed directly on the UI (/booking-confirmation and /track-booking)
+        // No SMS text needed as customer views PIN on screen
+        log.info("Doorstep booking #{} confirmed. Handshake PIN {} available directly on tracking & confirmation UI.",
+                bookingId, handshakeOtp);
 
         // Map to Response
         BookingResponse response = new BookingResponse();

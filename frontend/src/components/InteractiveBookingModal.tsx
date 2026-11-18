@@ -2,12 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { X, ShieldCheck, Clock, CheckCircle2, Lock, Edit3, RefreshCw, ArrowRight } from "lucide-react";
-import { submitBookingEnquiry, sendOtpApi, verifyOtpApi, setAuthSession } from "@/lib/api";
+import { X, ShieldCheck, Clock, CheckCircle2, RefreshCw, ArrowRight } from "lucide-react";
+import { submitBookingEnquiry, setAuthSession } from "@/lib/api";
 import { showFmToast } from "./ToastBanner";
 import { getStoredLocation } from "@/lib/gps";
 import { getDynamicArrivalSlots, ArrivalSlotOption } from "@/lib/slots";
-import { OtpInput } from "@/components/ui/OtpInput";
 
 export interface BookingDrawerDetail {
   service: string;
@@ -28,7 +27,6 @@ export function openBookingDrawer(service = "Display Replacement", turnaround = 
 export default function InteractiveBookingModal() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [step, setStep] = useState<1 | 2>(1); // 1: Details & phone, 2: OTP verification
   const [serviceTitle, setServiceTitle] = useState("Display Replacement");
   const [serviceMeta, setServiceMeta] = useState("30 mins • Up to 6 Months Warranty");
 
@@ -36,12 +34,8 @@ export default function InteractiveBookingModal() {
   const [availableSlots, setAvailableSlots] = useState<ArrivalSlotOption[]>([]);
   const [arrivalSlot, setArrivalSlot] = useState("Express (15–45 Mins)");
   const [mobileNumber, setMobileNumber] = useState("");
-  const [otpCode, setOtpCode] = useState("");
-  const [countdown, setCountdown] = useState(0);
-  const [demoOtp, setDemoOtp] = useState<string | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
@@ -71,8 +65,6 @@ export default function InteractiveBookingModal() {
       if (savedMobile && !mobileNumber) {
         setMobileNumber(savedMobile);
       }
-      setStep(1);
-      setOtpCode("");
       setErrorMsg("");
       setIsOpen(true);
     };
@@ -81,27 +73,17 @@ export default function InteractiveBookingModal() {
     return () => window.removeEventListener("fm_open_booking_modal", handleOpen);
   }, [mobileNumber]);
 
-  useEffect(() => {
-    if (countdown <= 0) return;
-    const interval = setInterval(() => {
-      setCountdown((prev) => Math.max(0, prev - 1));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [countdown]);
-
   const closeModal = () => {
     setIsOpen(false);
     setErrorMsg("");
-    setStep(1);
-    setOtpCode("");
   };
 
-  // Step 1: Send OTP to verify phone number for booking
-  const handleProceedToOtp = async (e: React.FormEvent) => {
+  // Direct 1-Step Booking (OTP paused)
+  const handleSubmitBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanMobile = mobileNumber.trim().replace(/\D/g, "");
     if (!/^[6-9]\d{9}$/.test(cleanMobile)) {
-      setErrorMsg("Please enter a valid 10-digit Indian mobile number (e.g. 9848012345).");
+      setErrorMsg("Please enter a valid 10-digit Indian mobile number (e.g. 98480 12345).");
       return;
     }
 
@@ -109,56 +91,12 @@ export default function InteractiveBookingModal() {
     setErrorMsg("");
 
     try {
-      const res = await sendOtpApi(cleanMobile);
-      if (res.success) {
-        setCountdown(res.cooldownSeconds || 30);
-        if (res.demoOtp) {
-          setDemoOtp(res.demoOtp);
-        }
-        setStep(2);
-      } else {
-        setCountdown(res.retryAfterSeconds || 30);
-        setErrorMsg(res.message || "Please wait before requesting another OTP.");
-      }
-    } catch {
-      setCountdown(30);
-      setDemoOtp("1234");
-      setStep(2);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+      setAuthSession(`FM-SESSION-${cleanMobile}`, cleanMobile);
 
-  // Step 2: Verify OTP and finalize booking
-  const handleVerifyAndBook = async (overrideCode?: string) => {
-    const cleanMobile = mobileNumber.trim().replace(/\D/g, "");
-    const cleanOtp = (overrideCode !== undefined ? overrideCode : otpCode).trim();
-
-    if (cleanOtp.length < 4) {
-      setErrorMsg("Please enter the complete 4-digit OTP.");
-      return;
-    }
-
-    setIsVerifying(true);
-    setErrorMsg("");
-
-    try {
-      const verifyRes = await verifyOtpApi(cleanMobile, cleanOtp);
-      if (!verifyRes.success && cleanOtp !== "1234") {
-        setErrorMsg(verifyRes.message || "Invalid OTP code. Please check SMS or use demo 1234.");
-        setIsVerifying(false);
-        return;
-      }
-
-      if (verifyRes.authToken) {
-        setAuthSession(verifyRes.authToken, cleanMobile);
-      }
-
-      // Create Booking Enquiry
       const storedLoc = getStoredLocation();
       const bookingResult = await submitBookingEnquiry({
         mobileNumber: cleanMobile,
-        brandModel: deviceModel.trim(),
+        brandModel: deviceModel.trim() || undefined,
         repairCategory: serviceTitle,
         preferredTime: arrivalSlot,
         address: storedLoc?.locality || "Manikonda Hub",
@@ -171,15 +109,13 @@ export default function InteractiveBookingModal() {
       setDeviceModel("");
 
       if (bookingResult && bookingResult.bookingId) {
-        setTimeout(() => {
-          router.push(`/booking-confirmation?id=${bookingResult.bookingId}`);
-        }, 600);
+        router.push(`/booking-confirmation?id=${bookingResult.bookingId}`);
       }
     } catch (err) {
-      console.error("Booking verification error:", err);
-      setErrorMsg("Failed to confirm booking. Please try again or use demo 1234.");
+      console.error("Booking error:", err);
+      setErrorMsg("Failed to confirm booking. Please try again.");
     } finally {
-      setIsVerifying(false);
+      setSubmitting(false);
     }
   };
 
@@ -205,10 +141,10 @@ export default function InteractiveBookingModal() {
               Doorstep Express • Manikonda Hub
             </span>
             <h3 className="text-lg font-black text-slate-900 tracking-tight">
-              {step === 1 ? serviceTitle : "Verify Mobile Number"}
+              {serviceTitle}
             </h3>
             <p className="text-xs text-slate-600 font-medium">
-              {step === 1 ? serviceMeta : `Code sent via SMS to +91 ${mobileNumber}`}
+              {serviceMeta}
             </p>
           </div>
           <button
@@ -221,11 +157,8 @@ export default function InteractiveBookingModal() {
           </button>
         </div>
 
-        {/* ================================================================= */}
-        {/* STEP 1: SERVICE & PHONE ENTRY                                     */}
-        {/* ================================================================= */}
-        {step === 1 && (
-          <form onSubmit={handleProceedToOtp} className="space-y-4">
+        {/* 1-Step Service & Phone Entry */}
+        <form onSubmit={handleSubmitBooking} className="space-y-4">
             {/* Phone Model */}
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
@@ -304,7 +237,7 @@ export default function InteractiveBookingModal() {
               {submitting ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Sending Verification Code...</span>
+                  <span>Confirming Doorstep Visit...</span>
                 </>
               ) : (
                 <>
@@ -314,111 +247,6 @@ export default function InteractiveBookingModal() {
               )}
             </button>
           </form>
-        )}
-
-        {/* ================================================================= */}
-        {/* STEP 2: SMS OTP VERIFICATION                                      */}
-        {/* ================================================================= */}
-        {step === 2 && (
-          <div className="space-y-4 py-1">
-            <div className="text-center space-y-1">
-              <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 mx-auto flex items-center justify-center mb-1">
-                <Lock className="w-5 h-5" />
-              </div>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Enter the 4-digit verification code sent via SMS to{" "}
-                <strong className="text-slate-900">+91 {mobileNumber}</strong>
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setStep(1);
-                  setOtpCode("");
-                  setErrorMsg("");
-                }}
-                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#F97316] hover:underline cursor-pointer"
-              >
-                <Edit3 className="w-3 h-3" />
-                <span>Edit Mobile Number</span>
-              </button>
-            </div>
-
-            <div className="py-2 flex justify-center">
-              <OtpInput
-                length={4}
-                value={otpCode}
-                onChange={(val) => {
-                  setOtpCode(val);
-                  setErrorMsg("");
-                }}
-                onComplete={(val) => {
-                  setOtpCode(val);
-                  handleVerifyAndBook(val);
-                }}
-                error={Boolean(errorMsg)}
-                autoFocus
-              />
-            </div>
-
-            {errorMsg && (
-              <p className="text-xs text-center font-semibold text-rose-600">{errorMsg}</p>
-            )}
-
-            {/* Resend & Demo Helper (Demo helper strictly limited to dev environment) */}
-            <div className="flex items-center justify-between text-xs pt-1">
-              {(process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_SHOW_DEMO_OTP === "true") && demoOtp ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOtpCode(demoOtp);
-                    setErrorMsg("");
-                    handleVerifyAndBook(demoOtp);
-                  }}
-                  className="text-[11px] font-bold text-[#F97316] hover:underline cursor-pointer"
-                >
-                  ⚡ Auto-fill SMS Code ({demoOtp})
-                </button>
-              ) : (
-                <span className="text-[11px] text-slate-400 font-medium flex items-center gap-1 select-none">
-                  🔒 Code sent to your mobile
-                </span>
-              )}
-
-              {countdown > 0 ? (
-                <span className="text-[11px] text-slate-400 font-medium">
-                  Resend in <span className="font-bold text-slate-700">{countdown}s</span>
-                </span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={(e) => handleProceedToOtp(e)}
-                  className="text-[11px] font-bold text-slate-800 hover:text-black underline cursor-pointer"
-                >
-                  Resend OTP
-                </button>
-              )}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => handleVerifyAndBook()}
-              disabled={isVerifying || otpCode.length < 4}
-              className="w-full bg-[#121212] hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
-            >
-              {isVerifying ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Confirming Booking...</span>
-                </>
-              ) : (
-                <>
-                  <span>Verify & Book Doorstep Visit</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
