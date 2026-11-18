@@ -8,6 +8,9 @@ import com.famousmobiles.entity.BookingStatus;
 import com.famousmobiles.entity.Customer;
 import com.famousmobiles.repository.BookingRepository;
 import com.famousmobiles.repository.CustomerRepository;
+import com.famousmobiles.service.sms.SmsDispatcherService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +24,11 @@ import java.util.*;
 @Service
 public class BookingService {
 
+    private static final Logger log = LoggerFactory.getLogger(BookingService.class);
+
     private final BookingRepository bookingRepository;
     private final CustomerRepository customerRepository;
+    private final SmsDispatcherService smsDispatcherService;
 
     @Value("${famousmobiles.service.subsequent-visit-fee:69.00}")
     private BigDecimal subsequentVisitFee = new BigDecimal("69.00");
@@ -41,9 +47,12 @@ public class BookingService {
             "Completed & Closed"
     };
 
-    public BookingService(BookingRepository bookingRepository, CustomerRepository customerRepository) {
+    public BookingService(BookingRepository bookingRepository,
+                          CustomerRepository customerRepository,
+                          SmsDispatcherService smsDispatcherService) {
         this.bookingRepository = bookingRepository;
         this.customerRepository = customerRepository;
+        this.smsDispatcherService = smsDispatcherService;
     }
 
     @Transactional
@@ -127,6 +136,18 @@ public class BookingService {
             customer.setFirstVisitFreeClaimed(true);
         }
         customerRepository.save(customer);
+
+        // Dispatch Booking Confirmation SMS
+        try {
+            smsDispatcherService.sendBookingConfirmation(
+                    cleanMobile,
+                    bookingId,
+                    handshakeOtp,
+                    etaMinutes
+            );
+        } catch (Exception e) {
+            log.error("Failed to dispatch booking confirmation SMS for #{}: {}", bookingId, e.getMessage());
+        }
 
         // Map to Response
         BookingResponse response = new BookingResponse();

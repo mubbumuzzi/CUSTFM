@@ -1,5 +1,6 @@
 package com.famousmobiles.controller;
 
+import com.famousmobiles.dto.OtpSendResult;
 import com.famousmobiles.dto.SendOtpRequest;
 import com.famousmobiles.dto.VerifyOtpRequest;
 import com.famousmobiles.service.OtpService;
@@ -36,14 +37,33 @@ class AuthControllerTest {
         request.setMobileNumber("9876543210");
         request.setBookingId("FM-2026-9812");
 
-        when(otpService.generateAndSaveOtp("9876543210")).thenReturn("1234");
+        OtpSendResult successResult = OtpSendResult.success("1234", "Console/Dev Simulator", 30, "OTP sent via SMS");
+        when(otpService.sendOtp("9876543210")).thenReturn(successResult);
 
         mockMvc.perform(post("/api/auth/send-otp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.demoOtp").value("1234"));
+                .andExpect(jsonPath("$.demoOtp").value("1234"))
+                .andExpect(jsonPath("$.cooldownSeconds").value(30));
+    }
+
+    @Test
+    @DisplayName("POST /api/auth/send-otp - Rate limited returns 429 Too Many Requests")
+    void testSendOtpRateLimitedReturns429() throws Exception {
+        SendOtpRequest request = new SendOtpRequest();
+        request.setMobileNumber("9876543210");
+
+        OtpSendResult rateLimitedResult = OtpSendResult.rateLimited(25, "Please wait 25 seconds");
+        when(otpService.sendOtp("9876543210")).thenReturn(rateLimitedResult);
+
+        mockMvc.perform(post("/api/auth/send-otp")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isTooManyRequests())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.retryAfterSeconds").value(25));
     }
 
     @Test

@@ -8,6 +8,7 @@ import com.famousmobiles.entity.BookingStatus;
 import com.famousmobiles.entity.Customer;
 import com.famousmobiles.repository.BookingRepository;
 import com.famousmobiles.repository.CustomerRepository;
+import com.famousmobiles.service.sms.SmsDispatcherService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,9 @@ class BookingServiceTest {
 
     @Mock
     private CustomerRepository customerRepository;
+
+    @Mock
+    private SmsDispatcherService smsDispatcherService;
 
     @InjectMocks
     private BookingService bookingService;

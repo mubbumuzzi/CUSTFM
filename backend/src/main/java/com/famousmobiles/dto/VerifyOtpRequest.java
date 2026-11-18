@@ -9,7 +9,6 @@ public class VerifyOtpRequest {
     @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid mobile number")
     private String mobileNumber;
 
-    @NotBlank(message = "Booking ID is required")
     private String bookingId;
 
     @NotBlank(message = "OTP code is required")

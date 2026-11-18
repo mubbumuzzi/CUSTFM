@@ -129,23 +129,43 @@ export async function submitBookingEnquiry(payload: BookingPayload): Promise<Boo
   return responseData;
 }
 
-export async function sendOtpApi(mobileNumber: string): Promise<{ success: boolean; message: string; demoOtp?: string }> {
+export interface SendOtpResponse {
+  success: boolean;
+  message: string;
+  demoOtp?: string;
+  provider?: string;
+  cooldownSeconds?: number;
+  retryAfterSeconds?: number;
+}
+
+export async function sendOtpApi(mobileNumber: string): Promise<SendOtpResponse> {
   try {
     const res = await fetch(`${getBaseUrl()}/auth/send-otp`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ mobileNumber }),
     });
-    if (res.ok) {
-      return await res.json();
+    const data = await res.json().catch(() => null);
+    if (res.ok && data) {
+      return data;
+    }
+    if (res.status === 429 && data) {
+      return {
+        success: false,
+        message: data.message || "Please wait before requesting another OTP.",
+        retryAfterSeconds: data.retryAfterSeconds || 30,
+        cooldownSeconds: data.retryAfterSeconds || 30,
+      };
     }
   } catch (err) {
     console.warn("Auth service offline, using mock OTP response:", err);
   }
   return {
     success: true,
-    message: `OTP sent successfully to +91 ${mobileNumber}`,
+    message: `OTP sent successfully via SMS to +91 ${mobileNumber}`,
     demoOtp: "1234",
+    provider: "Console/Dev Simulator",
+    cooldownSeconds: 30,
   };
 }
 

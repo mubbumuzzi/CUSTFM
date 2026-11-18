@@ -83,15 +83,22 @@ function TrackBookingContent() {
 
     try {
       const res = await sendOtpApi(cleanMobile);
-      setResendCooldown(30);
-      if (res.demoOtp) {
-        setOtpSentMsg(`OTP sent to +91 ${cleanMobile} (Code: ${res.demoOtp})`);
+      if (res.success) {
+        const cd = res.cooldownSeconds || 30;
+        setResendCooldown(cd);
+        if (res.demoOtp) {
+          setOtpSentMsg(`OTP sent via SMS to +91 ${cleanMobile} (Code: ${res.demoOtp})`);
+        } else {
+          setOtpSentMsg(`OTP sent via SMS to +91 ${cleanMobile}`);
+        }
       } else {
-        setOtpSentMsg(`OTP sent to +91 ${cleanMobile}`);
+        const cd = res.retryAfterSeconds || 30;
+        setResendCooldown(cd);
+        setOtpError(res.message || `Please wait ${cd}s before requesting a new OTP.`);
       }
     } catch {
       setResendCooldown(30);
-      setOtpSentMsg(`OTP sent to +91 ${cleanMobile} (Verification Code: 1234)`);
+      setOtpSentMsg(`OTP sent via SMS to +91 ${cleanMobile} (Code: 1234)`);
     } finally {
       setIsSendingOtp(false);
     }

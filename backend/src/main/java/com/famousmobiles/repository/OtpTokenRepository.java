@@ -9,6 +9,11 @@ import java.util.Optional;
 
 @Repository
 public interface OtpTokenRepository extends JpaRepository<OtpToken, Long> {
+
     Optional<OtpToken> findTopByMobileNumberAndVerifiedFalseAndExpiresAtAfterOrderByCreatedAtDesc(
             String mobileNumber, LocalDateTime now);
+
+    Optional<OtpToken> findTopByMobileNumberOrderByCreatedAtDesc(String mobileNumber);
+
+    long countByMobileNumberAndCreatedAtAfter(String mobileNumber, LocalDateTime after);
 }

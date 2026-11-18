@@ -112,6 +112,11 @@ function BookingConfirmationContent() {
           <p className="text-[10px] text-[#C2410C]">
             🔒 Protects your repair • Prevents unauthorized completion
           </p>
+          <div className="pt-1">
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-orange-800 bg-orange-100/60 border border-orange-200/80 px-2.5 py-1 rounded-full">
+              📲 SMS confirmation dispatched to +91 {bookingData.mobileNumber}
+            </span>
+          </div>
         </div>
       )}
 
