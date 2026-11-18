@@ -7,6 +7,7 @@ import com.famousmobiles.dto.VerifyOtpRequest;
 import com.famousmobiles.service.BookingService;
 import com.famousmobiles.service.OtpService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,12 @@ public class AuthController {
 
     private final OtpService otpService;
     private final BookingService bookingService;
+
+    @Value("${famousmobiles.sms.expose-demo-otp:false}")
+    private boolean exposeDemoOtp = false;
+
+    @Value("${famousmobiles.sms.allow-demo-bypass:false}")
+    private boolean allowDemoBypass = false;
 
     public AuthController(OtpService otpService, BookingService bookingService) {
         this.otpService = otpService;
@@ -37,13 +44,18 @@ public class AuthController {
             ));
         }
 
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", result.getMessage(),
-                "provider", result.getProvider() != null ? result.getProvider() : "SMS",
-                "cooldownSeconds", result.getCooldownSeconds(),
-                "demoOtp", result.getOtpCode() != null ? result.getOtpCode() : "1234"
-        ));
+        Map<String, Object> response = new java.util.HashMap<>();
+        response.put("success", true);
+        response.put("message", result.getMessage());
+        response.put("provider", result.getProvider() != null ? result.getProvider() : "SMS");
+        response.put("cooldownSeconds", result.getCooldownSeconds());
+
+        // In production, exposeDemoOtp is false, so demoOtp is NEVER leaked to clients
+        if (exposeDemoOtp && result.getOtpCode() != null) {
+            response.put("demoOtp", result.getOtpCode());
+        }
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/verify-otp")
@@ -60,9 +72,12 @@ public class AuthController {
                     "bookings", bookings
             ));
         } else {
+            String errorMsg = allowDemoBypass
+                    ? "Invalid OTP. Please check the SMS or use test code 1234."
+                    : "Invalid or expired OTP. Please check the 4-digit code sent to your phone.";
             return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
-                    "message", "Invalid OTP. Please check the SMS or use test code 1234."
+                    "message", errorMsg
             ));
         }
     }

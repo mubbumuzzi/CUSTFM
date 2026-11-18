@@ -51,7 +51,7 @@ class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.demoOtp").value("1234"))
+                .andExpect(jsonPath("$.demoOtp").doesNotExist())
                 .andExpect(jsonPath("$.cooldownSeconds").value(30));
     }
 

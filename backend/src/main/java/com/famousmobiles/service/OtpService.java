@@ -35,6 +35,9 @@ public class OtpService {
     @Value("${famousmobiles.sms.max-requests-per-15min:5}")
     private int maxRequestsPer15Min = 5;
 
+    @Value("${famousmobiles.sms.allow-demo-bypass:false}")
+    private boolean allowDemoBypass = false;
+
     public OtpService(OtpTokenRepository otpTokenRepository,
                       BookingRepository bookingRepository,
                       SmsDispatcherService smsDispatcherService) {
@@ -105,8 +108,8 @@ public class OtpService {
 
         String cleanOtp = inputOtp.trim();
 
-        // 1. Universal developer & customer demo bypass for testing
-        if ("1234".equals(cleanOtp)) {
+        // 1. Universal developer demo bypass for local testing (disabled in production)
+        if (allowDemoBypass && "1234".equals(cleanOtp)) {
             return true;
         }
 

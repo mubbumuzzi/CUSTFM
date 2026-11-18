@@ -262,9 +262,9 @@ export default function AuthModal() {
               <p className="text-[11px] text-center font-semibold text-rose-600">{errorMsg}</p>
             )}
 
-            {/* Quick Demo Fill Helper */}
+            {/* Quick Demo Fill Helper (Demo helper strictly limited to dev environment) */}
             <div className="flex items-center justify-between text-xs pt-1">
-              {demoCode ? (
+              {(process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_SHOW_DEMO_OTP === "true") && demoCode ? (
                 <button
                   type="button"
                   onClick={() => {
@@ -277,17 +277,9 @@ export default function AuthModal() {
                   ⚡ Auto-fill SMS Code ({demoCode})
                 </button>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOtpCode("1234");
-                    setErrorMsg("");
-                    handleVerifyOtp("1234");
-                  }}
-                  className="text-[11px] font-bold text-[#F97316] hover:underline cursor-pointer"
-                >
-                  ⚡ Auto-fill Demo (1234)
-                </button>
+                <span className="text-[11px] text-slate-400 font-medium flex items-center gap-1 select-none">
+                  🔒 Code sent to your mobile
+                </span>
               )}
 
               {/* Resend Countdown */}

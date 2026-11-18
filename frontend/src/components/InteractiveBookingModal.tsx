@@ -364,9 +364,9 @@ export default function InteractiveBookingModal() {
               <p className="text-xs text-center font-semibold text-rose-600">{errorMsg}</p>
             )}
 
-            {/* Resend & Demo Helper */}
+            {/* Resend & Demo Helper (Demo helper strictly limited to dev environment) */}
             <div className="flex items-center justify-between text-xs pt-1">
-              {demoOtp ? (
+              {(process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_SHOW_DEMO_OTP === "true") && demoOtp ? (
                 <button
                   type="button"
                   onClick={() => {
@@ -379,17 +379,9 @@ export default function InteractiveBookingModal() {
                   ⚡ Auto-fill SMS Code ({demoOtp})
                 </button>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOtpCode("1234");
-                    setErrorMsg("");
-                    handleVerifyAndBook("1234");
-                  }}
-                  className="text-[11px] font-bold text-[#F97316] hover:underline cursor-pointer"
-                >
-                  ⚡ Auto-fill Demo (1234)
-                </button>
+                <span className="text-[11px] text-slate-400 font-medium flex items-center gap-1 select-none">
+                  🔒 Code sent to your mobile
+                </span>
               )}
 
               {countdown > 0 ? (

@@ -99,9 +99,14 @@ class OtpServiceTest {
     }
 
     @Test
-    @DisplayName("verifyOtp - Always allows demo code 1234")
+    @DisplayName("verifyOtp - Allows demo code 1234 only when allowDemoBypass is enabled")
     void testVerifyOtpUniversalDemoCode() {
+        ReflectionTestUtils.setField(otpService, "allowDemoBypass", true);
         assertThat(otpService.verifyOtp("9876543210", "1234")).isTrue();
+
+        // When disabled (production), 1234 without db record must be rejected
+        ReflectionTestUtils.setField(otpService, "allowDemoBypass", false);
+        assertThat(otpService.verifyOtp("9876543210", "1234")).isFalse();
     }
 
     @Test
