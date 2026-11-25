@@ -10,7 +10,7 @@ export const BUSINESS_INFO = {
   mapsUrl: "https://share.google/U0L5BeQxKW1dBHUbJ",
   mapsEmbedUrl:
     "https://maps.google.com/maps?q=Opp%20Friends%20Colony%20Bus%20Stop%2C%20Shaikpet%20Main%20Road%2C%20Puppalaguda%2C%20Manikonda%2C%20Hyderabad%20500089&t=&z=16&ie=UTF8&iwloc=&output=embed",
-  hoursDisplay: "10:00 AM – 1:00 AM IST",
+  hoursDisplay: "10:00 AM – 1:00 AM",
   priceRange: "₹₹",
   address: {
     streetAddress: "Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda",
@@ -50,7 +50,7 @@ export function getIstYear(now: Date = new Date()): number {
 export function formatIstDateTime(input?: string | Date): string {
   const d = input instanceof Date ? input : input ? new Date(input) : new Date();
   if (Number.isNaN(d.getTime())) return "";
-  const formatted = new Intl.DateTimeFormat("en-IN", {
+  return new Intl.DateTimeFormat("en-IN", {
     timeZone: "Asia/Kolkata",
     day: "2-digit",
     month: "short",
@@ -59,7 +59,6 @@ export function formatIstDateTime(input?: string | Date): string {
     minute: "2-digit",
     hour12: true,
   }).format(d);
-  return `${formatted} IST`;
 }
 
 export interface IstStoreStatus {
@@ -74,13 +73,13 @@ export function getIstStoreStatus(now: Date = new Date()): IstStoreStatus {
   if (isOpen) {
     return {
       isOpen: true,
-      label: "Open Now • Closes 1:00 AM IST",
+      label: "Open Now • Closes 1:00 AM",
     };
   }
 
   return {
     isOpen: false,
-    label: "Opens Today at 10:00 AM IST",
+    label: "Opens Today at 10:00 AM",
   };
 }
 

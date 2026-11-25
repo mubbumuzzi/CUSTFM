@@ -24,25 +24,25 @@ export function getDynamicArrivalSlots(now: Date = new Date()): ArrivalSlotOptio
   if (isOperating) {
     slots.push({
       label: "⚡ Express (15–45 Mins)",
-      value: "Express (15–45 Mins IST)",
+      value: "Express (15–45 Mins)",
       isExpress: true,
     });
   } else {
     slots.push({
-      label: "🌅 Store Opens at 10:00 AM IST (First Available)",
-      value: "Today, 10:00 AM – 12:00 PM IST",
+      label: "🌅 Store Opens at 10:00 AM (First Available)",
+      value: "Today, 10:00 AM – 12:00 PM",
     });
   }
 
   // 2. Standard 2-hour window definitions for Today in IST (up to 1:00 AM IST)
   const todaySlotDefs = [
-    { start: 10, end: 12, label: "Today, 10:00 AM – 12:00 PM IST" },
-    { start: 12, end: 14, label: "Today, 12:00 PM – 2:00 PM IST" },
-    { start: 14, end: 16, label: "Today, 2:00 PM – 4:00 PM IST" },
-    { start: 16, end: 18, label: "Today, 4:00 PM – 6:00 PM IST" },
-    { start: 18, end: 20, label: "Today, 6:00 PM – 8:00 PM IST" },
-    { start: 20, end: 22, label: "Tonight, 8:00 PM – 10:00 PM IST" },
-    { start: 22, end: 25, label: "Late Night (10:00 PM – 1:00 AM IST)" }, // 25 = 1:00 AM IST next day
+    { start: 10, end: 12, label: "Today, 10:00 AM – 12:00 PM" },
+    { start: 12, end: 14, label: "Today, 12:00 PM – 2:00 PM" },
+    { start: 14, end: 16, label: "Today, 2:00 PM – 4:00 PM" },
+    { start: 16, end: 18, label: "Today, 4:00 PM – 6:00 PM" },
+    { start: 18, end: 20, label: "Today, 6:00 PM – 8:00 PM" },
+    { start: 20, end: 22, label: "Tonight, 8:00 PM – 10:00 PM" },
+    { start: 22, end: 25, label: "Late Night (10:00 PM – 1:00 AM)" }, // 25 = 1:00 AM IST next day
   ];
 
   // If late night midnight to 1 AM IST (00:00 to 00:59)
@@ -62,19 +62,19 @@ export function getDynamicArrivalSlots(now: Date = new Date()): ArrivalSlotOptio
     });
   }
 
-  // 3. If evening (>= 19:00 IST), closed hours, or fewer than 4 slots remaining, offer Tomorrow slots (IST)
+  // 3. If evening (>= 19:00 IST), closed hours, or fewer than 4 slots remaining, offer Tomorrow slots
   if (slots.length < 4 || currentTimeDec >= 19 || currentHour < 10) {
     slots.push({
-      label: "Tomorrow, 10:00 AM – 12:00 PM IST",
-      value: "Tomorrow, 10:00 AM – 12:00 PM IST",
+      label: "Tomorrow, 10:00 AM – 12:00 PM",
+      value: "Tomorrow, 10:00 AM – 12:00 PM",
     });
     slots.push({
-      label: "Tomorrow, 2:00 PM – 4:00 PM IST",
-      value: "Tomorrow, 2:00 PM – 4:00 PM IST",
+      label: "Tomorrow, 2:00 PM – 4:00 PM",
+      value: "Tomorrow, 2:00 PM – 4:00 PM",
     });
     slots.push({
-      label: "Tomorrow, 6:00 PM – 8:00 PM IST",
-      value: "Tomorrow, 6:00 PM – 8:00 PM IST",
+      label: "Tomorrow, 6:00 PM – 8:00 PM",
+      value: "Tomorrow, 6:00 PM – 8:00 PM",
     });
   }
 

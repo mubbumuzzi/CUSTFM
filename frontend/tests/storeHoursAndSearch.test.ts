@@ -8,17 +8,17 @@ test("getIstStoreStatus reports open between 10:00 AM and 1:00 AM IST", () => {
   // 10:00 AM IST = 04:30 UTC
   assert.deepEqual(getIstStoreStatus(new Date("2026-11-25T04:30:00Z")), {
     isOpen: true,
-    label: "Open Now • Closes 1:00 AM IST",
+    label: "Open Now • Closes 1:00 AM",
   });
   // 11:30 PM IST = 18:00 UTC
   assert.deepEqual(getIstStoreStatus(new Date("2026-11-25T18:00:00Z")), {
     isOpen: true,
-    label: "Open Now • Closes 1:00 AM IST",
+    label: "Open Now • Closes 1:00 AM",
   });
   // 12:30 AM IST = 19:00 UTC
   assert.deepEqual(getIstStoreStatus(new Date("2026-11-25T19:00:00Z")), {
     isOpen: true,
-    label: "Open Now • Closes 1:00 AM IST",
+    label: "Open Now • Closes 1:00 AM",
   });
 });
 
@@ -26,32 +26,33 @@ test("getIstStoreStatus reports closed between 1:00 AM and 9:59 AM IST", () => {
   // 1:00 AM IST = 19:30 UTC
   assert.deepEqual(getIstStoreStatus(new Date("2026-11-25T19:30:00Z")), {
     isOpen: false,
-    label: "Opens Today at 10:00 AM IST",
+    label: "Opens Today at 10:00 AM",
   });
   // 9:59 AM IST = 04:29 UTC
   assert.deepEqual(getIstStoreStatus(new Date("2026-11-25T04:29:00Z")), {
     isOpen: false,
-    label: "Opens Today at 10:00 AM IST",
+    label: "Opens Today at 10:00 AM",
   });
 });
 
-test("getDynamicArrivalSlots evaluates arrival slots strictly in IST", () => {
-  // 11:30 PM IST = 18:00 UTC -> should offer Express + Late Night (10:00 PM – 1:00 AM IST) + Tomorrow IST slots
+test("getDynamicArrivalSlots evaluates arrival slots strictly in IST without showing IST suffix", () => {
+  // 11:30 PM IST = 18:00 UTC
   const lateNightSlots = getDynamicArrivalSlots(new Date("2026-11-25T18:00:00Z"));
   assert.equal(lateNightSlots[0].isExpress, true);
-  assert.ok(lateNightSlots.some((s) => s.value.includes("1:00 AM IST")));
-  assert.ok(lateNightSlots.some((s) => s.value.startsWith("Tomorrow, 10:00 AM")));
+  assert.ok(lateNightSlots.some((s) => s.value.includes("1:00 AM")));
+  assert.ok(lateNightSlots.every((s) => !s.label.includes("IST") && !s.value.includes("IST")));
 
-  // 8:00 AM IST = 02:30 UTC -> closed hours, first slot should be Store Opens at 10:00 AM IST
+  // 8:00 AM IST = 02:30 UTC -> closed hours
   const morningClosedSlots = getDynamicArrivalSlots(new Date("2026-11-25T02:30:00Z"));
-  assert.match(morningClosedSlots[0].label, /10:00 AM IST/);
+  assert.match(morningClosedSlots[0].label, /10:00 AM/);
+  assert.ok(!morningClosedSlots[0].label.includes("IST"));
 });
 
-test("formatIstDateTime formats UTC timestamps in Asia/Kolkata IST", () => {
+test("formatIstDateTime formats UTC timestamps in Asia/Kolkata without showing IST suffix", () => {
   const formatted = formatIstDateTime("2026-11-25T18:00:00Z"); // 11:30 PM IST on 25 Nov 2026
   assert.match(formatted, /25 Nov 2026/);
   assert.match(formatted, /11:30/i);
-  assert.match(formatted, /IST$/);
+  assert.ok(!formatted.includes("IST"));
 });
 
 test("searchDeviceModels matches phone models across brands cleanly", () => {
