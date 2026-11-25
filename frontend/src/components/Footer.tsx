@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
-import { Phone, MessageSquare, MapPin, Clock, ShieldCheck, Heart } from "lucide-react";
+import { Phone, MessageSquare, MapPin, Clock, ShieldCheck, Heart, Mail } from "lucide-react";
+import { BUSINESS_INFO, NEIGHBORHOOD_LINKS } from "@/lib/businessInfo";
 
 export default function Footer() {
   return (
@@ -13,7 +14,7 @@ export default function Footer() {
               <div className="w-8 h-8 rounded-[10px] bg-[#F97316] text-white font-bold text-xs flex items-center justify-center">
                 FM
               </div>
-              <span className="text-[16px] font-bold tracking-tight text-white">Famous Mobiles</span>
+              <span className="text-[16px] font-bold tracking-tight text-white">{BUSINESS_INFO.name}</span>
             </div>
             <p className="text-xs text-[#9E9E9E] leading-relaxed">
               West Hyderabad&apos;s trusted smartphone repair workshop. Certified 30–60 min doorstep repairs within 6 km, verified genuine OEM components, and clear warranty terms.
@@ -72,9 +73,9 @@ export default function Footer() {
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-[#F97316] shrink-0 mt-0.5" />
                 <div>
-                  <span>Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda, Manikonda, Hyderabad 500089</span>
+                  <span>{BUSINESS_INFO.address.formatted}</span>
                   <a
-                    href="https://share.google/U0L5BeQxKW1dBHUbJ"
+                    href={BUSINESS_INFO.mapsUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="text-[11px] font-semibold text-[#F97316] hover:underline block mt-0.5"
@@ -85,7 +86,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#F97316] shrink-0" />
-                <span>Open Daily: 10:00 AM – 1:00 AM (365 Days)</span>
+                <span>Open Daily: {BUSINESS_INFO.hoursDisplay} (365 Days)</span>
               </div>
               <div className="text-[11px] text-[#A3E635] bg-[#1E291B] p-2.5 rounded-[10px] border border-[#2D3E28]">
                 🚲 6 km Doorstep Radius: Manikonda, Shaikpet, Puppalaguda, Lanco Hills, Alkapur, Tolichowki, Gachibowli, Narsingi, Kokapet.
@@ -100,20 +101,27 @@ export default function Footer() {
             </h4>
             <div className="space-y-2">
               <a
-                href="tel:+919063786751"
+                href={`tel:${BUSINESS_INFO.phoneE164}`}
                 className="flex items-center gap-2 w-full px-3.5 py-2.5 rounded-[10px] bg-[#1F1F1F] hover:bg-[#2A2A2A] border border-[#333333] text-xs font-semibold text-white transition"
               >
                 <Phone className="w-3.5 h-3.5 text-[#F97316]" />
-                <span>Call Desk: +91 90637 86751</span>
+                <span>Call Desk: {BUSINESS_INFO.phoneDisplay}</span>
               </a>
               <a
-                href="https://wa.me/919063786751?text=Hi%20Famous%20Mobiles,%20I%20need%20a%20doorstep%20repair%20quote"
+                href={`${BUSINESS_INFO.whatsappBase}?text=Hi%20Famous%20Mobiles,%20I%20need%20a%20doorstep%20repair%20quote`}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-2 w-full px-3.5 py-2.5 rounded-[10px] bg-[#15803D] hover:bg-[#16A34A] text-xs font-bold text-white transition"
               >
                 <MessageSquare className="w-3.5 h-3.5 text-white" />
                 <span>WhatsApp Instant Quote</span>
+              </a>
+              <a
+                href={`mailto:${BUSINESS_INFO.email}`}
+                className="flex items-center gap-2 w-full px-3.5 py-2.5 rounded-[10px] bg-[#1F1F1F] hover:bg-[#2A2A2A] border border-[#333333] text-xs font-semibold text-white transition"
+              >
+                <Mail className="w-3.5 h-3.5 text-[#F97316]" />
+                <span>{BUSINESS_INFO.email}</span>
               </a>
             </div>
 
@@ -133,31 +141,20 @@ export default function Footer() {
             Hyperlocal Doorstep Service Areas:
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs">
-            <Link href="/mobile-repair-manikonda" className="hover:text-[#F97316] transition">
-              📍 Manikonda & Lanco Hills
-            </Link>
-            <span className="text-[#444444]">•</span>
-            <Link href="/mobile-repair-shaikpet-puppalaguda" className="hover:text-[#F97316] transition">
-              📍 Shaikpet & Puppalaguda (Store Hub)
-            </Link>
-            <span className="text-[#444444]">•</span>
-            <Link href="/doorstep-mobile-repair-gachibowli" className="hover:text-[#F97316] transition">
-              📍 Gachibowli & Telecom Nagar
-            </Link>
-            <span className="text-[#444444]">•</span>
-            <Link href="/mobile-repair-narsingi-kokapet" className="hover:text-[#F97316] transition">
-              📍 Narsingi & Kokapet
-            </Link>
-            <span className="text-[#444444]">•</span>
-            <Link href="/mobile-repair-tolichowki" className="hover:text-[#F97316] transition">
-              📍 Tolichowki & Paramount Hills
-            </Link>
+            {NEIGHBORHOOD_LINKS.map((nh, idx) => (
+              <React.Fragment key={nh.href}>
+                {idx > 0 && <span className="text-[#444444]">•</span>}
+                <Link href={nh.href} className="hover:text-[#F97316] transition">
+                  📍 {nh.name}
+                </Link>
+              </React.Fragment>
+            ))}
           </div>
         </div>
 
         {/* Bottom Credits */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-[#767676] gap-2 text-center sm:text-left">
-          <p>© {new Date().getFullYear()} Famous Mobiles. Verified smartphone service center in Manikonda, Hyderabad.</p>
+          <p>© {new Date().getFullYear()} {BUSINESS_INFO.name}. Verified smartphone service center in Manikonda, Hyderabad.</p>
           <p className="flex items-center gap-1 justify-center">
             <span>Precision repair at your doorstep</span>
             <Heart className="w-3 h-3 text-[#F97316] fill-[#F97316] inline" />

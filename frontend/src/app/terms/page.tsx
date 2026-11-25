@@ -4,6 +4,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Terms and Conditions — Famous Mobiles",
   description: "Terms and conditions for doorstep mobile repair services provided by Famous Mobiles Manikonda, Hyderabad.",
+  alternates: {
+    canonical: "https://famousmobiles.com/terms",
+  },
 };
 
 export default function TermsPage() {

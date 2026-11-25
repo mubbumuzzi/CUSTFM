@@ -4,6 +4,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy — Famous Mobiles",
   description: "Privacy policy for Famous Mobiles doorstep repair service in Manikonda, Hyderabad.",
+  alternates: {
+    canonical: "https://famousmobiles.com/privacy",
+  },
 };
 
 export default function PrivacyPage() {

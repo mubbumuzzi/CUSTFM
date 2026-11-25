@@ -1,11 +1,15 @@
 import React from "react";
 import Link from "next/link";
 import { Metadata } from "next";
-import { MapPin, Phone, Clock, MessageSquare, ShieldCheck, Mail, ArrowRight } from "lucide-react";
+import { MapPin, Phone, Clock, MessageSquare, Mail } from "lucide-react";
+import { BUSINESS_INFO, NEIGHBORHOOD_LINKS } from "@/lib/businessInfo";
 
 export const metadata: Metadata = {
   title: "Contact & Store Location — Famous Mobiles Manikonda",
-  description: "Find Famous Mobiles store address, operating hours, phone numbers, and WhatsApp contact for doorstep smartphone repair in Manikonda, Hyderabad.",
+  description: "Find Famous Mobiles store address, operating hours, phone numbers, Google Maps directions, and WhatsApp contact for doorstep smartphone repair in Manikonda, Shaikpet & Gachibowli.",
+  alternates: {
+    canonical: "https://famousmobiles.com/contact",
+  },
 };
 
 export default function ContactPage() {
@@ -90,13 +94,56 @@ export default function ContactPage() {
             Send a photo or model number of your broken phone for an upfront quote in 5 minutes.
           </p>
           <a
-            href="https://wa.me/919063786751?text=Hi%20Famous%20Mobiles,%20I%20need%20a%20doorstep%20repair%20quote"
+            href={BUSINESS_INFO.whatsappBase + "?text=Hi%20Famous%20Mobiles,%20I%20need%20a%20doorstep%20repair%20quote"}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:underline"
           >
             <span>Open WhatsApp Chat →</span>
           </a>
+        </div>
+      </div>
+
+      {/* Embedded Google Map + Email & Area Links */}
+      <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 space-y-4 shadow-card">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 className="text-base font-bold text-[#121212]">
+              Workshop Map Pin — Shaikpet Main Road, Puppalaguda
+            </h2>
+            <p className="text-xs text-[#767676]">
+              Central dispatch hub serving Manikonda, Shaikpet, Gachibowli, Narsingi &amp; Tolichowki within 6 km.
+            </p>
+          </div>
+          <a
+            href={`mailto:${BUSINESS_INFO.email}`}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#121212] bg-[#F7F7F8] hover:bg-[#EFEFEF] border border-[#EBEBEB] px-3 py-2 rounded-[8px] transition self-start sm:self-auto"
+          >
+            <Mail className="w-3.5 h-3.5 text-[#F97316]" />
+            <span>{BUSINESS_INFO.email}</span>
+          </a>
+        </div>
+
+        <div className="w-full h-64 sm:h-80 rounded-xl overflow-hidden border border-[#EBEBEB] bg-[#F7F7F8]">
+          <iframe
+            title="Famous Mobiles Workshop Location Map - Shaikpet Main Road, Puppalaguda, Manikonda"
+            src={BUSINESS_INFO.mapsEmbedUrl}
+            className="w-full h-full border-0"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+
+        <div className="flex flex-wrap gap-2 pt-1">
+          {NEIGHBORHOOD_LINKS.map((nh) => (
+            <Link
+              key={nh.href}
+              href={nh.href}
+              className="text-xs font-medium text-[#555555] hover:text-[#F97316] bg-[#F8F9FA] border border-[#EBEBEB] px-3 py-1.5 rounded-lg transition"
+            >
+              {nh.name}
+            </Link>
+          ))}
         </div>
       </div>
     </div>

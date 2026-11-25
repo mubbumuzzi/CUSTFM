@@ -7,9 +7,10 @@ import GoogleReviewsModal from "@/components/GoogleReviewsModal";
 import ToastBanner from "@/components/ToastBanner";
 import InteractiveBookingModal from "@/components/InteractiveBookingModal";
 import TrackOrderModal from "@/components/TrackOrderModal";
+import { BUSINESS_INFO, buildLocalBusinessJsonLd } from "@/lib/businessInfo";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://famousmobiles.com"),
+  metadataBase: new URL(BUSINESS_INFO.url),
   title: {
     default: "Mobile Repair Open Till 1 AM in Manikonda | Famous Mobiles",
     template: "%s | Famous Mobiles Manikonda",
@@ -29,9 +30,12 @@ export const metadata: Metadata = {
     "iPhone screen repair Manikonda",
     "Samsung screen repair Gachibowli",
   ],
-  authors: [{ name: "New Famous Mobile" }],
-  creator: "New Famous Mobile",
-  publisher: "New Famous Mobile",
+  authors: [{ name: BUSINESS_INFO.name }],
+  creator: BUSINESS_INFO.name,
+  publisher: BUSINESS_INFO.name,
+  alternates: {
+    canonical: BUSINESS_INFO.url,
+  },
   formatDetection: {
     telephone: true,
     address: true,
@@ -40,8 +44,8 @@ export const metadata: Metadata = {
     title: "Mobile Repair Open Till 1 AM in Manikonda | Famous Mobiles",
     description:
       "Late-night mobile repair in Manikonda, Shaikpet & Gachibowli—open 10 AM to 1 AM! 60-min screen & battery repair + 6 km doorstep pickup. Call +91 9063786751.",
-    url: "https://famousmobiles.com",
-    siteName: "New Famous Mobile",
+    url: BUSINESS_INFO.url,
+    siteName: BUSINESS_INFO.name,
     locale: "en_IN",
     type: "website",
   },
@@ -56,75 +60,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "MobilePhoneStore",
-    "@id": "https://famousmobiles.com/#organization",
-    "name": "New Famous Mobile",
-    "alternateName": "Famous Mobiles",
-    "url": "https://famousmobiles.com",
-    "telephone": "+919063786751",
-    "priceRange": "₹₹",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda",
-      "addressLocality": "Manikonda, Hyderabad",
-      "addressRegion": "Telangana",
-      "postalCode": "500089",
-      "addressCountry": "IN"
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": 17.4058,
-      "longitude": 78.3879
-    },
-    "areaServed": [
-      {
-        "@type": "GeoCircle",
-        "geoMidpoint": {
-          "@type": "GeoCoordinates",
-          "latitude": 17.4058,
-          "longitude": 78.3879
-        },
-        "geoRadius": "6000"
-      },
-      { "@type": "Place", "name": "Manikonda, Hyderabad" },
-      { "@type": "Place", "name": "Puppalaguda, Hyderabad" },
-      { "@type": "Place", "name": "Shaikpet, Hyderabad" },
-      { "@type": "Place", "name": "Alkapur Township, Hyderabad" },
-      { "@type": "Place", "name": "Lanco Hills, Manikonda" },
-      { "@type": "Place", "name": "Tolichowki, Hyderabad" },
-      { "@type": "Place", "name": "Narsingi, Hyderabad" },
-      { "@type": "Place", "name": "Kokapet, Hyderabad" },
-      { "@type": "Place", "name": "Raidurg, Hyderabad" },
-      { "@type": "Place", "name": "Gachibowli, Hyderabad" },
-      { "@type": "Place", "name": "Film Nagar, Hyderabad" },
-      { "@type": "Place", "name": "Jubilee Hills, Hyderabad" },
-      { "@type": "Place", "name": "Mehdipatnam, Hyderabad" }
-    ],
-    "openingHoursSpecification": [
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-          "Sunday"
-        ],
-        "opens": "10:00",
-        "closes": "01:00"
-      }
-    ],
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "reviewCount": "1000"
-    },
-    "hasMap": "https://share.google/U0L5BeQxKW1dBHUbJ"
-  };
+  const jsonLd = buildLocalBusinessJsonLd();
 
   return (
     <html lang="en" suppressHydrationWarning>

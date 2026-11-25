@@ -176,7 +176,7 @@ export default function GoogleReviewsModal({
     return true;
   });
 
-  const mapsUrl = "https://www.google.com/maps/search/?api=1&query=Famous+Mobiles+Manikonda+Hyderabad";
+  const mapsUrl = "https://share.google/U0L5BeQxKW1dBHUbJ";
 
   return (
     <div
@@ -201,9 +201,9 @@ export default function GoogleReviewsModal({
                 <h3 id="google-modal-title" className="text-sm sm:text-base font-black text-navy-950">
                   Famous Mobiles
                 </h3>
-                <span className="inline-flex items-center gap-1 text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200 px-1.5 py-0.5 rounded-full">
-                  <CheckCircle2 className="w-3 h-3 text-blue-600" />
-                  Google Verified
+                <span className="inline-flex items-center gap-1 text-[10px] font-extrabold bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded-full">
+                  <CheckCircle2 className="w-3 h-3 text-amber-600" />
+                  4.9★ Local Hub
                 </span>
               </div>
               <p className="text-[11px] font-semibold text-slate-500">

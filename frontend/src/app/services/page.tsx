@@ -7,7 +7,10 @@ import { SERVICES_DATA } from "@/data/servicesData";
 export const metadata: Metadata = {
   title: "Doorstep Repair Services Overview — Manikonda, Hyderabad",
   description:
-    "Explore our complete range of smartphone repair services in Manikonda. Screen replacement, battery fixes, charging ports, software flashing, and water damage recovery.",
+    "Explore our complete range of smartphone repair services in Manikonda, Shaikpet & Gachibowli. Screen replacement, battery fixes, charging ports, software flashing, and water damage recovery.",
+  alternates: {
+    canonical: "https://famousmobiles.com/services",
+  },
 };
 
 export default function ServicesPage() {

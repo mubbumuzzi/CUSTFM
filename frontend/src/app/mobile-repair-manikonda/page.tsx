@@ -30,12 +30,25 @@ export const metadata: Metadata = {
 const MANIKONDA_CONFIG: NeighborhoodConfig = {
   slug: "mobile-repair-manikonda",
   name: "Manikonda",
-  subTitle: "Doorstep Smartphone Repair across Manikonda, Lanco Hills & Secretariat Colony",
+  subTitle: "Doorstep Repair for Lanco Hills, Alkapur & Secretariat Colony",
   distanceFromStore: "1.4 km",
   eta: "15-25 Mins",
   heroHeadline: "Fast Doorstep Mobile Repair in Manikonda (Open Till 1 AM)",
   heroDescription:
-    "Cracked your screen or battery draining fast in Manikonda? Our certified technicians reach your apartment in Lanco Hills, Secretariat Colony, or Panchavati within 15–25 minutes. All repairs completed right before you with 100% data privacy.",
+    "Cracked your screen or battery draining fast in Manikonda? Our in-house technicians dispatch straight from our Puppalaguda workshop to Lanco Hills, Secretariat Colony, Alkapur Township, and Panchavati in 15–25 minutes—fixing your phone live in front of you with zero passcode access.",
+  dispatchCorridorTitle: "Manikonda Rider Route & Gated Society Dispatch",
+  dispatchCorridorCopy:
+    "From Opp Friends Colony Bus Stop on Shaikpet Main Road, our riders cross Puppalaguda Main Road and Marrichettu Junction directly into Lanco Hills Towers, Golf View Apartments, and Secretariat Colony within 15–25 minutes. For high-rise apartments using MyGate or NoBrokerHood, we share technician photo ID and vehicle registration immediately after booking so lobby arrival is seamless.",
+  localInsightsTitle: "Most Common Repairs for Manikonda Families & WFH Residents",
+  localInsightsCopy:
+    "Manikonda residential complexes see the highest demand for evening iPhone OLED screen replacements (after accidental drops on tile floors), swollen battery swaps for work-from-home devices, and fast USB-C port cleaning. Because we carry calibrated OEM assemblies in our mobile kit, you avoid Marrichettu evening traffic and keep all banking and WhatsApp data untouched.",
+  localReview: {
+    author: "Vikram R.",
+    locality: "Lanco Hills, Manikonda",
+    device: "iPhone 14 Pro Max • Display",
+    quote:
+      "Technician Ramesh arrived in 35 minutes! Replaced my cracked OLED screen right at my dining table in 30 mins. Display colors and 120Hz ProMotion feel 100% original. First visit was completely free.",
+  },
   landmarks: [
     "Marrichettu Junction",
     "Lanco Hills Tower Area",
@@ -89,7 +102,7 @@ const MANIKONDA_CONFIG: NeighborhoodConfig = {
     {
       question: "Are you open for late-night emergency mobile repairs in Manikonda?",
       answer:
-        "Yes! New Famous Mobile operates daily from 10:00 AM to 1:00 AM past midnight. Whether you have an urgent presentation tomorrow morning or dropped your phone late, call +91 9063786751 for doorstep service.",
+        "Yes! Famous Mobiles operates daily from 10:00 AM to 1:00 AM past midnight. Whether you have an urgent presentation tomorrow morning or dropped your phone late, call +91 9063786751 for doorstep service.",
     },
     {
       question: "Can I walk into your physical store instead of doorstep service?",
@@ -99,7 +112,7 @@ const MANIKONDA_CONFIG: NeighborhoodConfig = {
     {
       question: "How do your technicians enter gated communities like Lanco Hills?",
       answer:
-        "Our riders carry official New Famous Mobile ID badges and vehicle numbers. We immediately share these details upon booking for seamless MyGate, NoBrokerHood, or security gate pre-approval.",
+        "Our riders carry official Famous Mobiles ID badges and vehicle numbers. We immediately share these details upon booking for seamless MyGate, NoBrokerHood, or security gate pre-approval.",
     },
   ],
 };

@@ -30,12 +30,25 @@ export const metadata: Metadata = {
 const TOLICHOWKI_CONFIG: NeighborhoodConfig = {
   slug: "mobile-repair-tolichowki",
   name: "Tolichowki",
-  subTitle: "Fast Doorstep Smartphone Care for Tolichowki & Paramount Hills",
+  subTitle: "Shaikpet Flyover, Galaxy & Paramount Hills",
   distanceFromStore: "2.5 km",
   eta: "20-30 Mins",
   heroHeadline: "Fast Doorstep Mobile Repair in Tolichowki (Open Till 1 AM)",
   heroDescription:
-    "Located just down the road on Shaikpet Main Road, our expert technicians reach Tolichowki, Paramount Hills, and Galaxy Junction within 20–30 minutes. 100% transparent pricing with OEM and certified compatible parts.",
+    "Located just 2.5 km east of our Shaikpet Main Road workshop, Tolichowki, Paramount Hills, and Seven Tombs Road receive rapid 20–30 minute technician dispatch until 1:00 AM—or drive 5 minutes across the Shaikpet flyover for express walk-in service.",
+  dispatchCorridorTitle: "Straight 5-Minute Corridor via Shaikpet Flyover & Galaxy",
+  dispatchCorridorCopy:
+    "Our Puppalaguda store connects directly onto Shaikpet Main Road toward Tolichowki Main Flyover, Galaxy Theater Junction, and Rethi Bowli Link Road. That short 2.5 km hop lets our technicians reach Paramount Colony, Al-Hamra Residency, and Diamond Hills Layout in 20–30 minutes—and makes 2-hour round-trip lab pickups easy when motherboard water recovery is needed.",
+  localInsightsTitle: "Late-Evening Commuter, Student & Family Repairs in Tolichowki",
+  localInsightsCopy:
+    "Tolichowki customers value upfront Original-vs-Compatible part comparisons before work starts. We bring both factory-spec OLED panels and budget-friendly certified displays to your home, test earpiece clarity, microphone pickup, and fast-charging current in front of you, and back every repair with written warranty coverage.",
+  localReview: {
+    author: "Mohammed Arif",
+    locality: "Paramount Hills / Shaikpet Corridor",
+    device: "Android Phone • Water Damage Lab Recovery",
+    quote:
+      "Dropped phone in water while raining. Their shop was open late night. They dried and ultrasonically cleaned the motherboard and saved my family photos. Very honest pricing, did not charge unnecessary fees.",
+  },
   landmarks: [
     "Tolichowki Main Flyover",
     "Galaxy Theater Junction",
@@ -93,9 +106,9 @@ const TOLICHOWKI_CONFIG: NeighborhoodConfig = {
         "Our riders reach Tolichowki, Paramount Hills, and Seven Tombs within 20 to 30 minutes from your confirmed booking.",
     },
     {
-      question: "Can I get my phone repaired after midnight in Tolichowki?",
+      question: "Can I get my phone repaired late at night in Tolichowki?",
       answer:
-        "Yes! New Famous Mobile is open every day until 1:00 AM. You can book doorstep service or drive over to our Shaikpet store for immediate late-night service.",
+        "Yes! Famous Mobiles is open every day until 1:00 AM. You can book doorstep service or drive over to our Shaikpet store for immediate late-night service.",
     },
     {
       question: "What if I choose not to get the repair done?",

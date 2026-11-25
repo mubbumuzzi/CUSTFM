@@ -5,7 +5,10 @@ import { ShieldCheck, MapPin, Clock, Phone, Award, Users, Star } from "lucide-re
 
 export const metadata: Metadata = {
   title: "About Us — Famous Mobiles Manikonda, Hyderabad",
-  description: "Learn about Famous Mobiles, Hyderabad's premier doorstep mobile repair center located in Manikonda. Over 10,000 devices repaired with genuine parts and 4.9★ rating.",
+  description: "Learn about Famous Mobiles, West Hyderabad's premier doorstep mobile repair center in Shaikpet / Manikonda. Over 10,000 devices repaired with genuine parts and 4.9★ rating.",
+  alternates: {
+    canonical: "https://famousmobiles.com/about",
+  },
 };
 
 export default function AboutPage() {

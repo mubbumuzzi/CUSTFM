@@ -268,7 +268,10 @@ export default function HomePage() {
             {/* Hero Headline */}
             <div className="text-left space-y-1">
               <h1 className="text-[26px] sm:text-4xl md:text-5xl leading-[1.18] font-extrabold tracking-tight text-slate-950">
-                Express Mobile Repair <span className="text-[#F97316]">at Your Doorstep</span>
+                Express Mobile Repair <span className="text-[#F97316]">at Your Doorstep</span>{" "}
+                <span className="block sm:inline text-[20px] sm:text-3xl md:text-4xl text-slate-800">
+                  in Manikonda, Shaikpet &amp; Gachibowli
+                </span>
               </h1>
               <p className="text-[13px] sm:text-base leading-relaxed text-slate-500 font-medium">
                 Open Daily 10:00 AM – 1:00 AM • Repaired in 30 Mins Live in Front of You
@@ -747,7 +750,14 @@ export default function HomePage() {
                 Serving All 13 Localities Across West Hyderabad
               </h2>
               <p className="text-xs text-slate-500 max-w-2xl leading-relaxed">
-                Manikonda • Puppalaguda • Shaikpet • Alkapur Township • Lanco Hills • OU Colony • Tolichowki • Narsingi • Kokapet • Raidurg • Gachibowli • Film Nagar • Jubilee Hills
+                <Link href="/mobile-repair-manikonda" className="font-semibold text-slate-800 hover:text-[#F97316] underline">Manikonda</Link> •{" "}
+                <Link href="/mobile-repair-shaikpet-puppalaguda" className="font-semibold text-slate-800 hover:text-[#F97316] underline">Puppalaguda &amp; Shaikpet</Link> •{" "}
+                <Link href="/mobile-repair-manikonda" className="hover:text-[#F97316] underline">Alkapur Township &amp; Lanco Hills</Link> •{" "}
+                <Link href="/mobile-repair-shaikpet-puppalaguda" className="hover:text-[#F97316] underline">OU Colony</Link> •{" "}
+                <Link href="/mobile-repair-tolichowki" className="font-semibold text-slate-800 hover:text-[#F97316] underline">Tolichowki</Link> •{" "}
+                <Link href="/mobile-repair-narsingi-kokapet" className="font-semibold text-slate-800 hover:text-[#F97316] underline">Narsingi &amp; Kokapet</Link> •{" "}
+                <Link href="/doorstep-mobile-repair-gachibowli" className="font-semibold text-slate-800 hover:text-[#F97316] underline">Gachibowli &amp; Raidurg</Link> •{" "}
+                Film Nagar • Jubilee Hills
               </p>
             </div>
 

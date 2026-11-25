@@ -5,7 +5,10 @@ import { ArrowRight, HelpCircle } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Frequently Asked Questions — Famous Mobiles",
-  description: "Common questions about doorstep mobile repair in Manikonda, Hyderabad. Pricing, warranty, parts quality, and turnaround times.",
+  description: "Common questions about doorstep mobile repair in Manikonda, Shaikpet & Gachibowli, Hyderabad. Pricing, warranty, parts quality, and turnaround times.",
+  alternates: {
+    canonical: "https://famousmobiles.com/faq",
+  },
 };
 
 const FAQS = [
@@ -15,7 +18,7 @@ const FAQS = [
   },
   {
     q: "What are your store timings? Are you open late at night?",
-    a: "Yes. New Famous Mobile is open daily from 10:00 AM to 1:00 AM at Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda, allowing emergency late-night screen, battery, and charging repairs.",
+    a: "Yes. Famous Mobiles is open daily from 10:00 AM to 1:00 AM at Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda, allowing emergency late-night screen, battery, and charging repairs.",
   },
   {
     q: "How does the 'First Home Visit is FREE' offer work?",

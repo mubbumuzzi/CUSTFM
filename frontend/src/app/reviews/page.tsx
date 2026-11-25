@@ -5,7 +5,10 @@ import { Star, ShieldCheck, ExternalLink, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Customer Reviews & Ratings — Famous Mobiles Manikonda",
-  description: "Read genuine customer reviews for Famous Mobiles Manikonda. Rated 4.9/5 by 1k+ customers across Lanco Hills, Puppalaguda, and Alkapoor Township.",
+  description: "Read verified customer stories for Famous Mobiles Manikonda. Rated 4.9/5 across Lanco Hills, Puppalaguda, Shaikpet, Gachibowli, and Alkapoor Township.",
+  alternates: {
+    canonical: "https://famousmobiles.com/reviews",
+  },
 };
 
 const REVIEWS = [

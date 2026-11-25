@@ -7,7 +7,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "/services",
     "/book-repair",
-    "/track-booking",
     "/mobile-repair-manikonda",
     "/mobile-repair-shaikpet-puppalaguda",
     "/doorstep-mobile-repair-gachibowli",

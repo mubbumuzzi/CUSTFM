@@ -2,8 +2,9 @@ import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { Clock, ShieldCheck, ArrowRight, CheckCircle2, AlertTriangle, ArrowLeft, Star, MessageSquare } from "lucide-react";
+import { Clock, ShieldCheck, ArrowRight, CheckCircle2, AlertTriangle, ArrowLeft, Star, MessageSquare, MapPin } from "lucide-react";
 import { SERVICES_DATA } from "@/data/servicesData";
+import { BUSINESS_INFO, NEIGHBORHOOD_LINKS } from "@/lib/businessInfo";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -23,10 +24,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: `${service.title} in Manikonda, Hyderabad — Doorstep Repair`,
-    description: service.shortDesc,
+    title: `${service.title} in Manikonda, Shaikpet & Gachibowli — Doorstep Repair`,
+    description: `${service.shortDesc} Fast 30–60 min doorstep repair across Manikonda, Shaikpet, Puppalaguda & Gachibowli. Open 10 AM – 1 AM.`,
+    alternates: {
+      canonical: `https://famousmobiles.com/services/${service.slug}`,
+    },
     keywords: [
       `${service.title.toLowerCase()} Manikonda`,
+      `${service.title.toLowerCase()} Shaikpet`,
+      `${service.title.toLowerCase()} Gachibowli`,
       `doorstep ${service.title.toLowerCase()} Hyderabad`,
       `${service.title.toLowerCase()} Lanco Hills`,
     ],
@@ -41,8 +47,50 @@ export default async function ServiceDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  const serviceJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "@id": `${BUSINESS_INFO.url}/services/${service.slug}#service`,
+    name: `${service.title} in Manikonda, Shaikpet & Gachibowli`,
+    description: service.fullDesc,
+    serviceType: service.title,
+    url: `${BUSINESS_INFO.url}/services/${service.slug}`,
+    provider: {
+      "@id": BUSINESS_INFO.orgId,
+    },
+    areaServed: [
+      { "@type": "Place", name: "Manikonda, Hyderabad" },
+      { "@type": "Place", name: "Shaikpet, Hyderabad" },
+      { "@type": "Place", name: "Puppalaguda, Hyderabad" },
+      { "@type": "Place", name: "Gachibowli, Hyderabad" },
+      { "@type": "Place", name: "Narsingi, Hyderabad" },
+      { "@type": "Place", name: "Tolichowki, Hyderabad" },
+    ],
+  };
+
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: service.faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.a,
+      },
+    })),
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-14 space-y-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       {/* Back navigation */}
       <div>
         <Link
@@ -169,6 +217,25 @@ export default async function ServiceDetailPage({ params }: PageProps) {
               <h3 className="text-xs sm:text-sm font-semibold text-[#121212]">{faq.q}</h3>
               <p className="text-xs text-[#767676] leading-relaxed">{faq.a}</p>
             </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Hyperlocal Service Area Cross-Links */}
+      <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 space-y-3 shadow-card">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-[#121212] flex items-center gap-1.5">
+          <MapPin className="w-3.5 h-3.5 text-[#F97316]" />
+          <span>Book {service.title} Across Our 6 km Hyderabad Zones</span>
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {NEIGHBORHOOD_LINKS.map((nh) => (
+            <Link
+              key={nh.href}
+              href={nh.href}
+              className="text-xs font-semibold text-[#121212] hover:text-[#F97316] bg-[#F8F9FA] border border-[#EBEBEB] hover:border-[#F97316] px-3 py-2 rounded-[10px] transition"
+            >
+              {service.title} in {nh.shortName} →
+            </Link>
           ))}
         </div>
       </div>

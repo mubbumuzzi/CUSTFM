@@ -30,12 +30,25 @@ export const metadata: Metadata = {
 const NARSINGI_KOKAPET_CONFIG: NeighborhoodConfig = {
   slug: "mobile-repair-narsingi-kokapet",
   name: "Narsingi & Kokapet",
-  subTitle: "Doorstep Smartphone Repair for High-Rise Communities & Tech Parks",
+  subTitle: "High-Rise Towers, ORR Exit & GAR Infobahn Zone",
   distanceFromStore: "3.7 km",
   eta: "30-40 Mins",
   heroHeadline: "Doorstep Mobile Repair in Narsingi & Kokapet (Open Till 1 AM)",
   heroDescription:
-    "Living in My Home Avatar, Kokapet Golden Mile, or Narsingi Junction? Avoid congested traffic trips. Our certified mobile technician travels to your gate or home within 30–40 minutes with genuine OEM parts and precision toolkits.",
+    "Living in My Home Avatar, NCC Urban One, Jayabheri The Peak, or working near Kokapet Golden Mile & GAR Infobahn? Skip Outer Ring Road traffic—our certified mobile technician reaches your tower lobby in 30–40 minutes with OEM screens, batteries, and precision tools.",
+  dispatchCorridorTitle: "Puppalaguda – Narsingi Junction & Golden Mile Dispatch",
+  dispatchCorridorCopy:
+    "At just 3.7 km west of our Puppalaguda hub along the Narsingi–Puppalaguda link road, Narsingi and Kokapet high-rise communities enjoy fast two-wheeler dispatch even during peak ORR rush hours. For multi-tower complexes like My Home Avatar (22 towers) and Aparna CyberLife, riders coordinate tower-specific lobby handoffs via WhatsApp and MyGate.",
+  localInsightsTitle: "Top Smartphone Repairs in Kokapet & Narsingi High-Rises",
+  localInsightsCopy:
+    "Residents along Kokapet Golden Mile and Neopolis approaches frequently book rear camera sapphire glass replacements, OnePlus green-line AMOLED swaps, and BIS-certified battery replacements for overheating phones. Simple hardware fixes happen right at your dining table or tower lounge; ultrasonic liquid recovery uses free round-trip workshop pickup.",
+  localReview: {
+    author: "Karthik Reddy",
+    locality: "Alkapoor / Narsingi Corridor",
+    device: "OnePlus 11 • Charging Port Inspection",
+    quote:
+      "Super transparent service. The technician inspected the port with a microscope tool and showed me that it only had compacted pocket lint. Cleaned it up without charging for part replacement. Very honest!",
+  },
   landmarks: [
     "Narsingi Main Junction",
     "My Home Avatar Community",
@@ -96,7 +109,7 @@ const NARSINGI_KOKAPET_CONFIG: NeighborhoodConfig = {
     {
       question: "What are your operating hours in Narsingi & Kokapet?",
       answer:
-        "We operate daily from 10:00 AM to 1:00 AM past midnight, 7 days a week. Midnight emergency requests are accepted via phone or WhatsApp at +91 9063786751.",
+        "We operate daily from 10:00 AM to 1:00 AM past midnight, 7 days a week. Late-night emergency requests are accepted via phone or WhatsApp at +91 9063786751.",
     },
     {
       question: "Is there a doorstep fee for Narsingi residents?",

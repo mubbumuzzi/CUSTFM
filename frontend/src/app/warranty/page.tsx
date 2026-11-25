@@ -5,7 +5,10 @@ import { ShieldCheck, CheckCircle2, AlertTriangle, ArrowRight } from "lucide-rea
 
 export const metadata: Metadata = {
   title: "Warranty Policy — Famous Mobiles",
-  description: "Famous Mobiles doorstep repair warranty terms. Up to 6 months coverage on original screens and batteries in Manikonda, Hyderabad.",
+  description: "Famous Mobiles doorstep repair warranty terms. Up to 6 months coverage on original screens and up to 8 months on batteries in Manikonda, Hyderabad.",
+  alternates: {
+    canonical: "https://famousmobiles.com/warranty",
+  },
 };
 
 export default function WarrantyPage() {

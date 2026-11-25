@@ -3,17 +3,16 @@ import Link from "next/link";
 import {
   ShieldCheck,
   Star,
-  Clock,
   ArrowRight,
-  CheckCircle2,
-  Phone,
   MessageSquare,
-  MapPin,
   ChevronRight,
   Sparkles,
   Building2,
   BadgeCheck,
+  Navigation,
+  Quote,
 } from "lucide-react";
+import { BUSINESS_INFO, NEIGHBORHOOD_LINKS } from "@/lib/businessInfo";
 
 export interface NeighborhoodConfig {
   slug: string;
@@ -23,6 +22,17 @@ export interface NeighborhoodConfig {
   eta: string;
   heroHeadline: string;
   heroDescription: string;
+  dispatchCorridorTitle: string;
+  dispatchCorridorCopy: string;
+  localInsightsTitle: string;
+  localInsightsCopy: string;
+  localReview: {
+    author: string;
+    locality: string;
+    device: string;
+    quote: string;
+  };
+  showWorkshopMap?: boolean;
   landmarks: string[];
   gatedSocieties: string[];
   popularRepairs: {
@@ -38,78 +48,49 @@ export interface NeighborhoodConfig {
   }[];
 }
 
-const ALL_NEIGHBORHOODS = [
-  { name: "Manikonda & Lanco Hills", slug: "/mobile-repair-manikonda" },
-  { name: "Shaikpet & Puppalaguda (Store Hub)", slug: "/mobile-repair-shaikpet-puppalaguda" },
-  { name: "Gachibowli & Telecom Nagar", slug: "/doorstep-mobile-repair-gachibowli" },
-  { name: "Narsingi & Kokapet", slug: "/mobile-repair-narsingi-kokapet" },
-  { name: "Tolichowki & Paramount Hills", slug: "/mobile-repair-tolichowki" },
-];
-
 export default function NeighborhoodLandingTemplate({
   config,
 }: {
   config: NeighborhoodConfig;
 }) {
-  const whatsappUrl = `https://wa.me/919063786751?text=${encodeURIComponent(
+  const whatsappUrl = `${BUSINESS_INFO.whatsappBase}?text=${encodeURIComponent(
     `Hi Famous Mobiles, I need doorstep mobile repair in ${config.name}`
   )}`;
 
   const bookingUrl = `/book-repair?locality=${encodeURIComponent(config.name)}`;
 
-  const jsonLd = {
+  const serviceJsonLd = {
     "@context": "https://schema.org",
-    "@type": "MobilePhoneStore",
-    "name": `Famous Mobiles - ${config.name}`,
-    "url": `https://famousmobiles.com/${config.slug}`,
-    "telephone": "+919063786751",
-    "priceRange": "₹₹",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda",
-      "addressLocality": "Manikonda, Hyderabad",
-      "addressRegion": "Telangana",
-      "postalCode": "500089",
-      "addressCountry": "IN",
+    "@type": "Service",
+    "@id": `${BUSINESS_INFO.url}/${config.slug}#service`,
+    name: `Doorstep & Walk-In Mobile Repair in ${config.name}`,
+    serviceType: "Smartphone Screen, Battery & Charging Port Repair",
+    description: config.heroDescription,
+    url: `${BUSINESS_INFO.url}/${config.slug}`,
+    provider: {
+      "@id": BUSINESS_INFO.orgId,
     },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": 17.4058,
-      "longitude": 78.3879,
+    areaServed: {
+      "@type": "Place",
+      name: `${config.name}, Hyderabad`,
     },
-    "openingHoursSpecification": [
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-          "Sunday",
-        ],
-        "opens": "10:00",
-        "closes": "01:00",
-      },
-    ],
   };
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": [
+    itemListElement: [
       {
         "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": "https://famousmobiles.com",
+        position: 1,
+        name: "Home",
+        item: BUSINESS_INFO.url,
       },
       {
         "@type": "ListItem",
-        "position": 2,
-        "name": `${config.name} Mobile Repair`,
-        "item": `https://famousmobiles.com/${config.slug}`,
+        position: 2,
+        name: `${config.name} Mobile Repair`,
+        item: `${BUSINESS_INFO.url}/${config.slug}`,
       },
     ],
   };
@@ -117,22 +98,21 @@ export default function NeighborhoodLandingTemplate({
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": config.faqs.map((f) => ({
+    mainEntity: config.faqs.map((f) => ({
       "@type": "Question",
-      "name": f.question,
-      "acceptedAnswer": {
+      name: f.question,
+      acceptedAnswer: {
         "@type": "Answer",
-        "text": f.answer,
+        text: f.answer,
       },
     })),
   };
 
   return (
     <>
-      {/* Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
       />
       <script
         type="application/ld+json"
@@ -143,8 +123,8 @@ export default function NeighborhoodLandingTemplate({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
-      <div className="space-y-10 md:space-y-16 pb-16">
-        {/* Breadcrumb Navigation */}
+      <div className="space-y-10 md:space-y-14 pb-16">
+        {/* Breadcrumb */}
         <div className="bg-[#F7F7F8] border-b border-[#EBEBEB] py-2.5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center gap-1.5 text-xs text-[#767676]">
             <Link href="/" className="hover:text-[#121212] transition">
@@ -155,21 +135,20 @@ export default function NeighborhoodLandingTemplate({
           </div>
         </div>
 
-        {/* ================================================================= */}
-        {/* 1. HERO SECTION                                                  */}
-        {/* ================================================================= */}
+        {/* Hero Section */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="bg-white border border-[#EBEBEB] rounded-2xl p-6 sm:p-10 shadow-card">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              {/* Left Column */}
               <div className="lg:col-span-7 space-y-4 sm:space-y-5">
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="inline-flex items-center gap-1.5 bg-[#F7F7F8] border border-[#EBEBEB] text-[#121212] text-xs font-semibold px-3 py-1 rounded-full">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>{config.distanceFromStore} from Hub • {config.eta} ETA</span>
+                    <span>
+                      {config.distanceFromStore} from Hub • {config.eta} ETA
+                    </span>
                   </div>
                   <span className="bg-emerald-50 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full border border-emerald-200">
-                    Open Till 1:00 AM Daily
+                    Open {BUSINESS_INFO.hoursDisplay} Daily
                   </span>
                 </div>
 
@@ -181,10 +160,9 @@ export default function NeighborhoodLandingTemplate({
                   {config.heroDescription}
                 </p>
 
-                {/* Local Landmarks Tags */}
                 <div className="space-y-2 pt-1">
                   <div className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">
-                    Serving Landmarks & Gated Societies in {config.name}:
+                    {config.name} Landmarks &amp; Gated Communities Covered:
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {config.landmarks.concat(config.gatedSocieties).map((lm, idx) => (
@@ -199,13 +177,12 @@ export default function NeighborhoodLandingTemplate({
                   </div>
                 </div>
 
-                {/* Primary CTAs */}
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
                   <Link
                     href={bookingUrl}
                     className="bg-[#F97316] hover:bg-[#EA580C] text-white font-bold text-xs sm:text-sm px-6 py-3.5 rounded-[10px] shadow-xs transition active:scale-95 flex items-center justify-center gap-2 text-center"
                   >
-                    <span>Book Doorstep Visit (₹0 Free)</span>
+                    <span>Book {config.name} Visit (₹0 Free)</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
 
@@ -220,16 +197,15 @@ export default function NeighborhoodLandingTemplate({
                   </a>
                 </div>
 
-                {/* Trust Badges */}
                 <div className="pt-2 flex flex-wrap items-center gap-2.5 text-xs text-[#555555]">
                   <div className="flex items-center gap-1.5 bg-[#F8F9FA] px-3 py-1.5 rounded-[8px] border border-[#EBEBEB]">
                     <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                    <span>10,000+ Phones Repaired</span>
+                    <span>Zero Passcode Privacy</span>
                   </div>
                   <div className="flex items-center gap-1 bg-[#F8F9FA] px-3 py-1.5 rounded-[8px] border border-[#EBEBEB]">
                     <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
                     <span className="text-[#121212] font-bold">4.9 / 5</span>
-                    <span className="text-[#767676]">(1k+ Reviews)</span>
+                    <span className="text-[#767676]">Local Rating</span>
                   </div>
                 </div>
               </div>
@@ -239,33 +215,29 @@ export default function NeighborhoodLandingTemplate({
                 <div className="bg-[#121212] text-white rounded-2xl p-6 sm:p-7 space-y-4 shadow-card">
                   <div className="inline-flex items-center gap-1.5 bg-[#2A2A2A] text-amber-300 text-xs font-bold uppercase px-2.5 py-1 rounded-[6px]">
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Fast Doorstep Dispatch</span>
+                    <span>{config.subTitle}</span>
                   </div>
 
-                  <h3 className="text-xl font-bold">
-                    Doorstep Mobile Repair in {config.name}
-                  </h3>
-
-                  <p className="text-xs text-[#A0A0A0] leading-relaxed">
-                    Our verified technician arrives with diagnostic tools, OEM displays, and fresh battery packs directly to your home, gated community, or workplace.
-                  </p>
+                  <h2 className="text-xl font-bold">
+                    {config.name} Dispatch Summary
+                  </h2>
 
                   <div className="bg-[#1C1C1E] rounded-[10px] p-4 space-y-2 border border-[#2C2C2E] text-xs">
                     <div className="flex justify-between items-center text-[#CCCCCC]">
-                      <span>Store Hub</span>
-                      <span className="font-semibold text-white">Opp Friends Colony Bus Stop</span>
+                      <span>Dispatch Hub</span>
+                      <span className="font-semibold text-white">Shaikpet Main Rd</span>
                     </div>
                     <div className="flex justify-between items-center text-[#CCCCCC]">
-                      <span>Operating Hours</span>
-                      <span className="font-semibold text-amber-300">10:00 AM – 1:00 AM Daily</span>
+                      <span>Zone Distance</span>
+                      <span className="font-semibold text-white">{config.distanceFromStore}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[#CCCCCC]">
+                      <span>Expected ETA</span>
+                      <span className="font-semibold text-amber-300">{config.eta}</span>
                     </div>
                     <div className="flex justify-between items-center text-[#CCCCCC]">
                       <span>First Home Visit</span>
                       <span className="font-bold text-emerald-400">₹0 FREE</span>
-                    </div>
-                    <div className="flex justify-between items-center text-[#CCCCCC]">
-                      <span>Society Gate Pass</span>
-                      <span className="font-semibold text-[#CCCCCC]">Instant MyGate / NoBroker</span>
                     </div>
                   </div>
 
@@ -273,7 +245,7 @@ export default function NeighborhoodLandingTemplate({
                     href={bookingUrl}
                     className="w-full bg-[#F97316] hover:bg-[#EA580C] text-white font-bold py-3 px-4 rounded-[10px] text-xs sm:text-sm transition flex items-center justify-center gap-2 text-center shadow-xs"
                   >
-                    <span>Schedule Repair in {config.name} →</span>
+                    <span>Schedule {config.name} Slot →</span>
                   </Link>
                 </div>
               </div>
@@ -281,22 +253,104 @@ export default function NeighborhoodLandingTemplate({
           </div>
         </section>
 
-        {/* ================================================================= */}
-        {/* 2. POPULAR REPAIRS IN THIS NEIGHBORHOOD                           */}
-        {/* ================================================================= */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#EBEBEB] pb-3">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#121212]">
-                Most Requested Repairs in {config.name}
-              </h2>
-              <p className="text-xs text-[#767676]">
-                Completed on-site in 30–60 minutes or walk into our Shaikpet workshop.
+        {/* Hyperlocal Dispatch Corridor & Neighborhood Insights (Unique Non-Swappable Content) */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div className="lg:col-span-7 bg-white rounded-2xl border border-[#EBEBEB] p-6 space-y-3 shadow-card">
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#F97316]">
+                <Navigation className="w-3.5 h-3.5" />
+                <span>{config.dispatchCorridorTitle}</span>
+              </div>
+              <p className="text-xs sm:text-sm text-[#555555] leading-relaxed">
+                {config.dispatchCorridorCopy}
               </p>
+              <div className="pt-2 border-t border-[#EBEBEB]">
+                <h3 className="text-sm font-bold text-[#121212] mb-1">
+                  {config.localInsightsTitle}
+                </h3>
+                <p className="text-xs sm:text-sm text-[#555555] leading-relaxed">
+                  {config.localInsightsCopy}
+                </p>
+              </div>
             </div>
-            <span className="text-xs font-bold text-[#F97316] bg-[#FFF7ED] px-3 py-1 rounded-full border border-[#FFEDD5] self-start sm:self-auto">
-              Up to 6 Months Warranty
-            </span>
+
+            <div className="lg:col-span-5 bg-[#FFF7ED]/50 rounded-2xl border border-[#FFEDD5] p-6 flex flex-col justify-between space-y-4">
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#F97316] flex items-center gap-1.5">
+                    <Quote className="w-3.5 h-3.5" />
+                    <span>{config.name} Customer Note</span>
+                  </span>
+                  <div className="flex items-center gap-0.5 text-amber-500">
+                    {[...Array(5)].map((_, idx) => (
+                      <Star key={idx} className="w-3.5 h-3.5 fill-amber-500" />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-xs sm:text-sm text-[#121212] leading-relaxed italic">
+                  &ldquo;{config.localReview.quote}&rdquo;
+                </p>
+              </div>
+              <div className="pt-2 border-t border-[#FFEDD5] flex items-center justify-between text-xs">
+                <div>
+                  <span className="font-bold text-[#121212] block">{config.localReview.author}</span>
+                  <span className="text-[11px] text-[#767676]">{config.localReview.locality}</span>
+                </div>
+                <span className="text-[11px] font-semibold text-emerald-700 bg-white px-2.5 py-1 rounded-full border border-emerald-200">
+                  {config.localReview.device}
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Optional Embedded Workshop Map (for Store Hub page) */}
+        {config.showWorkshopMap && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 space-y-3 shadow-card">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-[#121212]">
+                    Walk-In Workshop Map — Opp Friends Colony Bus Stop
+                  </h2>
+                  <p className="text-xs text-[#767676]">
+                    {BUSINESS_INFO.address.formatted}
+                  </p>
+                </div>
+                <a
+                  href={BUSINESS_INFO.mapsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs font-bold text-[#F97316] hover:underline"
+                >
+                  Open Directions in Google Maps →
+                </a>
+              </div>
+              <div className="w-full h-64 rounded-xl overflow-hidden border border-[#EBEBEB]">
+                <iframe
+                  title="Famous Mobiles Shaikpet Main Road Puppalaguda Map"
+                  src={BUSINESS_INFO.mapsEmbedUrl}
+                  className="w-full h-full border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Popular Repairs */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#EBEBEB] pb-3">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#121212]">
+              Most Requested Repairs in {config.name}
+            </h2>
+            <Link
+              href="/services"
+              className="text-xs font-bold text-[#F97316] hover:underline self-start sm:self-auto"
+            >
+              View All 6 Repair Categories →
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -335,21 +389,11 @@ export default function NeighborhoodLandingTemplate({
           </div>
         </section>
 
-        {/* ================================================================= */}
-        {/* 3. LOCAL NEIGHBORHOOD FAQS                                        */}
-        {/* ================================================================= */}
+        {/* FAQs */}
         <section className="max-w-4xl mx-auto px-4 sm:px-6 space-y-4">
-          <div className="text-center space-y-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#F97316]">
-              Hyper-Local FAQs
-            </span>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#121212]">
-              Common Questions for {config.name}
-            </h2>
-            <p className="text-xs text-[#767676]">
-              Coverage, turnaround times, and late-night emergency repairs.
-            </p>
-          </div>
+          <h2 className="text-xl sm:text-2xl font-bold text-[#121212] text-center">
+            {config.name} Repair FAQs
+          </h2>
 
           <div className="space-y-3">
             {config.faqs.map((f, i) => (
@@ -369,26 +413,24 @@ export default function NeighborhoodLandingTemplate({
           </div>
         </section>
 
-        {/* ================================================================= */}
-        {/* 4. OTHER 6 KM NEIGHBORHOOD ZONES                                  */}
-        {/* ================================================================= */}
+        {/* Cross-Links */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="bg-white rounded-2xl p-6 sm:p-8 space-y-4 border border-[#EBEBEB] shadow-card">
+          <div className="bg-white rounded-2xl p-6 space-y-4 border border-[#EBEBEB] shadow-card">
             <h3 className="text-xs font-bold text-[#121212] uppercase tracking-wider">
-              Explore Our Other 6 km Doorstep Service Areas:
+              Nearby 6 km Service Zones
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
-              {ALL_NEIGHBORHOODS.map((nh, i) => (
+              {NEIGHBORHOOD_LINKS.map((nh, i) => (
                 <Link
                   key={i}
-                  href={nh.slug}
+                  href={nh.href}
                   className={`px-3 py-2.5 rounded-[10px] text-xs font-semibold border transition flex items-center justify-between ${
-                    nh.slug === `/${config.slug}`
+                    nh.href === `/${config.slug}`
                       ? "bg-[#121212] text-white border-[#121212]"
                       : "bg-[#F8F9FA] text-[#121212] border-[#EBEBEB] hover:border-[#F97316] hover:bg-[#FFF7ED]"
                   }`}
                 >
-                  <span>{nh.name}</span>
+                  <span>{nh.shortName}</span>
                   <ChevronRight className="w-3.5 h-3.5 opacity-60" />
                 </Link>
               ))}
