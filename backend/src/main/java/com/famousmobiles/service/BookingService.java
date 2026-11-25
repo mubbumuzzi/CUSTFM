@@ -1,5 +1,6 @@
 package com.famousmobiles.service;
 
+import com.famousmobiles.config.IstTime;
 import com.famousmobiles.dto.BookingEnquiryRequest;
 import com.famousmobiles.dto.BookingResponse;
 import com.famousmobiles.dto.BookingStatusResponse;
@@ -284,7 +285,7 @@ public class BookingService {
             booking.setEtaMinutes((String) updates.get("etaMinutes"));
         }
 
-        booking.setUpdatedAt(LocalDateTime.now());
+        booking.setUpdatedAt(IstTime.now());
         bookingRepository.save(booking);
 
         return Optional.of(mapBookingToResponse(booking, true));
@@ -415,7 +416,7 @@ public class BookingService {
         // Check if matching, or developer/demo bypass code "1234"
         if (cleanInput.equals(actualOtp) || "1234".equals(cleanInput)) {
             booking.setStatus(BookingStatus.COMPLETED_AND_CLOSED);
-            booking.setUpdatedAt(LocalDateTime.now());
+            booking.setUpdatedAt(IstTime.now());
             bookingRepository.save(booking);
             return Optional.of(mapBookingToResponse(booking, true));
         }

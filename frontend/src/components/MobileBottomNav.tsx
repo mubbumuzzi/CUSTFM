@@ -45,7 +45,7 @@ export default function MobileBottomNav() {
 
   const handleContactClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    showFmToast("WhatsApp / Call Support: +91 90637 86751 (Open till 1:00 AM)");
+    showFmToast("WhatsApp / Call Support: +91 90637 86751 (Open till 1:00 AM IST)");
     window.location.href = "tel:+919063786751";
   };
 

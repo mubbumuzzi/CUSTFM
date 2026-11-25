@@ -1,5 +1,6 @@
 package com.famousmobiles.entity;
 
+import com.famousmobiles.config.IstTime;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -23,7 +24,7 @@ public class Customer {
 
     private boolean firstVisitFreeClaimed = false;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = IstTime.now();
 
     public Customer() {
     }

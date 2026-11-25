@@ -1,5 +1,6 @@
 package com.famousmobiles.entity;
 
+import com.famousmobiles.config.IstTime;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -75,16 +76,16 @@ public class Booking {
     private String handshakeOtp;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = IstTime.now();
 
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt = IstTime.now();
 
     public Booking() {
     }
 
     @PreUpdate
     public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = IstTime.now();
     }
 
     // Getters and Setters

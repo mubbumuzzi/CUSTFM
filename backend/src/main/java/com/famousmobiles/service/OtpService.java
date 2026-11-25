@@ -1,5 +1,6 @@
 package com.famousmobiles.service;
 
+import com.famousmobiles.config.IstTime;
 import com.famousmobiles.dto.OtpSendResult;
 import com.famousmobiles.entity.Booking;
 import com.famousmobiles.entity.OtpToken;
@@ -54,7 +55,7 @@ public class OtpService {
         Optional<OtpToken> lastTokenOpt = otpTokenRepository.findTopByMobileNumberOrderByCreatedAtDesc(cleanMobile);
         if (lastTokenOpt.isPresent()) {
             OtpToken lastToken = lastTokenOpt.get();
-            long secondsSinceLast = Duration.between(lastToken.getCreatedAt(), LocalDateTime.now()).getSeconds();
+            long secondsSinceLast = Duration.between(lastToken.getCreatedAt(), IstTime.now()).getSeconds();
             if (secondsSinceLast < cooldownSeconds) {
                 int retryAfter = (int) (cooldownSeconds - secondsSinceLast);
                 log.warn("Rate limited OTP request for {}: cooldown active, retry in {}s", cleanMobile, retryAfter);
@@ -66,7 +67,7 @@ public class OtpService {
         }
 
         // 2. Check rate limit: Max OTP requests in a 15-minute sliding window (default 5)
-        LocalDateTime windowStart = LocalDateTime.now().minusMinutes(15);
+        LocalDateTime windowStart = IstTime.now().minusMinutes(15);
         long recentCount = otpTokenRepository.countByMobileNumberAndCreatedAtAfter(cleanMobile, windowStart);
         if (recentCount >= maxRequestsPer15Min) {
             log.warn("Rate limited OTP request for {}: exceeded {} requests in 15 mins", cleanMobile, maxRequestsPer15Min);
@@ -81,7 +82,7 @@ public class OtpService {
         String otpCode = String.valueOf(code);
 
         // 4. Persist OTP token with 10-minute expiry
-        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(10);
+        LocalDateTime expiresAt = IstTime.now().plusMinutes(10);
         OtpToken token = new OtpToken(cleanMobile, otpCode, expiresAt);
         otpTokenRepository.save(token);
 
@@ -127,7 +128,7 @@ public class OtpService {
         // 3. Database token verification (from Send OTP)
         Optional<OtpToken> tokenOpt = otpTokenRepository
                 .findTopByMobileNumberAndVerifiedFalseAndExpiresAtAfterOrderByCreatedAtDesc(
-                        mobileNumber, LocalDateTime.now());
+                        mobileNumber, IstTime.now());
 
         if (tokenOpt.isEmpty()) {
             return false;

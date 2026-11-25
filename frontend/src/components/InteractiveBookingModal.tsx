@@ -177,7 +177,7 @@ export default function InteractiveBookingModal() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Arrival Slot
+                  Arrival Slot (IST)
                 </label>
                 <select
                   value={arrivalSlot}

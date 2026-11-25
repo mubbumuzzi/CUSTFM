@@ -10,7 +10,7 @@ export const BUSINESS_INFO = {
   mapsUrl: "https://share.google/U0L5BeQxKW1dBHUbJ",
   mapsEmbedUrl:
     "https://maps.google.com/maps?q=Opp%20Friends%20Colony%20Bus%20Stop%2C%20Shaikpet%20Main%20Road%2C%20Puppalaguda%2C%20Manikonda%2C%20Hyderabad%20500089&t=&z=16&ie=UTF8&iwloc=&output=embed",
-  hoursDisplay: "10:00 AM – 1:00 AM",
+  hoursDisplay: "10:00 AM – 1:00 AM IST",
   priceRange: "₹₹",
   address: {
     streetAddress: "Opp Friends Colony Bus Stop, Shaikpet Main Road, Puppalaguda",
@@ -27,27 +27,60 @@ export const BUSINESS_INFO = {
   },
 } as const;
 
+export interface IstParts {
+  year: number;
+  hour: number;
+  minute: number;
+}
+
+export function getIstParts(now: Date = new Date()): IstParts {
+  // Convert UTC timestamp to IST (UTC+05:30 = +330 minutes) deterministically
+  const istTime = new Date(now.getTime() + 330 * 60_000);
+  return {
+    year: istTime.getUTCFullYear(),
+    hour: istTime.getUTCHours(),
+    minute: istTime.getUTCMinutes(),
+  };
+}
+
+export function getIstYear(now: Date = new Date()): number {
+  return getIstParts(now).year;
+}
+
+export function formatIstDateTime(input?: string | Date): string {
+  const d = input instanceof Date ? input : input ? new Date(input) : new Date();
+  if (Number.isNaN(d.getTime())) return "";
+  const formatted = new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(d);
+  return `${formatted} IST`;
+}
+
 export interface IstStoreStatus {
   isOpen: boolean;
   label: string;
 }
 
 export function getIstStoreStatus(now: Date = new Date()): IstStoreStatus {
-  // Convert UTC timestamp to IST (UTC+05:30 = +330 minutes) deterministically
-  const istTime = new Date(now.getTime() + 330 * 60_000);
-  const hour = istTime.getUTCHours(); // 0..23 in IST
+  const { hour } = getIstParts(now);
   const isOpen = hour >= 10 || hour < 1;
 
   if (isOpen) {
     return {
       isOpen: true,
-      label: "Open Now • Closes 1:00 AM",
+      label: "Open Now • Closes 1:00 AM IST",
     };
   }
 
   return {
     isOpen: false,
-    label: "Opens Today at 10:00 AM",
+    label: "Opens Today at 10:00 AM IST",
   };
 }
 

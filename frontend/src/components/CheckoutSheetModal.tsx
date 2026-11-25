@@ -328,7 +328,7 @@ export default function CheckoutSheetModal({
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#121212] flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-[#F97316]" />
-                  <span>Select Arrival Window</span>
+                  <span>Select Arrival Window (IST)</span>
                 </span>
                 <span className="text-[11px] font-semibold text-emerald-700">
                   Open {BUSINESS_INFO.hoursDisplay}

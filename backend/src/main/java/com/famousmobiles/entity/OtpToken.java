@@ -1,5 +1,6 @@
 package com.famousmobiles.entity;
 
+import com.famousmobiles.config.IstTime;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -26,7 +27,7 @@ public class OtpToken {
 
     private int attempts = 0;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = IstTime.now();
 
     public OtpToken() {
     }

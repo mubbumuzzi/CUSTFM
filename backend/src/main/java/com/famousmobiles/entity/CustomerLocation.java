@@ -1,5 +1,6 @@
 package com.famousmobiles.entity;
 
+import com.famousmobiles.config.IstTime;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -36,7 +37,7 @@ public class CustomerLocation {
     @Column(length = 255)
     private String userAgent;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = IstTime.now();
 
     public CustomerLocation() {}
 

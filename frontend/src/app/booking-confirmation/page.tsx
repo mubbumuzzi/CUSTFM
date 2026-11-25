@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Copy, Check, Package, MessageSquare, ArrowLeft, Clock, ShieldCheck } from "lucide-react";
+import { formatIstDateTime } from "@/lib/businessInfo";
 
 function BookingConfirmationContent() {
   const searchParams = useSearchParams();
@@ -151,6 +152,14 @@ function BookingConfirmationContent() {
                 {bookingData.technicianName ? bookingData.technicianName : "Assigning from Manikonda Hub..."}
               </span>
             </div>
+            {bookingData.timestamp && (
+              <div className="flex justify-between py-1 border-b border-[#F7F7F8]">
+                <span className="text-[#767676]">Booked Time</span>
+                <span className="font-semibold text-[#121212]">
+                  {formatIstDateTime(bookingData.timestamp)}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between py-1">
               <span className="text-[#767676]">First Visit Fee</span>
               <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-[6px] border border-emerald-200">

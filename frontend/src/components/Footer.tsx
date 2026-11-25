@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Phone, MessageSquare, MapPin, Clock, ShieldCheck, Heart, Mail } from "lucide-react";
-import { BUSINESS_INFO, NEIGHBORHOOD_LINKS } from "@/lib/businessInfo";
+import { BUSINESS_INFO, NEIGHBORHOOD_LINKS, getIstYear } from "@/lib/businessInfo";
 
 export default function Footer() {
   return (
@@ -154,7 +154,7 @@ export default function Footer() {
 
         {/* Bottom Credits */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-[#767676] gap-2 text-center sm:text-left">
-          <p>© {new Date().getFullYear()} {BUSINESS_INFO.name}. Verified smartphone service center in Manikonda, Hyderabad.</p>
+          <p>© {getIstYear()} {BUSINESS_INFO.name}. Verified smartphone service center in Manikonda, Hyderabad.</p>
           <p className="flex items-center gap-1 justify-center">
             <span>Precision repair at your doorstep</span>
             <Heart className="w-3 h-3 text-[#F97316] fill-[#F97316] inline" />
