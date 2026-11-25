@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   MapPin,
   Phone,
@@ -12,19 +12,22 @@ import {
   Navigation,
   RefreshCw,
   ExternalLink,
-  ShieldCheck,
   Star,
   Box,
   PhoneCall,
   XCircle,
   LogOut,
+  Smartphone,
+  Wrench,
 } from "lucide-react";
 import LocationModal from "./LocationModal";
-import AuthModal, { openAuthModal } from "./AuthModal";
+import AuthModal from "./AuthModal";
+import StoreStatusText from "./StoreStatusText";
 import { getStoredUserMobile, clearAuthSession } from "@/lib/api";
 import { detectGpsLocation, getStoredLocation, getEtaForDistance, GpsLocationData } from "@/lib/gps";
+import { searchDeviceModels, formatDeviceLabel, BrandKey } from "@/data/deviceCatalog";
+import { SERVICES_DATA } from "@/data/servicesData";
 import { openTrackModal } from "./TrackOrderModal";
-import { openBookingDrawer } from "./InteractiveBookingModal";
 import { showFmToast } from "./ToastBanner";
 
 interface HeaderProps {
@@ -33,7 +36,9 @@ interface HeaderProps {
 
 export default function Header({ onSearch }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [locality, setLocality] = useState<string>("Locating via GPS...");
   const [distance, setDistance] = useState<number | null>(null);
   const [isGps, setIsGps] = useState(false);
@@ -125,12 +130,7 @@ export default function Header({ onSearch }: HeaderProps) {
         {/* Sleek Urban Company Top Utility Bar (Hidden on Mobile to Maximize Screen Real Estate) */}
         <div className="hidden sm:block bg-[#121212] text-white text-[11px] font-medium py-1.5 px-4 sm:px-6">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span className="text-[#E0E0E0]">
-                Express Doorstep Repair <span className="text-white/40">•</span> Open Daily 10:00 AM – 1:00 AM
-              </span>
-            </div>
+            <StoreStatusText variant="dark-bar" />
             <div className="flex items-center gap-5 text-[#B0B0B0]">
               <a
                 href="tel:+919063786751"
@@ -385,40 +385,138 @@ export default function Header({ onSearch }: HeaderProps) {
             </div>
           </div>
 
-          {/* Clean Urban Company Interactive Search Input */}
-          <div className="relative flex items-center gap-2 bg-[#F7F7F8] rounded-[10px] border border-[#EBEBEB] px-3 py-2 transition focus-within:border-[#F97316] focus-within:bg-white">
-            <Search className="w-3.5 h-3.5 text-[#767676] shrink-0" />
-            <input
-              type="text"
-              id="serviceSearch"
-              value={searchVal}
-              onChange={(e) => {
-                const val = e.target.value;
-                setSearchVal(val);
-                if (onSearch) onSearch(val);
-                if (typeof window !== "undefined") {
-                  window.dispatchEvent(new CustomEvent("fm_search_query", { detail: val }));
-                }
-              }}
-              placeholder='Search "iPhone screen", "battery", "charging"...'
-              className="w-full bg-transparent text-xs font-normal text-[#121212] placeholder-[#767676] focus:outline-none pr-5"
-            />
-            {searchVal && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchVal("");
-                  if (onSearch) onSearch("");
+          {/* Smart Device & Service Search Input */}
+          <div className="relative">
+            <div className="relative flex items-center gap-2 bg-[#F7F7F8] rounded-[10px] border border-[#EBEBEB] px-3 py-2 transition focus-within:border-[#F97316] focus-within:bg-white">
+              <Search className="w-3.5 h-3.5 text-[#767676] shrink-0" />
+              <input
+                type="text"
+                id="serviceSearch"
+                value={searchVal}
+                onFocus={() => setIsSearchOpen(true)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSearchVal(val);
+                  setIsSearchOpen(true);
+                  if (onSearch) onSearch(val);
                   if (typeof window !== "undefined") {
-                    window.dispatchEvent(new CustomEvent("fm_search_query", { detail: "" }));
+                    window.dispatchEvent(new CustomEvent("fm_search_query", { detail: val }));
                   }
                 }}
-                className="absolute right-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
-                aria-label="Clear search"
-              >
-                <XCircle className="w-3.5 h-3.5" />
-              </button>
-            )}
+                placeholder='Search "iPhone 15", "battery", "screen"...'
+                className="w-full bg-transparent text-base md:text-xs font-normal text-[#121212] placeholder-[#767676] focus:outline-none pr-5"
+              />
+              {searchVal && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchVal("");
+                    setIsSearchOpen(false);
+                    if (onSearch) onSearch("");
+                    if (typeof window !== "undefined") {
+                      window.dispatchEvent(new CustomEvent("fm_search_query", { detail: "" }));
+                    }
+                  }}
+                  className="absolute right-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  aria-label="Clear search"
+                >
+                  <XCircle className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {isSearchOpen && searchVal.trim().length > 0 && (() => {
+              const q = searchVal.trim().toLowerCase();
+              const modelHits = searchDeviceModels(q, 5);
+              const serviceHits = SERVICES_DATA.filter(
+                (s) =>
+                  s.title.toLowerCase().includes(q) ||
+                  s.shortDesc.toLowerCase().includes(q) ||
+                  s.symptoms.some((sym) => sym.toLowerCase().includes(q))
+              ).slice(0, 4);
+
+              if (modelHits.length === 0 && serviceHits.length === 0) return null;
+
+              const handlePickDevice = (brandKey: BrandKey, modelName: string) => {
+                setIsSearchOpen(false);
+                setSearchVal("");
+                if (typeof window !== "undefined") {
+                  sessionStorage.setItem("fm_pending_device", JSON.stringify({ brandKey, model: modelName }));
+                  window.dispatchEvent(
+                    new CustomEvent("fm_select_device", { detail: { brandKey, model: modelName } })
+                  );
+                  window.dispatchEvent(new CustomEvent("fm_search_query", { detail: "" }));
+                }
+                showFmToast(`Selected ${formatDeviceLabel(brandKey, modelName, false)}`);
+                if (pathname === "/") {
+                  document.getElementById("services-section")?.scrollIntoView({ behavior: "smooth" });
+                } else {
+                  router.push("/#services-section");
+                }
+              };
+
+              const handlePickService = (slug: string) => {
+                setIsSearchOpen(false);
+                setSearchVal("");
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("fm_search_query", { detail: "" }));
+                  if (pathname === "/") {
+                    window.dispatchEvent(new CustomEvent("fm_select_category", { detail: slug }));
+                    document.getElementById("services-section")?.scrollIntoView({ behavior: "smooth" });
+                    return;
+                  }
+                }
+                router.push(`/services/${slug}`);
+              };
+
+              return (
+                <div className="absolute left-0 right-0 mt-1.5 bg-white border border-[#EBEBEB] rounded-xl shadow-xl z-50 max-h-72 overflow-y-auto divide-y divide-slate-100">
+                  {modelHits.length > 0 && (
+                    <div className="p-2 space-y-1">
+                      <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        Phone Models
+                      </p>
+                      {modelHits.map((hit) => (
+                        <button
+                          key={`${hit.brandKey}-${hit.model}`}
+                          type="button"
+                          onClick={() => handlePickDevice(hit.brandKey, hit.model)}
+                          className="w-full px-2.5 py-2 rounded-lg hover:bg-orange-50 flex items-center justify-between text-left transition cursor-pointer"
+                        >
+                          <span className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                            <Smartphone className="w-3.5 h-3.5 text-[#F97316] shrink-0" />
+                            <span>{formatDeviceLabel(hit.brandKey, hit.model, false)}</span>
+                          </span>
+                          <span className="text-[10.5px] font-semibold text-[#F97316]">Select</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {serviceHits.length > 0 && (
+                    <div className="p-2 space-y-1">
+                      <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        Repair Services
+                      </p>
+                      {serviceHits.map((srv) => (
+                        <button
+                          key={srv.slug}
+                          type="button"
+                          onClick={() => handlePickService(srv.slug)}
+                          className="w-full px-2.5 py-2 rounded-lg hover:bg-slate-50 flex items-center justify-between text-left transition cursor-pointer"
+                        >
+                          <span className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                            <Wrench className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                            <span>{srv.title}</span>
+                          </span>
+                          <span className="text-[10.5px] font-medium text-slate-500">{srv.turnaround}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </header>

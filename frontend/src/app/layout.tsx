@@ -7,6 +7,7 @@ import GoogleReviewsModal from "@/components/GoogleReviewsModal";
 import ToastBanner from "@/components/ToastBanner";
 import InteractiveBookingModal from "@/components/InteractiveBookingModal";
 import TrackOrderModal from "@/components/TrackOrderModal";
+import FloatingWhatsAppButton from "@/components/FloatingWhatsAppButton";
 import { BUSINESS_INFO, buildLocalBusinessJsonLd } from "@/lib/businessInfo";
 
 export const metadata: Metadata = {
@@ -84,6 +85,7 @@ export default function RootLayout({
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        <FloatingWhatsAppButton />
         <MobileBottomNav />
         <GoogleReviewsModal />
         <InteractiveBookingModal />

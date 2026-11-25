@@ -31,6 +31,10 @@ export default function MobileBottomNav() {
 
   const handleBookVisitClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (pathname === "/" && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("fm_open_split_checkout"));
+      return;
+    }
     openBookingDrawer("Express Doorstep Visit", "15–45 mins Arrival", "₹0 Inspection Fee");
   };
 

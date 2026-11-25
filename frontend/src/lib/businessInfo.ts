@@ -27,6 +27,30 @@ export const BUSINESS_INFO = {
   },
 } as const;
 
+export interface IstStoreStatus {
+  isOpen: boolean;
+  label: string;
+}
+
+export function getIstStoreStatus(now: Date = new Date()): IstStoreStatus {
+  // Convert UTC timestamp to IST (UTC+05:30 = +330 minutes) deterministically
+  const istTime = new Date(now.getTime() + 330 * 60_000);
+  const hour = istTime.getUTCHours(); // 0..23 in IST
+  const isOpen = hour >= 10 || hour < 1;
+
+  if (isOpen) {
+    return {
+      isOpen: true,
+      label: "Open Now • Closes 1:00 AM",
+    };
+  }
+
+  return {
+    isOpen: false,
+    label: "Opens Today at 10:00 AM",
+  };
+}
+
 export const NEIGHBORHOOD_LINKS = [
   {
     name: "Manikonda & Lanco Hills",
